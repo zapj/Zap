@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/zapj/zap/assist/conf"
 	"github.com/zapj/zap/assist/global"
+	"github.com/zapj/zap/core/daemon"
 	"net/http"
 	"os/signal"
 	"syscall"
@@ -16,10 +17,11 @@ import (
 func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
-
+	daemon.InitProcess()
 	router := gin.Default()
 	conf.RouterInit(router)
 	conf.LogInit()
+	conf.DbInit()
 
 	srv := &http.Server{
 		Addr:    ":2728",
