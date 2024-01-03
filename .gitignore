@@ -21,3 +21,8 @@
 go.work
 web/node_modules
 zaproot
+zap_assist
+zap_cli
+zapctl
+zap_server
+
