@@ -7,9 +7,9 @@ import (
 )
 
 func DbInit() {
-	db, err := gorm.Open(sqlite.Open("zap.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("data/zap.db"), &gorm.Config{})
 	if err != nil {
-
+		global.LOG.Error().Msg(err.Error())
 	}
 	global.DB = db
 }

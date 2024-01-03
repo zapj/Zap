@@ -1,10 +1,13 @@
 package daemon
 
 import (
-	"github.com/zapj/zap/assist/global"
+	"fmt"
 	"os"
 	"os/exec"
 	"syscall"
+	"time"
+
+	"github.com/zapj/zap/assist/global"
 )
 
 func InitProcess() {
@@ -15,7 +18,7 @@ func InitProcess() {
 		syscall.Umask(0)
 		return
 	}
-	global.LOG.Info("daemon start")
+	global.LOG.Info().Msg("daemon start")
 	fp, err := os.OpenFile("daemon.txt", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 	if err != nil {
 		panic(err)
@@ -33,8 +36,7 @@ func InitProcess() {
 		panic(err)
 	}
 
-	global.LOG.Info(fmt.Sprintf(
-		"[PID] %d Start At %s\n", cmd.Process.Pid, time.Now().Format("2006-01-02 15:04:05")))
+	global.LOG.Info().Msgf(fmt.Sprintf("[PID] %d Start At %s\n", cmd.Process.Pid, time.Now().Format("2006-01-02 15:04:05")))
 
 	os.Exit(0)
 }

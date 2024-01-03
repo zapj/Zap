@@ -1,5 +1,0 @@
-package daemon
-
-func InitProcess() {
-
-}

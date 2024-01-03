@@ -3,13 +3,14 @@ package main
 import (
 	"context"
 	"errors"
-	"github.com/zapj/zap/assist/conf"
-	"github.com/zapj/zap/assist/global"
-	"github.com/zapj/zap/core/daemon"
 	"net/http"
+	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/zapj/zap/assist/conf"
+	"github.com/zapj/zap/assist/global"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,11 +18,14 @@ import (
 func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
-	daemon.InitProcess()
+	// daemon.InitProcess()
 	router := gin.Default()
 	conf.RouterInit(router)
 	conf.LogInit()
 	conf.DbInit()
+
+	cur, _ := os.Getwd()
+	global.LOG.Info().Msg(cur)
 
 	srv := &http.Server{
 		Addr:    ":2728",
