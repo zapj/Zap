@@ -25,4 +25,6 @@ zap_assist
 zap_cli
 zapctl
 zap_server
+*.log
+*.pid
 
