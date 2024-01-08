@@ -1,11 +1,13 @@
 package conf
 
 import (
-	"github.com/rs/zerolog"
-	"github.com/zapj/zap/assist/global"
 	"os"
+
+	"github.com/sirupsen/logrus"
+	"github.com/zapj/zap/assist/global"
 )
 
 func LogInit() {
-	global.LOG = zerolog.New(os.Stderr).With().Timestamp().Logger()
+	global.LOG.SetOutput(os.Stderr)
+	global.LOG.SetFormatter(&logrus.TextFormatter{FullTimestamp: true})
 }

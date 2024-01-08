@@ -32,9 +32,9 @@ func main() {
 	// it won't block the graceful shutdown handling below
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			global.LOG.Error().Msgf("listen: %s\n", err)
+			global.LOG.Errorf("listen: %s\n", err)
 		} else {
-			global.LOG.Debug().Msgf("Listen Port : %s", ":2828")
+			global.LOG.Debugf("Listen Port : %s", ":2828")
 		}
 	}()
 

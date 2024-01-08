@@ -1,53 +1,56 @@
 package main
 
 import (
-	"context"
-	"errors"
-	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
-
+	"github.com/sevlyar/go-daemon"
 	"github.com/zapj/zap/assist/conf"
 	"github.com/zapj/zap/assist/global"
 
-	"github.com/gin-gonic/gin"
+	"flag"
+
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
 )
 
 func main() {
-	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
-	defer stop()
-	// daemon.InitProcess()
-	router := gin.Default()
-	conf.RouterInit(router)
 	conf.LogInit()
+	// using standard library "flag" package
+	flag.Bool("daemon", false, "daemon mode")
+	flag.Bool("debug", false, "debug mode")
+	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
+	pflag.Parse()
+	viper.BindPFlags(pflag.CommandLine)
+
+	Run_Daemon := viper.GetBool("daemon")
+	// Debug_Mode := viper.GetBool("debug")
+	global.LOG.Info("start daemon")
+	if Run_Daemon {
+		cntxt := &daemon.Context{
+			PidFileName: "zap.pid",
+			PidFilePerm: 0644,
+			LogFileName: "zap.log",
+			LogFilePerm: 0640,
+			WorkDir:     "./",
+			Umask:       027,
+			Args:        []string{},
+		}
+
+		d, err := cntxt.Reborn()
+		if err != nil {
+			global.LOG.Fatal("Unable to run: ", err)
+		}
+		if d != nil {
+			return
+		}
+		defer cntxt.Release()
+
+		global.LOG.Print("- - - - - - - - - - - - - - -")
+		global.LOG.Print("daemon started")
+	}
+
+	conf.InitEnv()
 	conf.DbInit()
 
-	cur, _ := os.Getwd()
-	global.LOG.Info().Msg(cur)
-
-	srv := &http.Server{
-		Addr:    ":2728",
-		Handler: router,
-	}
-
-	go func() {
-		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			global.LOG.Fatal().Msgf("listen: %s", err)
-		}
-	}()
-
-	<-ctx.Done()
-
-	stop()
-	global.LOG.Info().Msg("shutting down gracefully, press Ctrl+C again to force")
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	if err := srv.Shutdown(ctx); err != nil {
-		global.LOG.Fatal().Msgf("Server forced to shutdown: %s", err)
-	}
-	global.LOG.Info().Msg("Server exiting")
+	conf.RpcInit()
+	global.LOG.Info("Server exiting")
 
 }

@@ -1,0 +1,12 @@
+[Unit]
+Description=zapd
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+[Service]
+ExecStart=/path/to/executable
+Restart=on-failure
+RestartSec=1s
+
+[Install]
+WantedBy=multi-user.target

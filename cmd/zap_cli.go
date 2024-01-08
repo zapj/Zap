@@ -1,7 +1,7 @@
 package main
 
-import "log"
+import "github.com/zapj/zap/cmd/cli"
 
 func main() {
-	log.Println("Zap CLI v1.0.0")
+	cli.Execute()
 }
