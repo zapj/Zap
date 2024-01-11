@@ -2,7 +2,7 @@
   <div class="zap-overlay "></div>
     <el-aside width="200px" >
       <div class="font-bold color-green h-60px lh-60px text-center ">
-        <span>ZAP Admin</span>
+        <span>ZAP</span>
       </div>
 
     <el-menu
@@ -28,6 +28,12 @@
           <UserFilled/>
         </el-icon>
         <span>About</span>
+      </el-menu-item>
+      <el-menu-item index="/console">
+        <el-icon>
+          <UserFilled/>
+        </el-icon>
+        <span>Console</span>
       </el-menu-item>
       <el-sub-menu index="1">
         <template #title>

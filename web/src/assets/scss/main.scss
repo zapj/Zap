@@ -47,8 +47,8 @@ html,body{
   height: 100vh;
   transition: all 0.3s;
 }
-.el-main{
-
+.el-menu{
+  border-right: solid 1px #363636 !important;
 }
 .zap-content-scroll{
   overflow: hidden;

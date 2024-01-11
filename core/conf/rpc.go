@@ -6,12 +6,13 @@ import (
 	"net/http"
 	"net/rpc"
 
-	"github.com/zapj/zap/assist/global"
+	"github.com/zapj/zap/core/global"
 	"github.com/zapj/zap/core/zaprpc"
 )
 
 func RpcInit() {
 	rpc.RegisterName("Command", new(zaprpc.Command))
+	rpc.RegisterName("SystemUser", new(zaprpc.SystemUser))
 	rpc.HandleHTTP()
 	http.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
 		w.Write([]byte("RUNING"))

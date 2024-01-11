@@ -19,11 +19,14 @@ const router = createRouter({
       path: '/table',
       name: 'table',
       component: () => import('../views/TableView.vue')
+    },
+    {
+      path: '/console',
+      name: 'console',
+      component: () => import('../views/ConsoleView.vue')
     }
   ]
 })
-
-export default router
 router.beforeEach(async () => {
   NProgress.start()
 })
@@ -32,3 +35,4 @@ router.beforeEach(async () => {
 router.afterEach(() => {
   NProgress.done()
 })
+export default router

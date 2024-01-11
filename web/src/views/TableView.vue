@@ -12,7 +12,7 @@
     <el-table-column prop="address" label="Address" />
   </el-table>
   <hr/>
-  <el-table :data="tableData" border style="width: 100%">
+  <el-table :data="tableData"  style="width: 100%">
     <el-table-column prop="date" label="Date" width="180" />
     <el-table-column prop="name" label="Name" width="180" />
     <el-table-column prop="address" label="Address" />
@@ -27,7 +27,7 @@
     <el-table-column prop="zip" label="Zip" width="120" />
     <el-table-column fixed="right" label="Operations" width="120">
       <template #default>
-        <el-button link type="primary" size="small" @click="handleClick"
+        <el-button link type="primary" size="small" 
         >Detail</el-button
         >
         <el-button link type="primary" size="small">Edit</el-button>

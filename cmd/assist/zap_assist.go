@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/sevlyar/go-daemon"
-	"github.com/zapj/zap/assist/conf"
-	"github.com/zapj/zap/assist/global"
+	"github.com/zapj/zap/core/conf"
+	"github.com/zapj/zap/core/global"
 
 	"flag"
 
@@ -22,7 +22,6 @@ func main() {
 
 	Run_Daemon := viper.GetBool("daemon")
 	// Debug_Mode := viper.GetBool("debug")
-	global.LOG.Info("start daemon")
 	if Run_Daemon {
 		cntxt := &daemon.Context{
 			PidFileName: "zap.pid",
@@ -30,7 +29,7 @@ func main() {
 			LogFileName: "zap.log",
 			LogFilePerm: 0640,
 			WorkDir:     "./",
-			Umask:       027,
+			Umask:       022,
 			Args:        []string{},
 		}
 

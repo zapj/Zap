@@ -1,7 +1,7 @@
 package conf
 
 import (
-	"github.com/zapj/zap/assist/global"
+	"github.com/zapj/zap/core/global"
 	"gopkg.in/ini.v1"
 )
 

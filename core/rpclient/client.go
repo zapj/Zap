@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/rpc"
 
-	"github.com/zapj/zap/assist/global"
+	"github.com/zapj/zap/core/global"
 )
 
 type RpcClient struct {

@@ -10,6 +10,21 @@ import Inspect from 'vite-plugin-inspect'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  server:{
+    proxy:{
+      
+      "/ws":{
+            target:'http://127.0.0.1:2828',
+            changeOrigin:true,
+        },
+        "/api":{
+          target:'http://127.0.0.1:2828',
+          changeOrigin:true,
+      }
+    }
+
+ 
+  },
   plugins: [
     vue(),
     UnoCSS(),

@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/sirupsen/logrus"
-	"github.com/zapj/zap/assist/global"
+	"github.com/zapj/zap/core/global"
 )
 
 func LogInit() {

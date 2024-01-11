@@ -2,7 +2,7 @@ package conf
 
 import (
 	"github.com/glebarez/sqlite"
-	"github.com/zapj/zap/assist/global"
+	"github.com/zapj/zap/core/global"
 	"gorm.io/gorm"
 )
 
