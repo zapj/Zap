@@ -11,17 +11,7 @@ import FooterCopyright from "@/components/FooterCopyright.vue";
 
     <el-container>
 
-      <LeftSidebar ></LeftSidebar>
-      <el-container direction="vertical">
-        <Header></Header>
-        <el-scrollbar class="zap-content-scroll">
-          <el-main>
-            <RouterView></RouterView>
-          </el-main>
-          <FooterCopyright></FooterCopyright>
-        </el-scrollbar>
-
-      </el-container>
+      <RouterView></RouterView>
 
     </el-container>
 </template>
