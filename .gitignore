@@ -20,11 +20,8 @@
 # Go workspace file
 go.work
 web/node_modules
-zaproot
-zap_assist
-zap_cli
 zapctl
-zap_server
+zap_daemon
 *.log
 *.pid
 

@@ -41,6 +41,8 @@ func HandlerLocalWS(c *gin.Context) {
 	}
 
 	cmd := exec.Command("/bin/bash", "-l")
+	// cmd.SysProcAttr = &syscall.SysProcAttr{GidMappingsEnableSetgroups: true}
+	// cmd.SysProcAttr.Credential = &syscall.Credential{Uid: 1000, Gid: 1000, NoSetGroups: true}
 	//xterm-256color
 	//xterm
 	cmd.Env = append(os.Environ(), "TERM=xterm-256color")
@@ -51,6 +53,7 @@ func HandlerLocalWS(c *gin.Context) {
 		conn.WriteMessage(websocket.TextMessage, []byte(err.Error()))
 		return
 	}
+
 	defer func() {
 		cmd.Process.Kill()
 		cmd.Process.Wait()
