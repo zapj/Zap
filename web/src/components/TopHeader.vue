@@ -22,7 +22,7 @@
             <el-dropdown-item><el-icon><UserFilled /></el-icon>个人资料</el-dropdown-item>
             <el-dropdown-item>修改密码</el-dropdown-item>
             <el-dropdown-item disabled>Action 4</el-dropdown-item>
-            <el-dropdown-item divided><el-icon><SwitchButton /></el-icon>退出系统</el-dropdown-item>
+            <el-dropdown-item divided @click="logout"><el-icon><SwitchButton /></el-icon>退出系统</el-dropdown-item>
           </el-dropdown-menu>
         </template>
       </el-dropdown>
@@ -36,6 +36,7 @@
 <script setup>
 import {ArrowDown, Expand, Notification, SwitchButton, UserFilled} from "@element-plus/icons-vue";
 import {onMounted} from "vue";
+import router from "../router";
 // const leftMenuStore = useLeftMenuStore()
 
 onMounted(function(){
@@ -67,5 +68,31 @@ function ExpandMenu(){
   }
 
 }
+
+function logout(){
+  sessionStorage.clear()
+  router.replace({
+          path: '/login',
+          query: {
+            redirect: router.currentRoute.fullPath
+          }
+        })
+  // router.push("/login")
+    // serviceRequest({
+    //     url:"/logout",
+    //     method:"post",
+    // }).then((data)=>{
+    //     if(data.code === 0){
+    //       router.push("/login")
+    //     }else{
+    //         alert("logout error")
+    //     }
+    //     console.log(data);
+    // })
+  
+  
+}
+ 
+
 
 </script>

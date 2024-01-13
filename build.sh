@@ -11,6 +11,6 @@ go build -ldflags "-X main.BuildDate=`date +"%Y%m%d"` \
                    -X main.Version=`cat <./VERSION`"  cmd/deamon/zap_deamon.go
 
 if [ "$1" = "run" ];then
-    sudo ./zap_deamon
+    sudo ./zap_deamon server
 fi
 

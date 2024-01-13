@@ -12,8 +12,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
 	"github.com/zapj/zap/core/api"
+	"github.com/zapj/zap/core/conf"
 	"github.com/zapj/zap/core/global"
-	"github.com/zapj/zap/core/webterm"
 	"github.com/zapj/zap/web"
 )
 
@@ -27,6 +27,10 @@ var serverCmd = &cobra.Command{
 	Use:   "server",
 	Short: "启动ZAP服务",
 	Run: func(cmd *cobra.Command, args []string) {
+		conf.LogInit()
+		conf.DbInit()
+		conf.InitCrons()
+
 		router := gin.Default()
 		assetsFS, _ := fs.Sub(web.ASSETS_FS, "static/assets")
 
@@ -56,13 +60,8 @@ var serverCmd = &cobra.Command{
 
 			}()
 		})
-
-		v1 := router.Group("/api/v1")
-		{
-			api.RegisterRouter(v1)
-
-		}
-		router.GET("/ws", webterm.HandlerLocalWS)
+		api.RegisterRouter(router)
+		api.RegisterAPIV1Router(router.Group("/api/v1"))
 
 		srv := &http.Server{
 			Addr:    ":2828",

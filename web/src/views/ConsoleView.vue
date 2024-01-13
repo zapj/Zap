@@ -29,7 +29,7 @@ onMounted(()=>{
 			cursorBlink: true,
   });
   term.open(document.getElementById('terminal'));
-  const socket = new WebSocket('ws://127.0.0.1:2828/ws');
+  const socket = new WebSocket('ws://127.0.0.1:2828/api/ws');
   socket.binaryType = "arraybuffer";
 const attachAddon = new AttachAddon(socket);
 const fitAddon = new FitAddon();

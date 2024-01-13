@@ -35,6 +35,12 @@
         </el-icon>
         <span>Console</span>
       </el-menu-item>
+      <el-menu-item index="/charts">
+        <el-icon>
+          <UserFilled/>
+        </el-icon>
+        <span>Charts</span>
+      </el-menu-item>
       <el-sub-menu index="1">
         <template #title>
           <el-icon>

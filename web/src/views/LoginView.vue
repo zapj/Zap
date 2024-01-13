@@ -20,6 +20,9 @@
 <script setup>
 import { reactive } from 'vue'
 import { useRouter } from "vue-router";
+// import { useJWTStore } from '../stores/jwt';
+import serviceRequest from '../httpclient/client';
+// const jwtStore = useJWTStore();
 const router = useRouter();
 const form = reactive({
   name: '',
@@ -28,8 +31,25 @@ const form = reactive({
 })
 
 const onSubmit = () => {
-    localStorage.setItem('zap-token',form.name)
-    router.push("/dashboard");
+    serviceRequest({
+        url:"/login",
+        method:"post",
+        data:{
+            username:form.name,
+            password:form.password
+        }
+    }).then((data)=>{
+        if(data.code === 0 && data.access_token){
+            sessionStorage.setItem("access_token",data.access_token)
+            router.push("/dashboard");
+        }else{
+            alert("login error")
+        }
+        console.log(data);
+    })
+
+    
+    
 }
 
 </script>

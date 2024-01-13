@@ -1,0 +1,5 @@
+package crons
+
+func RegisterCrons() {
+
+}

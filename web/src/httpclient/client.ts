@@ -3,7 +3,7 @@ import axios from 'axios'
 
 import serverConfig from './config'
 
-// import { ElLoading, ElMessage } from 'element-plus'// 引入loading 
+import { ElLoading, ElMessage } from 'element-plus'// 引入loading 
 
 
 const serviceRequest = axios.create({
@@ -13,17 +13,17 @@ const serviceRequest = axios.create({
 	headers: {
 		// 设置后端需要的传参类型
 		'Content-Type': 'application/json',
-		// 'token': '',
+		// 'Authorization': 'Bearer ',
 		'X-Requested-With': 'XMLHttpRequest',
 	}
 })
 let loading: any;
 function start() {
-	// loading = ElLoading.service({
-	// 	lock: true,
-	// 	text: 'Loading',
-	// 	background: 'rgba(0, 0, 0, 0.7)',
-	// })
+	loading = ElLoading.service({
+		lock: true,
+		text: 'Loading',
+		background: 'rgba(0, 0, 0, 0.7)',
+	})
 }
 declare module 'axios' {
 	interface AxiosInstance {
@@ -37,11 +37,15 @@ serviceRequest.interceptors.request.use(
 	function (config:any) {
 		// 在发送请求之前做些什么
 		// if (config.url !== '/api/traceline/data' && config.url.indexOf('/api/file/list') == -1) {
-		// 	start();
+			start();
 		// }
 		// if (config.url == '/api/file/upload') {
 		// 	config.headers['Content-Type'] = 'multipart/form-data'
 		// }
+		const access_token = sessionStorage.getItem("access_token");
+		if(access_token){
+			config.headers['Authorization'] = 'Bearer ' + access_token;
+		}
 		return config
 	},
 	function (error) {

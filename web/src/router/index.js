@@ -1,7 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
+
 const Layout = () => import('@/layout/Layout.vue')
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -14,6 +16,7 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: Layout,
+      redirect:"/dashboard",
       meta:{
         "requiresAuth":true
       },
@@ -38,13 +41,19 @@ const router = createRouter({
           name: 'console',
           component: () => import('../views/ConsoleView.vue')
         }
+        ,
+        {
+          path: '/charts',
+          name: 'charts',
+          component: () => import('../views/ChartsView.vue')
+        }
       ]
     }
   ]
 })
 router.beforeEach((to, from, next) => {
-  const isLoggedIn = localStorage.getItem('zap-token')
-  if (to.meta.requiresAuth && !isLoggedIn) {
+  const access_token = sessionStorage.getItem('access_token')
+  if (to.meta.requiresAuth && !access_token ) {
     next('/login')
   } else {
     next()
@@ -52,7 +61,7 @@ router.beforeEach((to, from, next) => {
   NProgress.start()
 })
 
-// 页面加载成功之后，关闭进度条
+
 router.afterEach(() => {
   NProgress.done()
 })
