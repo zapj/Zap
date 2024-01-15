@@ -1,15 +1,18 @@
 package cmd
 
 import (
-	"errors"
-	"fmt"
+	"crypto/rand"
+	"crypto/tls"
 	"io/fs"
+	"log"
+	"net"
 	"net/http"
 	"os/exec"
 	"strings"
 	"syscall"
 
 	"github.com/gin-gonic/gin"
+	"github.com/soheilhy/cmux"
 	"github.com/spf13/cobra"
 	"github.com/zapj/zap/core/api"
 	"github.com/zapj/zap/core/conf"
@@ -28,6 +31,7 @@ var serverCmd = &cobra.Command{
 	Short: "启动ZAP服务",
 	Run: func(cmd *cobra.Command, args []string) {
 		conf.LogInit()
+		conf.InitEnv()
 		conf.DbInit()
 		conf.InitCrons()
 
@@ -63,22 +67,66 @@ var serverCmd = &cobra.Command{
 		api.RegisterRouter(router)
 		api.RegisterAPIV1Router(router.Group("/api/v1"))
 
-		srv := &http.Server{
-			Addr:    ":2828",
-			Handler: router,
-		}
+		// srv := &http.Server{
+		// 	// Addr:    ":2828",
+		// 	Handler: router,
+		// }
 
-		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			global.LOG.Errorf("listen: %s\n", err)
-		} else {
-			global.LOG.Debugf("Listen Port : %s", ":2828")
-		}
-		debugServ, _ := cmd.Flags().GetBool("debug")
-		if debugServ {
-			fmt.Println("debug")
-		}
+		// if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		// 	global.LOG.Errorf("listen: %s\n", err)
+		// } else {
+		// 	global.LOG.Debugf("Listen Port : %s", ":2828")
+		// }
+		// debugServ, _ := cmd.Flags().GetBool("debug")
+		// if debugServ {
+		// 	fmt.Println("debug")
+		// }
 		// if len(args) >= 1 && args[0] == "" {
 		// 	fmt.Println(args[0])
 		// }
+		l, err := net.Listen("tcp", ":2828")
+		if err != nil {
+			global.LOG.Panic(err)
+		}
+
+		m := cmux.New(l)
+
+		httpl := m.Match(cmux.HTTP1Fast())
+		tlsl := m.Match(cmux.Any())
+
+		go serveHTTP(httpl, router)
+		go serveHTTPS(tlsl, router)
+
+		if err := m.Serve(); !strings.Contains(err.Error(), "use of closed network connection") {
+			global.LOG.Panic(err)
+		}
 	},
+}
+
+func serveHTTP(l net.Listener, router *gin.Engine) {
+	s := &http.Server{
+		Handler: router,
+	}
+	if err := s.Serve(l); err != cmux.ErrListenerClosed {
+		panic(err)
+	}
+}
+
+func serveHTTPS(l net.Listener, router *gin.Engine) {
+	// Load certificates.
+	certificate, err := tls.LoadX509KeyPair("data/server.crt", "data/server.key")
+	if err != nil {
+		log.Panic(err)
+	}
+
+	config := &tls.Config{
+		Certificates: []tls.Certificate{certificate},
+		Rand:         rand.Reader,
+	}
+
+	// Create TLS listener.
+	tlsl := tls.NewListener(l, config)
+
+	// Serve HTTP over TLS.
+	serveHTTP(tlsl, router)
 }

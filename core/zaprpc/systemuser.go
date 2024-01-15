@@ -2,7 +2,7 @@ package zaprpc
 
 import (
 	"github.com/zapj/zap/core/global"
-	"github.com/zapj/zap/core/user"
+	"github.com/zapj/zap/core/sysapi/user"
 )
 
 type SystemUser struct {

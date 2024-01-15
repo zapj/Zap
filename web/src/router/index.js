@@ -8,23 +8,23 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path:'/login',
-      name:'login',
-      component:()=> import('../views/LoginView.vue')
+      path: '/login',
+      name: 'login',
+      component: () => import('../views/LoginView.vue')
     },
     {
       path: '/',
       name: 'home',
       component: Layout,
-      redirect:"/dashboard",
-      meta:{
-        "requiresAuth":true
+      redirect: '/dashboard',
+      meta: {
+        requiresAuth: true
       },
-      children:[
+      children: [
         {
           path: '/dashboard',
           name: 'dashboard',
-          component: ()=> import('../views/DashboardView.vue')
+          component: () => import('../views/DashboardView.vue')
         },
         {
           path: '/about',
@@ -40,8 +40,7 @@ const router = createRouter({
           path: '/console',
           name: 'console',
           component: () => import('../views/ConsoleView.vue')
-        }
-        ,
+        },
         {
           path: '/charts',
           name: 'charts',
@@ -53,14 +52,13 @@ const router = createRouter({
 })
 router.beforeEach((to, from, next) => {
   const access_token = sessionStorage.getItem('access_token')
-  if (to.meta.requiresAuth && !access_token ) {
+  if (to.meta.requiresAuth && !access_token) {
     next('/login')
   } else {
     next()
   }
   NProgress.start()
 })
-
 
 router.afterEach(() => {
   NProgress.done()

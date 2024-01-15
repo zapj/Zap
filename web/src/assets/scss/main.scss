@@ -1,14 +1,27 @@
 //@import 'element-plus/theme-chalk/index.css';
 
-html,body{
+html,
+body {
   padding: 0;
   margin: 0;
   overflow: hidden;
-}
+  background-color: #f5f5f5;
+  width: 100%;
+  height: 100%;
 
-#app{
-  background-color: #eeeeee;
-
+  font-family:
+    Helvetica Neue,
+    Helvetica,
+    PingFang SC,
+    Hiragino Sans GB,
+    Microsoft YaHei,
+    SimSun,
+    sans-serif;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  font-size: 1.2rem;
+  position: relative;
 }
 
 //header
@@ -21,7 +34,7 @@ html,body{
   height: 60px;
   line-height: 60px;
 }
-.zapLogo{
+.zapLogo {
   width: 200px;
   text-align: center;
   font-size: 1.2rem;
@@ -32,7 +45,7 @@ html,body{
 .el-header .el-link {
   margin-left: 10px;
 }
-.el-header .right-buttons{
+.el-header .right-buttons {
   margin-left: auto;
 }
 .el-header .el-dropdown {
@@ -40,17 +53,16 @@ html,body{
   line-height: 60px;
 }
 
-
 // el-aside
 .el-aside {
   background-color: #363636;
   height: 100vh;
   transition: all 0.3s;
 }
-.el-menu{
+.el-menu {
   border-right: solid 1px #363636 !important;
 }
-.zap-content-scroll{
+.zap-content-scroll {
   overflow: hidden;
   height: calc(100vh - 60px) !important;
 }
@@ -62,15 +74,15 @@ html,body{
 
 @media (max-width: 768px) {
   .el-header .zapLogo {
-      display: none;
+    display: none;
   }
-  .el-aside{
+  .el-aside {
     position: absolute;
     height: 100%;
     z-index: 1000;
     margin-left: -200px;
   }
-  .zap-overlay{
+  .zap-overlay {
     visibility: hidden;
     z-index: 999;
     background-color: var(--el-overlay-color-lighter);
@@ -80,9 +92,5 @@ html,body{
     bottom: 0;
     left: 0;
     height: 100%;
-
-
   }
-
 }
-

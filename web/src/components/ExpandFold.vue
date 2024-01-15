@@ -1,11 +1,7 @@
 <template>
   <div class="nav-header">
     <el-icon :size="30">
-      <component
-          class="fold-menu"
-          :is="iconName"
-          @click="handleFoldClick"
-      ></component>
+      <component class="fold-menu" :is="iconName" @click="handleFoldClick"></component>
     </el-icon>
   </div>
 </template>
@@ -36,7 +32,7 @@ export default defineComponent({
 })
 </script>
 
-<style scoped >
+<style scoped>
 .fold-menu {
   cursor: pointer;
 }

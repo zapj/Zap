@@ -1,6 +1,6 @@
 #!/bin/sh
 
-
+#-ldflags="-w -s -buildid="
 
 go build -ldflags "-X github.com/zapj/zap/cmd/zapctl/cmd.BuildDate=`date +"%Y%m%d"` \
                    -X github.com/zapj/zap/cmd/zapctl/cmd.BuildVersion=`git symbolic-ref -q --short HEAD`-`git rev-parse --short HEAD` \
@@ -13,4 +13,3 @@ go build -ldflags "-X main.BuildDate=`date +"%Y%m%d"` \
 if [ "$1" = "run" ];then
     sudo ./zap_deamon server
 fi
-

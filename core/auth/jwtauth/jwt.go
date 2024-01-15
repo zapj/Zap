@@ -12,11 +12,11 @@ import (
 var SigningKey = []byte("AllYourBase")
 var ErrJwtUnknownClaimsType = errors.New("unknown claims type, cannot proceed")
 
-func GenerateAccessToken() (string, error) {
+func GenerateAccessToken(id string) (string, error) {
 	claims := &jwt.RegisteredClaims{
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute * 10)),
 		Issuer:    "ZAP",
-		ID:        "",
+		ID:        id,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
