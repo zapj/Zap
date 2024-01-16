@@ -1,14 +1,18 @@
 <div align="center">
 <h1>ZAP</h1>
 </div>
----
+
 Linux 服务器/VPS管理系统 
----
+
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/zapj/Zap/go.yml)
 
+### 环境要求
+- Linux (CentOS 、 Ubunut 、Debian 、 AlmaLinux、RockyLinux 、RedHat) amd64
+- Windows Server ( 暂不支持 )
 
----
-![Downloads (all assets, all releases)](https://github.com/zapj/Zap/releases)
+### 使用说明
+
+[Downloads (all assets, all releases)](https://github.com/zapj/Zap/releases)
 
 ### Future
 
