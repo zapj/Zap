@@ -4,24 +4,12 @@
 
 if [ "$1" != "run" ]
 then
-    GO111MODULE=on CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-X github.com/zapj/zap/cmd/zapctl/cmd.BuildDate=`date +"%Y%m%d"` \
-                   -X github.com/zapj/zap/cmd/zapctl/cmd.BuildVersion=`git symbolic-ref -q --short HEAD`-`git rev-parse --short HEAD` \
-                   -X github.com/zapj/zap/cmd/zapctl/cmd.Version=`cat <./VERSION` \
-                   -w -s -buildid="  cmd/zapctl/zapctl.go
-    GO111MODULE=on CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-X main.BuildDate=`date +"%Y%m%d"` \
-                   -X main.BuildVersion=`git symbolic-ref -q --short HEAD`-`git rev-parse --short HEAD` \
-                   -X main.Version=`cat <./VERSION` \
-                   -w -s -buildid="  cmd/zapd/zapd.go
+    GO111MODULE=on CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build cmd/zapctl/zapctl.go
+    GO111MODULE=on CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build cmd/zapd/zapd.go
 else
-    go build -ldflags "-X github.com/zapj/zap/cmd/zapctl/cmd.BuildDate=`date +"%Y%m%d"` \
-                    -X github.com/zapj/zap/cmd/zapctl/cmd.BuildVersion=`git symbolic-ref -q --short HEAD`-`git rev-parse --short HEAD` \
-                    -X github.com/zapj/zap/cmd/zapctl/cmd.Version=`cat <./VERSION` \
-                    -w -s -buildid="  cmd/zapctl/zapctl.go
+    go build cmd/zapctl/zapctl.go
 
-    go build -ldflags "-X main.BuildDate=`date +"%Y%m%d"` \
-                    -X main.BuildVersion=`git symbolic-ref -q --short HEAD`-`git rev-parse --short HEAD` \
-                    -X main.Version=`cat <./VERSION` \
-                    -w -s -buildid="  cmd/zapd/zapd.go
+    go build cmd/zapd/zapd.go
 fi
 
 

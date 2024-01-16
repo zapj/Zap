@@ -4,6 +4,7 @@ StartLimitIntervalSec=300
 StartLimitBurst=5
 
 [Service]
+WorkingDirectory=/usr/local/zap
 ExecStart=/usr/local/zap/zapd server
 Restart=on-failure
 RestartSec=2s
