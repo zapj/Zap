@@ -4,8 +4,11 @@
 ---
 Linux 服务器/VPS管理系统 
 ---
-![AppVeyor Build (with branch)](https://img.shields.io/appveyor/build/zapj/Zap/main)
-![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/zapj/Zap/total)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/zapj/Zap/go.yml)
+
+
+---
+![Downloads (all assets, all releases)](https://github.com/zapj/Zap/releases)
 
 ### Future
 
