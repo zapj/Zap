@@ -7,6 +7,7 @@ import (
 
 func main() {
 	conf.LogInit()
+	conf.InitEnv()
 	conf.DbInit()
 	cmd.Execute()
 }

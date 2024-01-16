@@ -21,7 +21,7 @@
 go.work
 web/node_modules
 /zapctl
-/zap_daemon
+/zapd
 *.log
 *.pid
 /dist

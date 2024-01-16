@@ -24,15 +24,15 @@ import (
 func init() {
 
 	rootCmd.AddCommand(serverCmd)
-	serverCmd.Flags().BoolP("debug", "d", false, "启动debug")
+	serverCmd.Flags().BoolP("daemon", "d", false, "daemon mode")
 }
 
 var serverCmd = &cobra.Command{
 	Use:   "server",
 	Short: "启动ZAP服务",
 	Run: func(cmd *cobra.Command, args []string) {
-		debugServ, _ := cmd.Flags().GetBool("debug")
-		if debugServ {
+		daemonServ, _ := cmd.Flags().GetBool("daemon")
+		if daemonServ {
 			cntxt := &daemon.Context{
 				PidFileName: "zapd.pid",
 				PidFilePerm: 0644,
@@ -56,8 +56,12 @@ var serverCmd = &cobra.Command{
 		conf.InitEnv()
 		conf.DbInit()
 		conf.InitCrons()
-
+		gin.SetMode(gin.ReleaseMode)
+		if len(args) == 1 && args[0] == "debug" {
+			gin.SetMode(gin.DebugMode)
+		}
 		router := gin.Default()
+
 		assetsFS, _ := fs.Sub(web.ASSETS_FS, "static/assets")
 		router.StaticFS("/assets", http.FS(assetsFS))
 		router.GET("/", func(c *gin.Context) {
@@ -109,7 +113,7 @@ var serverCmd = &cobra.Command{
 		if err != nil {
 			global.LOG.Panic(err)
 		}
-
+		global.LOG.Println("listen and serve on https://0.0.0.0:2828")
 		m := cmux.New(l)
 
 		httpl := m.Match(cmux.HTTP1Fast())
