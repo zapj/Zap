@@ -25,6 +25,7 @@ type windowSize struct {
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
+	// Subprotocols:    []string{"token"},
 	CheckOrigin: func(r *http.Request) bool {
 		return true
 	},
@@ -34,12 +35,19 @@ func HandlerLocalWS(c *gin.Context) {
 	w := c.Writer
 	r := c.Request
 	l := log.WithField("remoteaddr", r.RemoteAddr)
-	conn, err := upgrader.Upgrade(w, r, nil)
+	h := http.Header{}
+	for _, access_token := range websocket.Subprotocols(r) {
+		h.Set("Sec-Websocket-Protocol", access_token)
+		break
+	}
+
+	conn, err := upgrader.Upgrade(w, r, h)
 	if err != nil {
 		l.WithError(err).Error("Unable to upgrade connection")
 		return
 	}
-
+	// conn.SetReadDeadline(time.Now().Add(time.Second * 10))
+	// conn.SetWriteDeadline(time.Now().Add(time.Second * 10))
 	cmd := exec.Command("/bin/bash", "-l")
 	// cmd.SysProcAttr = &syscall.SysProcAttr{GidMappingsEnableSetgroups: true}
 	// cmd.SysProcAttr.Credential = &syscall.Credential{Uid: 1000, Gid: 1000, NoSetGroups: true}

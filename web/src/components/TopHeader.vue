@@ -8,14 +8,15 @@
     <div class="right-buttons">
     
   <el-link :underline="false" @click="dialogVisible = true">Console</el-link>
-      <el-link :underline="false">Without Underline</el-link>
+      <el-link :underline="false" class="hidden-xs-only">Without Underline</el-link>
       <el-link :underline="false">
         <el-icon :size="20"><notification /></el-icon>
       </el-link>
       <el-dropdown>
         <el-link :underline="false">
-          <el-avatar src="assets/img/avatar.png" fit="cover" />
-          Account
+          <!-- <el-avatar src="assets/img/avatar.png" fit="cover" /> -->
+          <el-avatar :icon="UserFilled" />
+          <span class="hidden-xs-only">Account</span>
           <el-icon class="el-icon--right"><arrow-down /></el-icon>
         </el-link>
         <template #dropdown>

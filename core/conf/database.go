@@ -17,13 +17,15 @@ func DbInit() {
 	}
 	db.AutoMigrate(&models.ZapUsers{})
 	db.AutoMigrate(&models.LoadAvg{})
+	db.AutoMigrate(&models.ZapWebSite{})
+	db.AutoMigrate(&models.ZapDataBase{})
 
 	user := models.ZapUsers{}
 	result := db.First(&user)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		user.ID = 1
 		user.Username = "admin"
-		passwd, _ := bcrypt_util.HashPassword("123456")
+		passwd, _ := bcrypt_util.HashPassword("zapzap")
 		user.Password = passwd
 		user.Home = "/home/" + user.Username
 		user.Gid = 1000

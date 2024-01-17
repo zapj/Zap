@@ -40,4 +40,9 @@ type ZapUsers struct {
 
 	// Unused now.
 	Flags string
+
+	//空间大小 kb
+	DiskSpaceSize int
+	DataBaseCount int
+	DataBaseSize  int
 }

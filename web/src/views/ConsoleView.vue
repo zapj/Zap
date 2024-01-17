@@ -12,6 +12,7 @@ import { onMounted } from 'vue'
 import { Terminal } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'
 import { AttachAddon } from 'xterm-addon-attach'
+import { WebLinksAddon } from 'xterm-addon-web-links';
 import 'xterm/css/xterm.css'
 
 function ab2str(buf) {
@@ -29,15 +30,15 @@ onMounted(() => {
     wsProto = 'wss'
   }
   
-  const socket = new WebSocket(wsProto + '://'+location.host+'/api/ws')
-  socket.binaryType = 'arraybuffer'
+  const socket = new WebSocket(wsProto + '://'+location.host+'/api/v1/local/ws',[sessionStorage.getItem('access_token')])
+  // socket.binaryType = 'arraybuffer'
   const attachAddon = new AttachAddon(socket)
   const fitAddon = new FitAddon()
   term.loadAddon(fitAddon)
+  term.loadAddon(new WebLinksAddon())
   socket.onclose = function (event) {
-    console.log(event)
-    socket.write(
-      '\r\n\nconnection has been terminated from the server-side (hit refresh to restart)\n'
+    term.write(
+      '连接已关闭，请刷新重试\n'
     )
   }
 

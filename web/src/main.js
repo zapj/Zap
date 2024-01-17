@@ -1,5 +1,6 @@
 import './assets/scss/main.scss'
 import 'element-plus/dist/index.css'
+import 'element-plus/theme-chalk/display.css'
 import 'virtual:uno.css'
 // import 'virtual:unocss-devtools'
 import { createApp } from 'vue'

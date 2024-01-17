@@ -1,69 +1,20 @@
 <template>
-  
-  <el-row class="mb-3" :gutter="10">
-    <el-col :md="6" :sm="12">
-      <el-card shadow="hover">
-        <el-statistic :value="138">
-        <template #title>
-          <div style="display: inline-flex; align-items: center">
-            Ratio of men to women
-            <el-icon style="margin-left: 4px" :size="12">
-              <Male />
-            </el-icon>
-          </div>
-        </template>
-        <template #suffix>/100</template>
-      </el-statistic>
-      </el-card>
- 
-    </el-col>
-    <el-col :md="6" :sm="12">
-      <el-card shadow="hover">
-        <el-statistic :value="138">
-        <template #title>
-          <div style="display: inline-flex; align-items: center">
-            Ratio of men to women
-            <el-icon style="margin-left: 4px" :size="12">
-              <Male />
-            </el-icon>
-          </div>
-        </template>
-        <template #suffix>/100</template>
-      </el-statistic>
-      </el-card>
-      
-    </el-col>
-    <el-col :md="6" :sm="12">
-      <el-card shadow="hover">
-        <el-statistic :value="138">
-        <template #title>
-          <div style="display: inline-flex; align-items: center">
-            Ratio of men to women
-            <el-icon style="margin-left: 4px" :size="12">
-              <Male />
-            </el-icon>
-          </div>
-        </template>
-        <template #suffix>/100</template>
-      </el-statistic>
-      </el-card>
-    </el-col>
-    <el-col :md="6" :sm="12">
-      <el-card shadow="hover">
-        <el-statistic :value="138">
-        <template #title>
-          <div style="display: inline-flex; align-items: center">
-            Ratio of men to women
-            <el-icon style="margin-left: 4px" :size="12">
-              <Male />
-            </el-icon>
-          </div>
-        </template>
-        <template #suffix>/100</template>
-      </el-statistic>
-      </el-card>
-    </el-col>
-  </el-row>
+  <!-- <el-skeleton :animated="true">
+
+    <template  #default>
+      <SmallStatics></SmallStatics>
+    </template>
+  </el-skeleton> -->
+  <Suspense>
+    <template v-slot:default>
+      <SmallStatics></SmallStatics>
+    </template>
+
+    <template v-slot:fallback>
+      <el-skeleton :rows="4" animated translate="yes" />
+    </template>
+</Suspense>
+
 
   <el-row :gutter="20">
     <el-col :md="12" :sm="24">
@@ -91,7 +42,23 @@
   </el-row>
 </template>
 
-<style>
+
+<script setup lang="ts">
+import { ChatLineRound, Male,Monitor } from '@element-plus/icons-vue'
+import serviceRequest from '../httpclient/client'
+import {defineAsyncComponent} from 'vue'
+function testCon() {
+  serviceRequest({
+    url: '/v1/loadavg'
+  })
+}
+
+
+const SmallStatics = defineAsyncComponent(() => import('../components/dashboard/SmallStatistics.vue'))
+
+
+</script>
+<style scoped>
 .card-header {
   display: flex;
   justify-content: space-between;
@@ -105,13 +72,6 @@
 .item {
   margin-bottom: 18px;
 }
+
+
 </style>
-<script setup lang="ts">
-import { ChatLineRound, Male,Monitor } from '@element-plus/icons-vue'
-import serviceRequest from '../httpclient/client'
-function testCon() {
-  serviceRequest({
-    url: '/v1/loadavg'
-  })
-}
-</script>

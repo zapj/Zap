@@ -7,9 +7,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/shirou/gopsutil/v3/load"
-	"github.com/shirou/gopsutil/v3/mem"
+	"github.com/zapj/zap/core/api/dashboard"
 	"github.com/zapj/zap/core/auth/jwtauth"
+	"github.com/zapj/zap/core/global"
 	"github.com/zapj/zap/core/webterm"
 )
 
@@ -18,24 +18,19 @@ func RegisterRouter(router *gin.Engine) {
 	router.POST("/api/login", LoginAuthHandler)
 	router.POST("/api/logout", LogoutAuthHandler)
 
-	router.POST("/api/refresh_token", LoginAuthHandler)
-	router.GET("/api/ws", webterm.HandlerLocalWS)
+	// router.POST("/api/refresh_token", LoginAuthHandler)
 
 }
 
 // api v1
 func RegisterAPIV1Router(c *gin.RouterGroup) {
 	c.Use(jwtTokenCheck)
+	//websocket
+	c.GET("/local/ws", webterm.HandlerLocalWS)
+	c.GET("/statistics/dashboard", dashboard.DashBoardStats)
+	c.GET("/statistics/memory", dashboard.DashBoardStats)
+	c.GET("/statistics/network", MemoryUsageInfo)
 
-	c.GET("/meminfo", MemoryUsageInfo)
-	c.GET("/loadavg", func(c *gin.Context) {
-		st, _ := load.Avg()
-		c.String(200, "Loadavg  %s", st.String())
-	})
-	c.GET("/mem", func(c *gin.Context) {
-		v, _ := mem.VirtualMemory()
-		c.String(200, v.String())
-	})
 }
 
 func extractBearerToken(header string) (string, error) {
@@ -67,6 +62,11 @@ func parseToken(jwtToken string) (*jwt.Token, error) {
 }
 
 func jwtTokenCheck(c *gin.Context) {
+	// global.LOG.Println("REQ_URI", c.Request.RequestURI)
+	// if c.Request.RequestURI == "/api/v1/local/ws" {
+	// 	c.Next()
+	// 	return
+	// }
 	// jwtToken, err := c.Cookie("access_token")
 	// if err != nil {
 	jwtToken, err := extractBearerToken(c.GetHeader("Authorization"))
@@ -74,7 +74,13 @@ func jwtTokenCheck(c *gin.Context) {
 	// 	jwtToken, _ = c.Cookie("access_token")
 	// }
 	// }
+	if token := c.GetHeader("Sec-Websocket-Protocol"); token != "" {
+		global.LOG.Info("Sec-Websocket-Protocol", c.GetHeader("Sec-Websocket-Protocol"))
+		jwtToken = token
+		err = nil
+	}
 	if err != nil {
+		global.LOG.Info("StatusBadRequest", err.Error())
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"msg":  err.Error(),
 			"code": 1,
@@ -88,16 +94,30 @@ func jwtTokenCheck(c *gin.Context) {
 			"msg":  "bad jwt token",
 			"code": 1,
 		})
+		global.LOG.Info("bad jwt token")
 		return
 	}
 
-	_, OK := token.Claims.(jwt.MapClaims)
+	claims, OK := token.Claims.(jwt.MapClaims)
 	if !OK {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 			"msg":  "unable to parse claims",
 			"code": 1,
 		})
+		global.LOG.Info("unable to parse claims")
 		return
 	}
+	subject, err := claims.GetSubject()
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"msg":  "jwt invalid",
+			"code": 1,
+		})
+		global.LOG.Info("jwt invalid")
+		return
+	}
+	c.Set("JWT_SUBJECT", subject)
+	c.Set("JWT_TOKEN", jwtToken)
 	c.Next()
+	// global.LOG.Info("jwt success")
 }
