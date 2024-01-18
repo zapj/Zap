@@ -15,6 +15,7 @@
     "axios": "^1.6.5",
     "chart.js": "^4.4.1",
     "cookie": "^0.6.0",
+    "echarts": "^5.4.3",
     "element-plus": "^2.3.14",
     "nprogress": "^0.2.0",
     "pinia": "^2.1.6",

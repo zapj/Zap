@@ -1,5 +1,0 @@
-package crons
-
-func LoadAvgCronjob() {
-
-}

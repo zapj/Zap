@@ -10,8 +10,10 @@ import (
 	"os/exec"
 	"strings"
 	"syscall"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/patrickmn/go-cache"
 	"github.com/sevlyar/go-daemon"
 	"github.com/soheilhy/cmux"
 	"github.com/spf13/cobra"
@@ -52,6 +54,8 @@ var serverCmd = &cobra.Command{
 			}
 			defer cntxt.Release()
 		}
+		//初始化缓存
+		global.CACHE = cache.New(5*time.Minute, 10*time.Minute)
 		conf.LogInit()
 		conf.InitEnv()
 		conf.DbInit()

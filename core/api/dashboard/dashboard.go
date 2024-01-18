@@ -8,9 +8,11 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/gin-gonic/gin"
 	"github.com/shirou/gopsutil/v3/cpu"
+	"github.com/shirou/gopsutil/v3/disk"
 	"github.com/shirou/gopsutil/v3/host"
 	"github.com/shirou/gopsutil/v3/load"
 	"github.com/shirou/gopsutil/v3/mem"
+	"github.com/shirou/gopsutil/v3/net"
 	"github.com/zapj/zap/core/api/commons"
 	"github.com/zapj/zap/core/global"
 	"github.com/zapj/zap/core/utils/datahuman"
@@ -21,12 +23,30 @@ func DashBoardStats(c *gin.Context) {
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, commons.JSONError(1, "read memory error"))
 	}
-	swapmem, _ := mem.SwapMemory()
-	st, err := load.Avg()
+	swapmem, err := mem.SwapMemory()
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, commons.JSONError(1, "read memory error"))
 	}
-	hostInfo, _ := host.Info()
+	st, err := load.Avg()
+	if err != nil {
+		st = &load.AvgStat{Load1: 0, Load5: 0, Load15: 0}
+	}
+
+	var hostInfo *host.InfoStat
+	if hostInfoAny, ok := global.CACHE.Get("zap_host_info"); ok {
+		hostInfo, _ = hostInfoAny.(*host.InfoStat)
+	} else {
+		hostInfo, _ = host.Info()
+		global.CACHE.SetDefault("zap_host_info", hostInfo)
+	}
+
+	var diskUsage *disk.UsageStat
+	if diskUsageAny, ok := global.CACHE.Get("zap_disk_usage_root"); ok {
+		diskUsage, _ = diskUsageAny.(*disk.UsageStat)
+	} else {
+		diskUsage, _ = disk.Usage("/")
+		global.CACHE.SetDefault("zap_disk_usage_root", diskUsage)
+	}
 
 	// 计算CPU 使用率
 	//https://stackoverflow.com/questions/11356330/how-to-get-cpu-usage
@@ -35,16 +55,41 @@ func DashBoardStats(c *gin.Context) {
 	// global.LOG.Info("pec", (float64(memory.Total-memory.Available))/float64(memory.Total)*100.0)
 	// 2
 	//strconv.FormatFloat(memory.UsedPercent, 'f', 2, 64),
-	pCores, _ := cpu.Counts(false)
-	lCores, _ := cpu.Counts(true)
+	var pCores int = 0
+	if pCoresObj, ok := global.CACHE.Get("zap_cpu_p_core"); ok {
+		pCores, _ = pCoresObj.(int)
+	} else {
+		pCores, _ = cpu.Counts(false)
+		global.CACHE.SetDefault("zap_cpu_p_core", pCores)
+	}
+	var lCores int = 0
+	if lCoresObj, ok := global.CACHE.Get("zap_cpu_p_core"); ok {
+		lCores, _ = lCoresObj.(int)
+	} else {
+		lCores, _ = cpu.Counts(true)
+		global.CACHE.SetDefault("zap_cpu_l_core", lCores)
+	}
+
 	cpuTImeStat, _ := cpu.Times(false)
-	cpusInfo, _ := cpu.Info()
-	cpuInfo := cpusInfo[0]
+
+	var cpuInfo cpu.InfoStat
+	if cacheOBj, ok := global.CACHE.Get("zap_cpu_info"); ok {
+		cpuInfo, _ = cacheOBj.(cpu.InfoStat)
+	} else {
+		cpusInfo, _ := cpu.Info()
+		cpuInfo = cpusInfo[0]
+		global.CACHE.SetDefault("zap_cpu_info", cpuInfo)
+	}
+
+	// upTime := time.Now().Sub(time.Unix(int64(hostInfo.BootTime), 0))
+	// upTimeStr := fmt.Sprintf("时%d分%d秒%d",upTime.Seconds())
 	result := gin.H{"code": 0,
 		"msg":  "",
 		"user": "",
 		"user_stats": gin.H{
-			"websiteCount": 1,
+			"websiteCount":  1,
+			"databaseCount": 2,
+			"cronjobCount":  2,
 		},
 		"memory": gin.H{
 			"total":        humanize.IBytes(memory.Total),
@@ -74,8 +119,8 @@ func DashBoardStats(c *gin.Context) {
 		"host": gin.H{
 			"BootTime": hostInfo.BootTime,
 			"Hostname": hostInfo.Hostname,
-			// "uptime1":          hostInfo.Uptime,
-			"uptime":          humanize.Time(time.Unix(int64(hostInfo.BootTime), 0)),
+			"uptime":   humanize.Time(time.Unix(int64(hostInfo.BootTime), 0)),
+			// "uptime1":         time.Now().Sub(time.Unix(int64(hostInfo.BootTime), 0)).String(),
 			"Platform":        hostInfo.Platform,
 			"PlatformFamily":  hostInfo.PlatformFamily,
 			"PlatformVersion": hostInfo.PlatformVersion,
@@ -84,7 +129,24 @@ func DashBoardStats(c *gin.Context) {
 			"OS":              hostInfo.OS,
 			"Procs":           hostInfo.Procs,
 		},
+		"disk": gin.H{
+			"used_percent":        strconv.FormatFloat(diskUsage.UsedPercent, 'f', 2, 64),
+			"used":                humanize.Bytes(diskUsage.Used),
+			"total":               humanize.Bytes(diskUsage.Total),
+			"path":                diskUsage.Path,
+			"inodes_used_percent": strconv.FormatFloat(diskUsage.InodesUsedPercent, 'f', 2, 64),
+			"inodes_used":         humanize.Bytes(diskUsage.InodesUsed),
+			"inodes_total":        humanize.Bytes(diskUsage.InodesTotal),
+			"inodes_free":         humanize.Bytes(diskUsage.InodesFree),
+			"fstype":              diskUsage.Fstype,
+			"free":                humanize.Bytes(diskUsage.Free),
+		},
 	}
+	// disk.IOCounters()
+	// result["diskIOCounters"] =
+
+	netstat, _ := net.IOCounters(true)
+	result["netIOCounters"] = netstat
 
 	c.JSON(200, result)
 }

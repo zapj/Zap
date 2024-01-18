@@ -1,6 +1,7 @@
 package global
 
 import (
+	"github.com/patrickmn/go-cache"
 	"github.com/robfig/cron/v3"
 	"github.com/shirou/gopsutil/v3/cpu"
 	"github.com/sirupsen/logrus"
@@ -14,3 +15,5 @@ var CONFIG *ini.File
 var CRON *cron.Cron
 
 var CpuTimesStat cpu.TimesStat
+
+var CACHE *cache.Cache

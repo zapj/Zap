@@ -16,9 +16,11 @@ func DbInit() {
 		global.LOG.Error(err)
 	}
 	db.AutoMigrate(&models.ZapUsers{})
-	db.AutoMigrate(&models.LoadAvg{})
+	db.AutoMigrate(&models.ZapLoadAvg{})
 	db.AutoMigrate(&models.ZapWebSite{})
 	db.AutoMigrate(&models.ZapDataBase{})
+	db.AutoMigrate(&models.ZapDiskIOCounters{})
+	db.AutoMigrate(&models.ZapNetIOCounters{})
 
 	user := models.ZapUsers{}
 	result := db.First(&user)
