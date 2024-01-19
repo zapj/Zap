@@ -14,6 +14,7 @@ require (
 
 require (
 	github.com/creack/pty v1.1.21 // indirect
+	github.com/gin-contrib/gzip v0.0.6 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/golang-jwt/jwt/v5 v5.2.0 // indirect
 	github.com/gorilla/websocket v1.5.1 // indirect

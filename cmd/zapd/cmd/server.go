@@ -12,6 +12,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 	"github.com/patrickmn/go-cache"
 	"github.com/sevlyar/go-daemon"
@@ -65,7 +66,7 @@ var serverCmd = &cobra.Command{
 			gin.SetMode(gin.DebugMode)
 		}
 		router := gin.Default()
-
+		router.Use(gzip.Gzip(gzip.DefaultCompression, gzip.WithExcludedPaths([]string{"/api/"})))
 		assetsFS, _ := fs.Sub(web.ASSETS_FS, "static/assets")
 		router.StaticFS("/assets", http.FS(assetsFS))
 		router.GET("/", func(c *gin.Context) {

@@ -27,7 +27,7 @@
     </el-main>
   </el-container>
 </template>
-<script setup lang="ts">
+<script setup >
 import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import serviceRequest from '../httpclient/client'
