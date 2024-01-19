@@ -31,7 +31,7 @@
 import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import serviceRequest from '../httpclient/client'
-import { ElMessageBox,ElMessage } from 'element-plus'
+import { ElMessageBox, ElMessage } from 'element-plus'
 const router = useRouter()
 const form = reactive({
   name: '',
@@ -49,13 +49,12 @@ const onSubmit = () => {
   }).then((data) => {
     if (data.code === 0 && data.access_token) {
       sessionStorage.setItem('access_token', data.access_token)
- 
+
       ElMessage({
-      message: '登陆成功',
-      type: 'success',
-    })
+        message: '登陆成功',
+        type: 'success'
+      })
       router.push('/dashboard')
-    
     } else {
       ElMessageBox.alert(data.msg)
     }

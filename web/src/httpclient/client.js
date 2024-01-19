@@ -2,7 +2,7 @@ import axios from 'axios'
 
 import serverConfig from './config'
 import router from '../router'
-import { ElLoading, ElMessage } from 'element-plus' 
+import { ElLoading, ElMessage } from 'element-plus'
 
 const serviceRequest = axios.create({
   baseURL: serverConfig.baseURL, //请求后端数据的基本地址，自定义
@@ -26,12 +26,11 @@ function start() {
 // loading.close()
 // 添加请求拦截器
 serviceRequest.interceptors.request.use(
-  (config)=> {
-
+  (config) => {
     if (config.url != '/v1/statistics/dashboard') {
       start()
     }
-    
+
     // if (config.url == '/api/file/upload') {
     // 	config.headers['Content-Type'] = 'multipart/form-data'
     // }
@@ -49,25 +48,23 @@ serviceRequest.interceptors.request.use(
 // 添加响应拦截器
 serviceRequest.interceptors.response.use(
   function (response) {
-    
-    if (loading){
+    if (loading) {
       loading.close()
     }
     const dataAxios = response.data
 
-    if(dataAxios.code){
+    if (dataAxios.code) {
       ElMessage({
         type: 'error',
         message: dataAxios.msg
       })
-        Promise.reject(dataAxios)
+      Promise.reject(dataAxios)
     }
- 
+
     return dataAxios
-   
   },
   function (error) {
-    if (loading){
+    if (loading) {
       loading.close()
     }
 
@@ -126,7 +123,7 @@ serviceRequest.interceptors.response.use(
           type: 'error'
         })
     }
- 
+
     return Promise.reject(error)
   }
 )

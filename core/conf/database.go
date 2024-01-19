@@ -11,19 +11,24 @@ import (
 )
 
 func DbInit() {
-	db, err := gorm.Open(sqlite.Open("data/zap.db"), &gorm.Config{})
+	var err error
+	global.DB, err = gorm.Open(sqlite.Open("data/zap.db"), &gorm.Config{})
 	if err != nil {
 		global.LOG.Error(err)
 	}
-	db.AutoMigrate(&models.ZapUsers{})
-	db.AutoMigrate(&models.ZapLoadAvg{})
-	db.AutoMigrate(&models.ZapWebSite{})
-	db.AutoMigrate(&models.ZapDataBase{})
-	db.AutoMigrate(&models.ZapDiskIOCounters{})
-	db.AutoMigrate(&models.ZapNetIOCounters{})
+	global.StatisticsDB, err = gorm.Open(sqlite.Open("data/statistics.db"), &gorm.Config{})
+	if err != nil {
+		global.LOG.Error(err)
+	}
+	global.DB.AutoMigrate(&models.ZapUsers{})
+	global.DB.AutoMigrate(&models.ZapLoadAvg{})
+	global.DB.AutoMigrate(&models.ZapWebSite{})
+	global.DB.AutoMigrate(&models.ZapDataBase{})
+	global.DB.AutoMigrate(&models.ZapDiskIOCounters{})
+	global.DB.AutoMigrate(&models.ZapNetIOCounters{})
 
 	user := models.ZapUsers{}
-	result := db.First(&user)
+	result := global.DB.First(&user)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		user.ID = 1
 		user.Username = "admin"
@@ -33,7 +38,6 @@ func DbInit() {
 		user.Gid = 1000
 		user.Uid = 1000
 		user.Shell = "/usr/sbin/nologin"
-		db.Save(&user)
+		global.DB.Save(&user)
 	}
-	global.DB = db
 }

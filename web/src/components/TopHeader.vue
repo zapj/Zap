@@ -6,8 +6,7 @@
       </el-icon>
     </el-link>
     <div class="right-buttons">
-    
-  <el-link :underline="false" @click="dialogVisible = true">Console</el-link>
+      <el-link :underline="false" @click="dialogVisible = true">Console</el-link>
       <el-link :underline="false" class="hidden-xs-only">Without Underline</el-link>
       <el-link :underline="false">
         <el-icon :size="20"><notification /></el-icon>
@@ -36,16 +35,19 @@
     </div>
   </el-header>
 
-  
-
-  <el-dialog v-model="dialogVisible" title="Tips"  draggable :modal="false" append-to-body :close-on-click-modal="false">
+  <el-dialog
+    v-model="dialogVisible"
+    title="Tips"
+    draggable
+    :modal="false"
+    append-to-body
+    :close-on-click-modal="false"
+  >
     <span>It's a draggable Dialog</span>
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="dialogVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="dialogVisible = false">
-          Confirm
-        </el-button>
+        <el-button type="primary" @click="dialogVisible = false"> Confirm </el-button>
       </span>
     </template>
   </el-dialog>
@@ -53,7 +55,7 @@
 
 <script setup>
 import { ArrowDown, Expand, Notification, SwitchButton, UserFilled } from '@element-plus/icons-vue'
-import { ref,onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import router from '../router'
 // const leftMenuStore = useLeftMenuStore()
 const dialogVisible = ref(false)

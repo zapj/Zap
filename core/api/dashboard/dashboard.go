@@ -80,7 +80,15 @@ func DashBoardStats(c *gin.Context) {
 		cpuInfo = cpusInfo[0]
 		global.CACHE.SetDefault("zap_cpu_info", cpuInfo)
 	}
-
+	var netBytesRecv, netBytesSent, netBytesRecvTotal, netBytesSentTotal uint64 = 0, 0, 0, 0
+	netIOCounters, _ := net.IOCounters(false)
+	if global.NET_IO_COUNTERS != nil {
+		netBytesSent = (netIOCounters[0].BytesSent - global.NET_IO_COUNTERS[0].BytesSent) / 4
+		netBytesRecv = (netIOCounters[0].BytesRecv - global.NET_IO_COUNTERS[0].BytesRecv) / 4
+	}
+	netBytesRecvTotal = netIOCounters[0].BytesRecv
+	netBytesSentTotal = netIOCounters[0].BytesSent
+	global.NET_IO_COUNTERS = netIOCounters
 	// upTime := time.Now().Sub(time.Unix(int64(hostInfo.BootTime), 0))
 	// upTimeStr := fmt.Sprintf("时%d分%d秒%d",upTime.Seconds())
 	result := gin.H{"code": 0,
@@ -105,9 +113,10 @@ func DashBoardStats(c *gin.Context) {
 			"used_percent": strconv.FormatFloat(swapmem.UsedPercent, 'f', 2, 64),
 		},
 		"load_avg": gin.H{
-			"load1":  st.Load1,
-			"load5":  st.Load5,
-			"load15": st.Load15,
+			"load1":        st.Load1,
+			"load5":        st.Load5,
+			"load15":       st.Load15,
+			"system_load1": (st.Load1 / float64(cpuInfo.Cores)) * 100,
 		},
 		"cpu": gin.H{
 			"cpu_name":       cpuInfo.ModelName,
@@ -141,12 +150,16 @@ func DashBoardStats(c *gin.Context) {
 			"fstype":              diskUsage.Fstype,
 			"free":                humanize.Bytes(diskUsage.Free),
 		},
+		"netBytesSent":       netBytesSentTotal,
+		"netBytesRecv":       netBytesRecvTotal,
+		"netBytesSentPerSec": netBytesSent,
+		"netBytesRecvPerSec": netBytesRecv,
 	}
-	// disk.IOCounters()
-	// result["diskIOCounters"] =
+	diskStat, _ := disk.IOCounters()
+	result["diskIOCounters"] = diskStat
 
-	netstat, _ := net.IOCounters(true)
-	result["netIOCounters"] = netstat
+	// netstat, _ := net.IOCounters(false)
+	// result["netIOCounters"] = netstat
 
 	c.JSON(200, result)
 }
