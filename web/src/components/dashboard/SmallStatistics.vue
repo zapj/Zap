@@ -156,7 +156,7 @@
           <el-tag class="ml-2" type="success">{{ monitorTags.tag3 }}</el-tag>
           <el-tag class="ml-2" type="success">{{ monitorTags.tag4 }}</el-tag>
         </div>
-        <div id="zapcharts" style="height: 400px"></div>
+        <div id="zapcharts" style="height: 300px"></div>
       </el-card>
     </el-col>
   </el-row>
@@ -262,17 +262,15 @@ function refreshData() {
       statData.swapmem = data.swapmem
       statData.disk = data.disk
       reqDone.value = true
+      
+      //监控Tag
       monitorTags.tag1 = '已发送:' + formatBytes(data.netBytesSent, 2)
       monitorTags.tag2 = '已接收:' + formatBytes(data.netBytesRecv, 2)
       let [sendBytes, sendUnit] = fmtBytes(data.netBytesSentPerSec, 2)
       let [recvBytes, recvUnit] = fmtBytes(data.netBytesRecvPerSec, 2)
       monitorTags.tag3 = `下行：${sendBytes}${sendUnit}/秒`
       monitorTags.tag4 = `上行：${recvBytes}${recvUnit}/秒`
-      // chartTimeLine.value.push([new Date().toLocaleTimeString()])
-
-      // chartData.value.push(data.netIOCounters[0].bytesSent)
-      // chartData1.value.push(data.netIOCounters[0].bytesRecv)
-
+    
       var option = window.myChart.getOption()
       option.yAxis = [
       {

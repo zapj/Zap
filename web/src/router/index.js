@@ -10,7 +10,10 @@ const router = createRouter({
     {
       path: '/login',
       name: 'login',
-      component: () => import('../views/LoginView.vue')
+      component: () => import('../views/LoginView.vue'),
+      meta: {
+        requiresAuth: false
+      }
     },
     {
       path: '/',
@@ -45,7 +48,13 @@ const router = createRouter({
           path: '/charts',
           name: 'charts',
           component: () => import('../views/ChartsView.vue')
+        },
+        {
+          path: '/filemanager',
+          name: 'filemanager',
+          component: () => import('../views/filemanager/FileManager.vue')
         }
+        
       ]
     }
   ]

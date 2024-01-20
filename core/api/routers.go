@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/zapj/zap/core/api/dashboard"
+	"github.com/zapj/zap/core/api/filemanager"
 	"github.com/zapj/zap/core/auth/jwtauth"
 	"github.com/zapj/zap/core/global"
 	"github.com/zapj/zap/core/webterm"
@@ -30,6 +31,8 @@ func RegisterAPIV1Router(c *gin.RouterGroup) {
 	c.GET("/statistics/dashboard", dashboard.DashBoardStats)
 	c.GET("/statistics/memory", dashboard.DashBoardStats)
 	c.GET("/statistics/network", MemoryUsageInfo)
+
+	c.GET("/filemanager/list", filemanager.FileManager_List)
 
 }
 

@@ -26,9 +26,7 @@
             >
             <el-dropdown-item>修改密码</el-dropdown-item>
             <el-dropdown-item disabled>Action 4</el-dropdown-item>
-            <el-dropdown-item divided @click="logout"
-              ><el-icon><SwitchButton /></el-icon>退出系统</el-dropdown-item
-            >
+            <el-dropdown-item divided @click="logout"><el-icon><SwitchButton /></el-icon>退出系统</el-dropdown-item>
           </el-dropdown-menu>
         </template>
       </el-dropdown>

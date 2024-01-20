@@ -30,10 +30,12 @@ serviceRequest.interceptors.request.use(
     if (config.url != '/v1/statistics/dashboard') {
       start()
     }
-
-    // if (config.url == '/api/file/upload') {
-    // 	config.headers['Content-Type'] = 'multipart/form-data'
-    // }
+    if(config.dataType == 'classics'){
+      config.headers['Content-Type'] = 'application/x-www-form-urlencoded'
+    } else if(config.dataType == 'upload'){
+      config.headers['Content-Type'] = 'multipart/form-data'
+    }
+   
     const access_token = sessionStorage.getItem('access_token')
     if (access_token) {
       config.headers['Authorization'] = 'Bearer ' + access_token
@@ -58,7 +60,7 @@ serviceRequest.interceptors.response.use(
         type: 'error',
         message: dataAxios.msg
       })
-      Promise.reject(dataAxios)
+      // Promise.reject(dataAxios)
     }
 
     return dataAxios

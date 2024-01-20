@@ -29,6 +29,12 @@ var userCmd = &cobra.Command{
 			} else {
 				global.LOG.Println("zapctl user passwd [username] [password]")
 			}
+		case "check":
+			if len(args) == 3 {
+				checkPassword(args[1], args[2])
+			} else {
+				global.LOG.Println("zapctl user check [username] [password]")
+			}
 		default:
 			global.LOG.Printf("不支持该参数 %s", args[0])
 		}
@@ -62,4 +68,19 @@ func changePassword(username, password string) {
 	user.Password = passwd
 	global.DB.Save(&user)
 	fmt.Printf("%s 密码修改成功\n", username)
+}
+
+func checkPassword(username, password string) {
+	user := models.ZapUsers{}
+	err := global.DB.Where("username = ?", username).First(&user).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		fmt.Printf("%s 用户不存在\n", username)
+		return
+	}
+	if bcrypt_util.CheckPasswordHash(password, user.Password) {
+		fmt.Println("密码正确")
+	} else {
+		fmt.Println("密码错误")
+	}
+
 }
