@@ -30,7 +30,7 @@ serviceRequest.interceptors.request.use(
     if (config.url != '/v1/statistics/dashboard') {
       start()
     }
-    if(config.dataType == 'classics'){
+    if(config.dataType == 'form'){
       config.headers['Content-Type'] = 'application/x-www-form-urlencoded'
     } else if(config.dataType == 'upload'){
       config.headers['Content-Type'] = 'multipart/form-data'

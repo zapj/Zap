@@ -29,10 +29,10 @@ func RegisterAPIV1Router(c *gin.RouterGroup) {
 	//websocket
 	c.GET("/local/ws", webterm.HandlerLocalWS)
 	c.GET("/statistics/dashboard", dashboard.DashBoardStats)
-	c.GET("/statistics/memory", dashboard.DashBoardStats)
-	c.GET("/statistics/network", MemoryUsageInfo)
+	// c.GET("/statistics/memory", dashboard.DashBoardStats)
+	// c.GET("/statistics/network", MemoryUsageInfo)
 
-	c.GET("/filemanager/list", filemanager.FileManager_List)
+	c.POST("/filemanager/list", filemanager.FileManager_List)
 
 }
 

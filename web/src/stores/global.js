@@ -4,8 +4,8 @@ import { defineStore } from 'pinia'
 export const useGlobalStore = defineStore(
   'global_s',
   () => {
-    
-    return {  }
+    const lastFilePath = ref('')
+    return { lastFilePath }
   },
   {
     persist: true

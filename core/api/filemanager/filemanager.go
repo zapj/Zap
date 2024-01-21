@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"path/filepath"
 	"syscall"
 
 	"github.com/dustin/go-humanize"
@@ -13,7 +14,10 @@ import (
 )
 
 func FileManager_List(c *gin.Context) {
-	basePath := "/"
+	basePath := filepath.Clean(c.PostForm("path"))
+	if basePath == "" {
+		basePath = "/"
+	}
 	dirFs, err := os.ReadDir(basePath)
 	if err != nil {
 		global.LOG.Info(err)
