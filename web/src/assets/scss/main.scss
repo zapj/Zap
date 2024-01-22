@@ -99,3 +99,16 @@ body {
     height: 100%;
   }
 }
+
+
+//te-window
+.te-window {
+  .el-dialog__header,
+  .el-dialog__body,
+  .el-dialog__footer {
+    pointer-events: auto !important;
+  }
+}
+:has(> .el-overlay-dialog .te-window) {
+  pointer-events: none !important;
+}

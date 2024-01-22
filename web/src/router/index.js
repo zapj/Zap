@@ -35,9 +35,9 @@ const router = createRouter({
           component: () => import('../views/AboutView.vue')
         },
         {
-          path: '/table',
-          name: 'table',
-          component: () => import('../views/TableView.vue')
+          path: '/sites',
+          name: 'sites',
+          component: () => import('../views/sites/Sites.vue')
         },
         {
           path: '/console',
@@ -53,6 +53,16 @@ const router = createRouter({
           path: '/filemanager',
           name: 'filemanager',
           component: () => import('../views/filemanager/FileManager.vue')
+        },
+        {
+          path: '/server/tools',
+          name: 'server_tools',
+          component: () => import('../views/server/ToolsView.vue')
+        },
+        {
+          path: '/server/appstore',
+          name: 'server_appstore',
+          component: () => import('../views/server/AppStoreView.vue')
         }
         
       ]

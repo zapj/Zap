@@ -30,7 +30,7 @@
 <script setup >
 import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import serviceRequest from '../httpclient/client'
+import apiRequest from '../httpclient/client'
 import { ElMessageBox, ElMessage } from 'element-plus'
 const router = useRouter()
 const form = reactive({
@@ -58,7 +58,7 @@ const onSubmit = (formEl) => {
 }
 
 const login = ()=>{
-  serviceRequest({
+  apiRequest({
     url: '/login',
     method: 'post',
     data: {

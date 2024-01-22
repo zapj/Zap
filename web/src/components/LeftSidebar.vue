@@ -4,21 +4,21 @@
     <div class="font-bold color-green h-60px lh-60px text-center">
       <span>ZAP</span>
     </div>
-
-    <el-menu :default-active="route.path" background-color="#363636" text-color="#fff" router>
+<!-- :collapse="true" -->
+    <el-menu :default-active="route.path" background-color="#363636" text-color="#fff" router >
       <el-menu-item index="/">
-        <Icon icon="ic:round-dashboard" style="font-size: 18px"  class="mr-1"  />
+        <Icon icon="ic:round-dashboard" style="font-size: 24px"  class="mr-1"  />
         <span>控制面板</span>
 
 
       </el-menu-item>
-      <el-menu-item index="/table">
-        <Icon icon="mingcute:web-line" style="font-size: 18px"  class="mr-1"  />
+      <el-menu-item index="/sites">
+        <Icon icon="mingcute:web-line" style="font-size: 24px"  class="mr-1"  />
         <span>网站</span>
       </el-menu-item>
       <el-menu-item index="/filemanager">
-        <Icon icon="clarity:directory-line" style="font-size: 18px" class="mr-1"  />
-        <span>文件</span>
+        <Icon icon="clarity:directory-line" style="font-size: 24px" class="mr-1"  />
+        <template #title>文件</template>
       </el-menu-item>
       <!-- <el-menu-item index="/about">
         <el-icon>
@@ -27,8 +27,8 @@
         <span>About</span>
       </el-menu-item> -->
       <el-menu-item index="/console">
-        <Icon icon="mdi:terminal" style="font-size: 18px" class="mr-1" :inline="true" />
-        <span>终端</span>
+        <Icon icon="mdi:terminal" style="font-size: 24px" class="mr-1" :inline="true" />
+        <template #title>终端</template>
       </el-menu-item>
       <!-- <el-menu-item index="/charts">
         <el-icon>
@@ -38,19 +38,19 @@
       </el-menu-item> -->
       <el-sub-menu index="1">
         <template #title>
-          <Icon icon="mdi:server-outline" style="font-size: 18px" class="mr-1"  />
+          <Icon icon="mdi:server-outline" style="font-size: 24px" class="mr-1"  />
           <span>服务器</span>
         </template>
-        <el-menu-item index="/system/monitor">系统监视器</el-menu-item>
-        <el-menu-item index="/system/software">软件管理</el-menu-item>
-        <el-menu-item index="/system/configuration">服务器配置</el-menu-item>
-        <el-menu-item index="/system/security_center">安全中心</el-menu-item>
+        <el-menu-item index="/server/tools">系统工具</el-menu-item>
+        <el-menu-item index="/server/appstore">应用商店</el-menu-item>
+        <el-menu-item index="/server/configuration">服务器配置</el-menu-item>
+        <el-menu-item index="/server/security_center">安全中心</el-menu-item>
       </el-sub-menu>
       
       
       <el-menu-item @click="logout">
-        <Icon icon="fe:logout" style="font-size: 18px" />
-        <span>退出系统</span>
+        <Icon icon="fe:logout" style="font-size: 24px" />
+        <template #title>退出系统</template>
       </el-menu-item>
     </el-menu>
   </el-aside>
@@ -74,7 +74,7 @@ function logout() {
     }
   })
   // router.push("/login")
-  // serviceRequest({
+  // apiRequest({
   //     url:"/logout",
   //     method:"post",
   // }).then((data)=>{

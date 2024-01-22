@@ -4,10 +4,11 @@ import serverConfig from './config'
 import router from '../router'
 import { ElLoading, ElMessage } from 'element-plus'
 
-const serviceRequest = axios.create({
+const apiRequest = axios.create({
   baseURL: serverConfig.baseURL, //请求后端数据的基本地址，自定义
   timeout: 200000, //请求超时设置，单位ms
   withCredentials: true, // 异步请求携带cookie
+  loading:true,
   headers: {
     'Content-Type': 'application/json',
     // 'Authorization': 'Bearer ',
@@ -25,9 +26,9 @@ function start() {
 
 // loading.close()
 // 添加请求拦截器
-serviceRequest.interceptors.request.use(
+apiRequest.interceptors.request.use(
   (config) => {
-    if (config.url != '/v1/statistics/dashboard') {
+    if (config.url != '/v1/statistics/dashboard' && config.loading === true) {
       start()
     }
     if(config.dataType == 'form'){
@@ -48,7 +49,7 @@ serviceRequest.interceptors.request.use(
 )
 
 // 添加响应拦截器
-serviceRequest.interceptors.response.use(
+apiRequest.interceptors.response.use(
   function (response) {
     if (loading) {
       loading.close()
@@ -130,4 +131,4 @@ serviceRequest.interceptors.response.use(
   }
 )
 
-export default serviceRequest
+export default apiRequest

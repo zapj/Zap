@@ -40,6 +40,7 @@
     :modal="false"
     append-to-body
     :close-on-click-modal="false"
+    class="te-window"
   >
     <span>It's a draggable Dialog</span>
     <template #footer>
@@ -86,24 +87,24 @@ function ExpandMenu() {
 }
 
 function logout() {
-  sessionStorage.clear()
-  router.replace({
-    path: '/login',
-    query: {
-      redirect: router.currentRoute.fullPath
-    }
-  })
-  // router.push("/login")
-  // serviceRequest({
-  //     url:"/logout",
-  //     method:"post",
-  // }).then((data)=>{
-  //     if(data.code === 0){
-  //       router.push("/login")
-  //     }else{
-  //         alert("logout error")
-  //     }
-  //     console.log(data);
-  // })
+sessionStorage.removeItem('access_token')
+router.replace({
+  path: '/login',
+  query: {
+    redirect: router.currentRoute.fullPath
+  }
+})
+// router.push("/login")
+// apiRequest({
+//     url:"/logout",
+//     method:"post",
+// }).then((data)=>{
+//     if(data.code === 0){
+//       router.push("/login")
+//     }else{
+//         alert("logout error")
+//     }
+//     console.log(data);
+// })
 }
 </script>

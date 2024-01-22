@@ -191,7 +191,7 @@ echarts.use([
 import { formatBytes, fmtBytes } from '@/commons/commons'
 import { computed, onMounted, onUnmounted, reactive } from 'vue'
 import { Icon } from '@iconify/vue'
-import serviceRequest from '@/httpclient/client'
+import apiRequest from '@/httpclient/client'
 const reqDone = ref(true)
 const switchTrafficDisk = ref('流量')
 const monitorTags = reactive({
@@ -251,7 +251,7 @@ const resizeChart = () => {
 //刷新统计数据
 function refreshData() {
   reqDone.value = false
-  serviceRequest({
+  apiRequest({
     url: '/v1/statistics/dashboard'
   })
     .then((data) => {
