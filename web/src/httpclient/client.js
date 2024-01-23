@@ -8,7 +8,7 @@ const apiRequest = axios.create({
   baseURL: serverConfig.baseURL, //请求后端数据的基本地址，自定义
   timeout: 200000, //请求超时设置，单位ms
   withCredentials: true, // 异步请求携带cookie
-  loading:true,
+  loading: true,
   headers: {
     'Content-Type': 'application/json',
     // 'Authorization': 'Bearer ',
@@ -31,12 +31,12 @@ apiRequest.interceptors.request.use(
     if (config.url != '/v1/statistics/dashboard' && config.loading === true) {
       start()
     }
-    if(config.dataType == 'form'){
+    if (config.dataType == 'form') {
       config.headers['Content-Type'] = 'application/x-www-form-urlencoded'
-    } else if(config.dataType == 'upload'){
+    } else if (config.dataType == 'upload') {
       config.headers['Content-Type'] = 'multipart/form-data'
     }
-   
+
     const access_token = sessionStorage.getItem('access_token')
     if (access_token) {
       config.headers['Authorization'] = 'Bearer ' + access_token

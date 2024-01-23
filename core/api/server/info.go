@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -12,6 +13,7 @@ import (
 	"github.com/shirou/gopsutil/v3/host"
 	"github.com/shirou/gopsutil/v3/load"
 	"github.com/shirou/gopsutil/v3/mem"
+	"github.com/shirou/gopsutil/v3/net"
 	"github.com/shirou/gopsutil/v3/process"
 	"github.com/zapj/zap/core/api/commons"
 	datautils "github.com/zapj/zap/core/utils/data_utils"
@@ -126,4 +128,13 @@ func ServerProcessList(c *gin.Context) {
 
 	}
 	c.JSON(200, gin.H{"code": 0, "msg": "", "data": procList})
+}
+
+func ServerNetInterfaces(c *gin.Context) {
+	netinterfaceList, err := net.Interfaces()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	c.JSON(200, gin.H{"code": 0, "msg": "", "data": netinterfaceList})
 }

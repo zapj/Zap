@@ -262,7 +262,7 @@ function refreshData() {
       statData.swapmem = data.swapmem
       statData.disk = data.disk
       reqDone.value = true
-      
+
       //监控Tag
       monitorTags.tag1 = '已发送:' + formatBytes(data.netBytesSent, 2)
       monitorTags.tag2 = '已接收:' + formatBytes(data.netBytesRecv, 2)
@@ -270,22 +270,23 @@ function refreshData() {
       let [recvBytes, recvUnit] = fmtBytes(data.netBytesRecvPerSec, 2)
       monitorTags.tag3 = `下行：${sendBytes}${sendUnit}/秒`
       monitorTags.tag4 = `上行：${recvBytes}${recvUnit}/秒`
-    
+
       var option = window.myChart.getOption()
       option.yAxis = [
-      {
-        boundaryGap: [0, '100%'],
-        alignTicks: true,
-        axisLabel: {
-          formatter: '{value} '+ sendUnit
+        {
+          boundaryGap: [0, '100%'],
+          alignTicks: true,
+          axisLabel: {
+            formatter: '{value} ' + sendUnit
+          }
+        },
+        {
+          boundaryGap: [0, '100%'],
+          alignTicks: true,
+          axisLabel: {
+            formatter: '{value} ' + recvUnit
+          }
         }
-      },{
-        boundaryGap: [0, '100%'],
-        alignTicks: true,
-        axisLabel: {
-          formatter: '{value} '+ recvUnit
-        }
-      }
       ]
       let xAxisData = option.xAxis[0].data
       let seriesData = option.series[0].data
@@ -337,9 +338,7 @@ function drawCharts() {
         }
       }
     ],
-    yAxis: [
-      {}
-    ],
+    yAxis: [{}],
     series: [
       {
         type: 'line',

@@ -44,10 +44,10 @@ func FileManager_List(c *gin.Context) {
 	}
 	offset := (page - 1) * pagesize
 	limit := offset + pagesize
-	if limit > total || limit < total {
+	if limit > total {
 		limit = total
 	}
-	global.LOG.Info("basePath", basePath, "    total:", total, "  page", page, "   Limit:", limit, "   Offset:", offset)
+	// global.LOG.Info("basePath", basePath, "    total:", total, "  page", page, "   Limit:", limit, "   Offset:", offset)
 	fileList := []gin.H{}
 	for _, dirEntry := range dirFs[offset:limit] {
 		fileInfo, _ := dirEntry.Info()

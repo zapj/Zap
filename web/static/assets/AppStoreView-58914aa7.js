@@ -1,0 +1,1 @@
+import{g as o,r as s,o as r,k as e,l as c,G as l,p as n,s as p,ay as _,U as u}from"./index-163cc183.js";const f=o({__name:"AppStoreView",setup(i){const a=s("TopView"),t=()=>{a.value="PSView"};return r(()=>{}),(m,v)=>(e(),c(u,null,[l("button",{onClick:t},"aaa"),(e(),n(_,null,[(e(),n(p(a.value)))],1024))],64))}});export{f as default};

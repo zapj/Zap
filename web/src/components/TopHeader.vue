@@ -26,7 +26,9 @@
             >
             <el-dropdown-item>修改密码</el-dropdown-item>
             <el-dropdown-item disabled>Action 4</el-dropdown-item>
-            <el-dropdown-item divided @click="logout"><el-icon><SwitchButton /></el-icon>退出系统</el-dropdown-item>
+            <el-dropdown-item divided @click="logout"
+              ><el-icon><SwitchButton /></el-icon>退出系统</el-dropdown-item
+            >
           </el-dropdown-menu>
         </template>
       </el-dropdown>
@@ -87,24 +89,24 @@ function ExpandMenu() {
 }
 
 function logout() {
-sessionStorage.removeItem('access_token')
-router.replace({
-  path: '/login',
-  query: {
-    redirect: router.currentRoute.fullPath
-  }
-})
-// router.push("/login")
-// apiRequest({
-//     url:"/logout",
-//     method:"post",
-// }).then((data)=>{
-//     if(data.code === 0){
-//       router.push("/login")
-//     }else{
-//         alert("logout error")
-//     }
-//     console.log(data);
-// })
+  sessionStorage.removeItem('access_token')
+  router.replace({
+    path: '/login',
+    query: {
+      redirect: router.currentRoute.fullPath
+    }
+  })
+  // router.push("/login")
+  // apiRequest({
+  //     url:"/logout",
+  //     method:"post",
+  // }).then((data)=>{
+  //     if(data.code === 0){
+  //       router.push("/login")
+  //     }else{
+  //         alert("logout error")
+  //     }
+  //     console.log(data);
+  // })
 }
 </script>

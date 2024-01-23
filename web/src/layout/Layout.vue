@@ -10,7 +10,7 @@ import FooterCopyright from '@/components/FooterCopyright.vue'
     <el-container direction="vertical">
       <Header></Header>
       <el-scrollbar class="zap-content-scroll">
-        <el-main >
+        <el-main>
           <RouterView></RouterView>
         </el-main>
         <FooterCopyright></FooterCopyright>

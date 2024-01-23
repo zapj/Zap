@@ -37,6 +37,7 @@ func RegisterAPIV1Router(c *gin.RouterGroup) {
 
 	c.GET("/server/info", server.ServerInfo)
 	c.GET("/server/processlist", server.ServerProcessList)
+	c.GET("/server/netinterface_list", server.ServerNetInterfaces)
 
 }
 

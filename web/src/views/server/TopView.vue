@@ -1,6 +1,2 @@
-<template>
-top 异步
-</template>
-<script setup>
-
-</script>
+<template>top 异步</template>
+<script setup></script>

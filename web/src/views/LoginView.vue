@@ -11,10 +11,15 @@
           </template>
           <div>
             <el-form-item label="用户名" prop="username">
-              <el-input v-model="form.username" placeholder="请输入用户名"  />
+              <el-input v-model="form.username" placeholder="请输入用户名" />
             </el-form-item>
             <el-form-item label="密码" prop="password">
-              <el-input type="password" v-model="form.password" placeholder="请输入密码" show-password />
+              <el-input
+                type="password"
+                v-model="form.password"
+                placeholder="请输入密码"
+                show-password
+              />
             </el-form-item>
           </div>
           <template #footer>
@@ -27,7 +32,7 @@
     </el-main>
   </el-container>
 </template>
-<script setup >
+<script setup>
 import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import apiRequest from '../httpclient/client'
@@ -39,12 +44,8 @@ const form = reactive({
 })
 const ruleFormRef = ref(null)
 const formRules = reactive({
-  username:[
-    { required: true, message: '请输入用户名', trigger: 'blur' }
-  ],
-  password:[
-    { required: true, message: '请输入密码', trigger: 'blur' }
-  ]
+  username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
+  password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
 })
 
 const onSubmit = (formEl) => {
@@ -54,10 +55,9 @@ const onSubmit = (formEl) => {
       login()
     }
   })
-  
 }
 
-const login = ()=>{
+const login = () => {
   apiRequest({
     url: '/login',
     method: 'post',
@@ -68,7 +68,7 @@ const login = ()=>{
   }).then((data) => {
     if (data.code === 0 && data.access_token) {
       sessionStorage.setItem('access_token', data.access_token)
-      ElMessage({message: '登陆成功',type: 'success'})
+      ElMessage({ message: '登陆成功', type: 'success' })
       router.push('/dashboard')
     }
     // } else {
@@ -90,12 +90,11 @@ const login = ()=>{
   justify-content: center;
 }
 
-@media (min-width:768px){
+@media (min-width: 768px) {
   .box-card {
     top: 200px;
     width: 480px;
     margin: 0 auto;
   }
 }
-
 </style>

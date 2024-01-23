@@ -64,7 +64,6 @@ const router = createRouter({
           name: 'server_appstore',
           component: () => import('../views/server/AppStoreView.vue')
         }
-        
       ]
     }
   ]
@@ -82,6 +81,5 @@ router.beforeEach((to, from, next) => {
 router.afterEach(() => {
   NProgress.done()
 })
-
 
 export default router
