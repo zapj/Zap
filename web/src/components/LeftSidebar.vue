@@ -20,22 +20,11 @@
         <Icon icon="clarity:directory-line" style="font-size: 24px" class="mr-1"  />
         <template #title>文件</template>
       </el-menu-item>
-      <!-- <el-menu-item index="/about">
-        <el-icon>
-          <UserFilled />
-        </el-icon>
-        <span>About</span>
-      </el-menu-item> -->
-      <el-menu-item index="/console">
+     
+      <el-menu-item index="/terminal">
         <Icon icon="mdi:terminal" style="font-size: 24px" class="mr-1" :inline="true" />
         <template #title>终端</template>
       </el-menu-item>
-      <!-- <el-menu-item index="/charts">
-        <el-icon>
-          <UserFilled />
-        </el-icon>
-        <span>Charts</span>
-      </el-menu-item> -->
       <el-sub-menu index="1">
         <template #title>
           <Icon icon="mdi:server-outline" style="font-size: 24px" class="mr-1"  />

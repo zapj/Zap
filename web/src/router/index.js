@@ -40,8 +40,8 @@ const router = createRouter({
           component: () => import('../views/sites/Sites.vue')
         },
         {
-          path: '/console',
-          name: 'console',
+          path: '/terminal',
+          name: 'terminal',
           component: () => import('../views/ConsoleView.vue')
         },
         {

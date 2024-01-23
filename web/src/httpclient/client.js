@@ -115,14 +115,14 @@ apiRequest.interceptors.response.use(
       // 404请求不存在
       case 404:
         ElMessage({
-          message: '网络请求不存在',
+          message: error.response.data.message || '网络请求不存在',
           type: 'error'
         })
         break
       // 其他错误，直接抛出错误提示
       default:
         ElMessage({
-          message: error.response.data.message,
+          message: error.response.data.message || error.response.statusText,
           type: 'error'
         })
     }

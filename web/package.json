@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "vite",
+    "dev": "tsc --noEmit && vite",
     "build": "vite build --mode production --outDir static",
     "build-pro": "vite build --mode production --outDir static",
     "preview": "vite preview",
@@ -21,6 +21,7 @@
     "nprogress": "^0.2.0",
     "pinia": "^2.1.6",
     "pinia-plugin-persistedstate": "^3.2.0",
+    "typescript": "^5.3.3",
     "unplugin-icons": "^0.17.3",
     "vite-plugin-inspect": "^0.7.41",
     "vue": "^3.4.7",

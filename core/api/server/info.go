@@ -12,7 +12,10 @@ import (
 	"github.com/shirou/gopsutil/v3/host"
 	"github.com/shirou/gopsutil/v3/load"
 	"github.com/shirou/gopsutil/v3/mem"
+	"github.com/shirou/gopsutil/v3/process"
 	"github.com/zapj/zap/core/api/commons"
+	datautils "github.com/zapj/zap/core/utils/data_utils"
+	"github.com/zapj/zap/core/utils/time_utils"
 )
 
 func ServerInfo(c *gin.Context) {
@@ -34,30 +37,25 @@ func ServerInfo(c *gin.Context) {
 	cpuInfo := cpusInfo[0]
 
 	result := gin.H{
-		"memory": gin.H{
-			"total":        humanize.IBytes(memory.Total),
-			"used_percent": strconv.FormatFloat(float64(memory.Total-memory.Available)/float64(memory.Total)*100.0, 'f', 2, 64),
-			"free":         humanize.IBytes(memory.Free),
-			"used":         humanize.IBytes(memory.Used),
-			"available":    humanize.IBytes(memory.Available),
-		},
-		"swapmem": gin.H{
-			"total":        humanize.IBytes(swapmem.Total),
-			"used":         humanize.IBytes(swapmem.Used),
-			"free":         humanize.IBytes(swapmem.Free),
-			"used_percent": strconv.FormatFloat(swapmem.UsedPercent, 'f', 2, 64),
-		},
-
-		"load1":        st.Load1,
-		"load5":        st.Load5,
-		"load15":       st.Load15,
-		"system_load1": (st.Load1 / float64(cpusInfo[0].Cores)) * 100,
+		"memory_total":         humanize.IBytes(memory.Total),
+		"memory_used_percent":  strconv.FormatFloat(float64(memory.Total-memory.Available)/float64(memory.Total)*100.0, 'f', 2, 64),
+		"memory_free":          humanize.IBytes(memory.Free),
+		"memory_used":          humanize.IBytes(memory.Used),
+		"memory_available":     humanize.IBytes(memory.Available),
+		"swapmem_total":        humanize.IBytes(swapmem.Total),
+		"swapmem_used":         humanize.IBytes(swapmem.Used),
+		"swapmem_free":         humanize.IBytes(swapmem.Free),
+		"swapmem_used_percent": strconv.FormatFloat(swapmem.UsedPercent, 'f', 2, 64),
+		"load1":                st.Load1,
+		"load5":                st.Load5,
+		"load15":               st.Load15,
+		"system_load1":         (st.Load1 / float64(len(cpusInfo))) * 100,
 
 		"cpu_name":  cpuInfo.ModelName,
 		"cpu_cores": len(cpusInfo),
 		"cpu_ghz":   strconv.FormatFloat(cpuInfo.Mhz/1000, 'f', 2, 64),
 
-		"BootTime": hostInfo.BootTime,
+		"BootTime": time.Unix(int64(hostInfo.BootTime), 0).Format(time_utils.DATE_TIME_FORMAT),
 		"Hostname": hostInfo.Hostname,
 		"uptime":   humanize.Time(time.Unix(int64(hostInfo.BootTime), 0)),
 		// "uptime1":         time.Now().Sub(time.Unix(int64(hostInfo.BootTime), 0)).String(),
@@ -82,8 +80,50 @@ func ServerInfo(c *gin.Context) {
 		// 	"free":                humanize.Bytes(diskUsage.Free),
 		// },
 	}
-	diskPartStat, _ := disk.Partitions(true)
-	result["diskPartStat"] = diskPartStat
+	diskPartStat, _ := disk.Partitions(false)
+	// global.LOG.Info("diskPartStat", diskPartStat)
+	var diskUsageStat []*disk.UsageStat
+	for i := 0; i < len(diskPartStat); i++ {
+		usageStat, err := disk.Usage(diskPartStat[i].Mountpoint)
+		usageStat.Fstype = diskPartStat[i].Fstype
+		if err != nil {
+			continue
+		}
+		diskUsageStat = append(diskUsageStat, usageStat)
+
+	}
+	result["disk"] = diskUsageStat
 
 	c.JSON(200, gin.H{"code": 0, "msg": "", "data": result})
+}
+
+func ServerProcessList(c *gin.Context) {
+	processList, err := process.Processes()
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, commons.JSONError(1, "没有权限"))
+
+	}
+	var procList []gin.H = make([]gin.H, len(processList))
+
+	for i, proc := range processList {
+		pMap := gin.H{
+			"pid": proc.Pid,
+		}
+		pMap["name"], _ = proc.Name()
+		create_time, _ := proc.CreateTime()
+		pMap["create_time"] = time_utils.FormatUnixMilliToDateTime(create_time)
+		pMap["background"], _ = proc.Background()
+		cpu_percent, _ := proc.CPUPercent()
+		pMap["cpu_percent"] = datautils.FmtPercentFloat64(cpu_percent)
+		// pMap["is_running"], _ = proc.IsRunning()
+		mem_percent, _ := proc.MemoryPercent()
+		pMap["mem_percent"] = datautils.FmtPercentFloat32(mem_percent)
+		// pMap["mem_percent"] = datautils.FmtPercentFloat64(pMap["mem_percent"].(float32))
+		pMap["cmdline"], _ = proc.Cmdline()
+		pMap["username"], _ = proc.Username()
+
+		procList[i] = pMap
+
+	}
+	c.JSON(200, gin.H{"code": 0, "msg": "", "data": procList})
 }
