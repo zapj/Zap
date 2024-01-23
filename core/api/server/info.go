@@ -1,8 +1,10 @@
 package server
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
+	"regexp"
 	"strconv"
 	"time"
 
@@ -16,6 +18,7 @@ import (
 	"github.com/shirou/gopsutil/v3/net"
 	"github.com/shirou/gopsutil/v3/process"
 	"github.com/zapj/zap/core/api/commons"
+	"github.com/zapj/zap/core/utils/cmdutil"
 	datautils "github.com/zapj/zap/core/utils/data_utils"
 	"github.com/zapj/zap/core/utils/time_utils"
 )
@@ -137,4 +140,49 @@ func ServerNetInterfaces(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{"code": 0, "msg": "", "data": netinterfaceList})
+}
+
+func ServerTopInfo(c *gin.Context) {
+	out, err := cmdutil.ExecCmd("top", "-bn1", "-E", "g", "-e", "m")
+	// // out, err := cmdutil.ExecCmdString("top", []string{"-bn1","-E","g", -e m})
+	if err != nil {
+		fmt.Println(err)
+	}
+	// scanner := bufio.NewScanner(bytes.NewBuffer(out))
+	// scanner.Split(bufio.ScanWords)
+	// for scanner.Scan() {
+	// 	fmt.Printf("%q ", scanner.Text())
+	// }
+
+	buf := bytes.NewBuffer(out)
+	var header bytes.Buffer
+	// var process bytes.Buffer
+	//read header
+	for {
+		line, err := buf.ReadBytes('\n')
+		if err != nil {
+			break
+		}
+		header.Write(line)
+		if len(line) < 2 {
+			buf.ReadString('\n')
+			break
+		}
+	}
+	var rows [][]string
+	pattern := "\\S+"
+
+	regex := regexp.MustCompile(pattern)
+
+	for {
+		line, err := buf.ReadString('\n')
+		if err != nil {
+			break
+		}
+
+		rows = append(rows, regex.FindAllString(line, -1))
+
+	}
+
+	c.JSON(200, gin.H{"code": 0, "msg": "", "data": header.String(), "rows": rows})
 }

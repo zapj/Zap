@@ -19,8 +19,10 @@ require (
 	github.com/go-ole/go-ole v1.3.0 // indirect
 	github.com/golang-jwt/jwt/v5 v5.2.0 // indirect
 	github.com/gorilla/websocket v1.5.1 // indirect
+	github.com/gyuho/linux-inspect v0.0.0-20180929231013-a492bfc5f12a // indirect
 	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
+	github.com/kr/pty v1.1.1 // indirect
 	github.com/lufia/plan9stats v0.0.0-20231016141302-07b5767bb0ed // indirect
 	github.com/onrik/gorm-logrus v0.5.0 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect

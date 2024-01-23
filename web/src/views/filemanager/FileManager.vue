@@ -36,6 +36,7 @@
       style="width: 100%"
       :height="tableHeight"
       v-loading="pageState.tbLoading"
+      fit 
     >
       <el-table-column type="selection" width="50" />
       <el-table-column prop="name" label="文件名" min-width="250" show-overflow-tooltip>
@@ -252,8 +253,6 @@ function getFiles(options) {
     .then((data) => {
       tableData.value = []
       tableData.value.push(...data.data)
-
-      console.log('push data')
       globalStore.lastFilePath = data.path
       pageState.total = data.total
       pageState.currentpage = data.page
