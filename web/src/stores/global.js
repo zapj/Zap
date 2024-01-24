@@ -5,7 +5,8 @@ export const useGlobalStore = defineStore(
   'global_s',
   () => {
     const lastFilePath = ref('')
-    return { lastFilePath }
+    const settings = ref({})
+    return { lastFilePath,settings }
   },
   {
     persist: true

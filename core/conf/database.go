@@ -27,6 +27,8 @@ func DbInit() {
 	global.DB.AutoMigrate(&models.ZapDiskIOCounters{})
 	global.DB.AutoMigrate(&models.ZapNetIOCounters{})
 
+	global.DB.AutoMigrate(&models.ZapAppStore{})
+
 	user := models.ZapUsers{}
 	result := global.DB.First(&user)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {

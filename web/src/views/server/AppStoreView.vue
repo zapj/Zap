@@ -1,34 +1,32 @@
 <template>
-  <!-- <Suspense>
-    <TopView></TopView>
+  <el-card class="box-card">
+    <el-radio-group v-model="activeName" type="success" @change="handleSwitch">
+      <el-radio-button label="应用市场" />
+      <el-radio-button label="已安装" />
      
-      </Suspense> -->
-  <button @click="change">aaa</button>
-  <keep-alive>
-    <component :is="currentItem" />
-  </keep-alive>
+    </el-radio-group>
+  </el-card>
+  <div class="mt-3">
+    <component :is="currentItem"></component>
+  </div>
 </template>
 <script lang="ts" setup>
-import { defineAsyncComponent, onMounted, ref } from 'vue'
-//   import type { TabsPaneContext } from 'element-plus'
+import { defineAsyncComponent, onMounted, ref, shallowRef } from 'vue'
+const AppListView = defineAsyncComponent(() => import('../appstore/AppListView.vue'))
+const AppInstalledView = defineAsyncComponent(() => import('../appstore/AppInstalledView.vue'))
+ 
 
-//   import ace from 'ace-builds'
+const activeName = ref('应用市场')
+const currentItem = shallowRef(AppListView)
 
-const currentItem = ref('TopView')
-const TopView = defineAsyncComponent(() => import('./TopView.vue'))
-const PSView = defineAsyncComponent(() => import('./PSView.vue'))
-
-const change = () => {
-  currentItem.value = 'PSView'
+const handleSwitch = () => {
+  if (activeName.value === '应用市场') {
+    currentItem.value = AppListView
+  } else if (activeName.value === '已安装') {
+    currentItem.value = AppInstalledView
+  }
 }
 
 onMounted(() => {})
 </script>
-<style>
-.demo-tabs > .el-tabs__content {
-  padding: 32px;
-  color: #6b778c;
-  font-size: 32px;
-  font-weight: 600;
-}
-</style>
+<style></style>

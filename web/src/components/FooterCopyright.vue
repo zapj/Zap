@@ -5,12 +5,16 @@
     <el-row justify="space-between">
       <el-col :span="12">@ Copyright zap.cn</el-col>
       <el-col :span="12" class="text-right">
-        <el-text> 当前版本 <el-link>更新</el-link> </el-text>
+        <el-text> 当前版本 {{ globalStore.settings.version }} <el-link>更新</el-link> </el-text>
       </el-col>
     </el-row>
   </el-footer>
 </template>
+<script setup>
+import { useGlobalStore } from '../stores/global';
+const globalStore = useGlobalStore()
 
+</script>
 <style scoped>
 .el-footer {
   height: 60px;

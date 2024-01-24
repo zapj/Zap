@@ -7,9 +7,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/zapj/zap/core/api/appstore"
 	"github.com/zapj/zap/core/api/dashboard"
 	"github.com/zapj/zap/core/api/filemanager"
 	"github.com/zapj/zap/core/api/server"
+	"github.com/zapj/zap/core/api/users"
 	"github.com/zapj/zap/core/auth/jwtauth"
 	"github.com/zapj/zap/core/global"
 	"github.com/zapj/zap/core/webterm"
@@ -30,8 +32,7 @@ func RegisterAPIV1Router(c *gin.RouterGroup) {
 	//websocket
 	c.GET("/local/ws", webterm.HandlerLocalWS)
 	c.GET("/statistics/dashboard", dashboard.DashBoardStats)
-	// c.GET("/statistics/memory", dashboard.DashBoardStats)
-	// c.GET("/statistics/network", MemoryUsageInfo)
+	c.GET("/sync/user/settings", users.SyncUserSettings)
 
 	c.POST("/filemanager/list", filemanager.FileManager_List)
 
@@ -39,6 +40,8 @@ func RegisterAPIV1Router(c *gin.RouterGroup) {
 	c.GET("/server/processlist", server.ServerProcessList)
 	c.GET("/server/netinterface_list", server.ServerNetInterfaces)
 	c.GET("/server/top_info", server.ServerTopInfo)
+
+	c.GET("/app/appstore", appstore.ListApp)
 
 }
 

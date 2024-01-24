@@ -2,6 +2,17 @@
 import Header from '@/components/TopHeader.vue'
 import LeftSidebar from '@/components/LeftSidebar.vue'
 import FooterCopyright from '@/components/FooterCopyright.vue'
+import { onMounted } from 'vue';
+import apiRequest from '../httpclient/client';
+import { useGlobalStore } from '../stores/global';
+const globalStore = useGlobalStore()
+onMounted(()=>{
+  apiRequest({
+    url:"/v1/sync/user/settings",
+  }).then((resp)=>{
+    globalStore.settings = resp.data
+  })
+})
 </script>
 
 <template>
@@ -18,5 +29,5 @@ import FooterCopyright from '@/components/FooterCopyright.vue'
     </el-container>
   </el-container>
 </template>
-
+ 
 <style scoped></style>
