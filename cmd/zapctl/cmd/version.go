@@ -5,11 +5,7 @@ import (
 	"runtime"
 
 	"github.com/spf13/cobra"
-)
-
-var (
-	BuildDate string = "20240116"
-	Version   string = "0.0.1"
+	"github.com/zapj/zap/core"
 )
 
 func init() {
@@ -18,8 +14,8 @@ func init() {
 
 var versionCmd = &cobra.Command{
 	Use:   "version",
-	Short: "zapctl版本号",
+	Short: "zapctl version",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("zap_deamon Build %s-%s Build Date %s ,Version %s \n\n", runtime.GOOS, runtime.GOARCH, BuildDate, Version)
+		fmt.Printf("ZAP Version %s %s \n\n", runtime.GOARCH, core.Version)
 	},
 }

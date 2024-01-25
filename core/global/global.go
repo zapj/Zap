@@ -10,6 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
+var ServerPID int
 var DB *gorm.DB
 var StatisticsDB *gorm.DB
 var LOG *logrus.Logger = logrus.New()

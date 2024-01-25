@@ -43,6 +43,8 @@ func RegisterAPIV1Router(c *gin.RouterGroup) {
 
 	c.GET("/app/appstore", appstore.ListApp)
 
+	c.GET("/upgrade/check", server.UpgradeCheck)
+
 }
 
 func extractBearerToken(header string) (string, error) {

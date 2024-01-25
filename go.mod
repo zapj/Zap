@@ -17,6 +17,9 @@ require (
 	github.com/creack/pty v1.1.21 // indirect
 	github.com/gin-contrib/gzip v0.0.6 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
+	github.com/go-zoox/core-utils v1.2.11 // indirect
+	github.com/go-zoox/fetch v1.8.1 // indirect
+	github.com/go-zoox/headers v1.0.6 // indirect
 	github.com/golang-jwt/jwt/v5 v5.2.0 // indirect
 	github.com/gorilla/websocket v1.5.1 // indirect
 	github.com/gyuho/linux-inspect v0.0.0-20180929231013-a492bfc5f12a // indirect
@@ -30,6 +33,9 @@ require (
 	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/shirou/gopsutil/v3 v3.23.12 // indirect
 	github.com/soheilhy/cmux v0.1.5 // indirect
+	github.com/tidwall/gjson v1.14.4 // indirect
+	github.com/tidwall/match v1.1.1 // indirect
+	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/tklauser/go-sysconf v0.3.13 // indirect
 	github.com/tklauser/numcpus v0.7.0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.3 // indirect

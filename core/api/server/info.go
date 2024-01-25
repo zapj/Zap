@@ -10,6 +10,7 @@ import (
 
 	"github.com/dustin/go-humanize"
 	"github.com/gin-gonic/gin"
+	"github.com/go-zoox/fetch"
 	"github.com/shirou/gopsutil/v3/cpu"
 	"github.com/shirou/gopsutil/v3/disk"
 	"github.com/shirou/gopsutil/v3/host"
@@ -185,4 +186,8 @@ func ServerTopInfo(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{"code": 0, "msg": "", "data": header.String(), "rows": rows})
+}
+
+func UpgradeCheck(c *gin.Context) {
+	fetch.Get("https://127.0.0.1/upgrade", &fetch.Config{UnixDomainSocket: "/usr/local/zap/data/task", TLSInsecureSkipVerify: true})
 }

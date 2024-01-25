@@ -6,6 +6,7 @@ VERSION="0.0.0"
 if [ -n "$2" ]
 then
     VERSION=$2
+    echo $VERSION > VERSION
 else
     VERSION=`cat VERSION`
     VerArr=($(echo "$VERSION" | tr '.' ' '))
@@ -14,12 +15,16 @@ else
 fi
 
 
-if [ "$1" != "run" ]
+if [ "$1" = "pkg" ]
 then
+    rm -rf ./zapd
+    rm -rf ./zapctl
     GO111MODULE=on CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-X 'github.com/zapj/zap/core.Version=v${VERSION}'" cmd/zapctl/zapctl.go
     GO111MODULE=on CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-X 'github.com/zapj/zap/core.Version=v${VERSION}'" cmd/zapd/zapd.go
-elif [ "$1" != "build" ]
+elif [ "$1" = "build" ]
 then
+    rm -rf ./zapd
+    rm -rf ./zapctl
     GO111MODULE=on CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-X 'github.com/zapj/zap/core.Version=v${VERSION}'" cmd/zapctl/zapctl.go
     GO111MODULE=on CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-X 'github.com/zapj/zap/core.Version=v${VERSION}'" cmd/zapd/zapd.go
 else
@@ -30,7 +35,7 @@ fi
 
 if [ "$1" = "run" ]
 then
-    sudo ./zapd server debug
+    sudo ./zapd master
 elif [ "$1" = "pkg" ]
 then
     
@@ -44,7 +49,10 @@ then
     # cp -Rf data dist/zap/
     cd dist/
     tar czvf "zap-release-v${VERSION}.tar.gz" zap/
-    zapfile put zap/version.txt $VERSION
-    zapfile put zap/latest.txt $VERSION
-    zapfile upload zap/ "zap-release-v${VERSION}.tar.gz"
+    # zapfile put zap/version.txt $VERSION
+    echo "latest.txt"
+    zapfile put zap/dist/latest.txt $VERSION
+    echo "release file"
+    zapfile upload zap/dist/ "zap-release-v${VERSION}.tar.gz"
+    echo "v${VERSION} 发布成功"
 fi

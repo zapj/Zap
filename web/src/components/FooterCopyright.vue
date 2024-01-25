@@ -5,15 +5,23 @@
     <el-row justify="space-between">
       <el-col :span="12">@ Copyright zap.cn</el-col>
       <el-col :span="12" class="text-right">
-        <el-text> 当前版本 {{ globalStore.settings.version }} <el-link>更新</el-link> </el-text>
+        <el-text> 当前版本 {{ globalStore.settings.version }} <el-link @click="upgrade">更新</el-link> </el-text>
       </el-col>
     </el-row>
   </el-footer>
 </template>
 <script setup>
+import { ElMessage } from 'element-plus'
+import apiRequest from '../httpclient/client'
 import { useGlobalStore } from '../stores/global';
 const globalStore = useGlobalStore()
-
+function upgrade(){
+  apiRequest({
+    url:"/v1/upgrade/check"
+  }).then((resp)=>{
+    ElMessage({message:"提交成功"})
+  })
+}
 </script>
 <style scoped>
 .el-footer {

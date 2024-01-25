@@ -7,7 +7,9 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -54,12 +56,16 @@ var serverCmd = &cobra.Command{
 				return
 			}
 			defer cntxt.Release()
+		} else {
+			pid := os.Getpid()
+			os.WriteFile("zapd.pid", []byte(strconv.Itoa(pid)), 0644)
 		}
 		//初始化缓存
 		global.CACHE = cache.New(5*time.Minute, 10*time.Minute)
 		conf.LogInit()
 		conf.InitEnv()
 		conf.DbInit()
+		conf.ServerStart_INIT()
 		conf.InitCrons()
 		gin.SetMode(gin.ReleaseMode)
 		if len(args) == 1 && args[0] == "debug" {
