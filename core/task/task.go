@@ -21,6 +21,7 @@ func StartTask() {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
+	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 	RegisterRouter(&r.RouterGroup)
 	srv := &http.Server{
@@ -39,6 +40,7 @@ func StartTask() {
 	}()
 	<-ctx.Done()
 	stop()
+	
 
 	fmt.Println("shutting down gracefully, press Ctrl+C again to force")
 

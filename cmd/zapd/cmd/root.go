@@ -8,8 +8,8 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "zap_deamon",
-	Short: "zap_deamon命令行管理工具",
+	Use:   "zapd",
+	Short: "zap master",
 	Run: func(cmd *cobra.Command, args []string) {
 		versionCmd.Run(cmd, args)
 		cmd.Help()

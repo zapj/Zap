@@ -2,12 +2,14 @@ package main
 
 import (
 	"github.com/zapj/zap/cmd/zapd/cmd"
+	"github.com/zapj/zap/core"
+	"github.com/zapj/zap/core/global"
 )
 
-func init() {
-	// debug.SetMemoryLimit(1_000_000 * 50)
-}
+var Version = "0.0.0"
+var BuildDate = "0000-00-00_00:00:00"
 
 func main() {
+	global.ZAP_INFO = &core.ZapInfo{Version: Version, BuildDate: BuildDate}
 	cmd.Execute()
 }

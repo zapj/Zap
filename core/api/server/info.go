@@ -10,7 +10,6 @@ import (
 
 	"github.com/dustin/go-humanize"
 	"github.com/gin-gonic/gin"
-	"github.com/go-zoox/fetch"
 	"github.com/shirou/gopsutil/v3/cpu"
 	"github.com/shirou/gopsutil/v3/disk"
 	"github.com/shirou/gopsutil/v3/host"
@@ -19,6 +18,8 @@ import (
 	"github.com/shirou/gopsutil/v3/net"
 	"github.com/shirou/gopsutil/v3/process"
 	"github.com/zapj/zap/core/api/commons"
+	"github.com/zapj/zap/core/global"
+	"github.com/zapj/zap/core/task"
 	"github.com/zapj/zap/core/utils/cmdutil"
 	datautils "github.com/zapj/zap/core/utils/data_utils"
 	"github.com/zapj/zap/core/utils/time_utils"
@@ -144,7 +145,7 @@ func ServerNetInterfaces(c *gin.Context) {
 }
 
 func ServerTopInfo(c *gin.Context) {
-	out, err := cmdutil.ExecCmd("top", "-bn1", "-E", "g", "-e", "m")
+	out, err := cmdutil.ExecCmd("top", "-bn1")
 	// // out, err := cmdutil.ExecCmdString("top", []string{"-bn1","-E","g", -e m})
 	if err != nil {
 		fmt.Println(err)
@@ -189,5 +190,12 @@ func ServerTopInfo(c *gin.Context) {
 }
 
 func UpgradeCheck(c *gin.Context) {
-	fetch.Get("https://127.0.0.1/upgrade", &fetch.Config{UnixDomainSocket: "/usr/local/zap/data/task", TLSInsecureSkipVerify: true})
+	if global.ZAP_INFO.Version == "0.0.0" {
+		c.JSON(200, gin.H{"code": 0, "msg": "开发环境不能执行更新操作"})
+	}
+	_, err := task.Get("/upgrade")
+	if err != nil {
+		c.JSON(200, gin.H{"code": 1, "msg": "任务执行失败"})
+	}
+	c.JSON(200, gin.H{"code": 0, "msg": "开发环境不能执行更新操作"})
 }

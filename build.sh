@@ -2,44 +2,24 @@
 
 #-ldflags="-w -s -buildid="
 # zapctl config set signing_key `openssl rand -hex 12`
-VERSION="0.0.0"
-if [ -n "$2" ]
-then
-    VERSION=$2
-    echo $VERSION > VERSION
-else
-    VERSION=`cat VERSION`
-    VerArr=($(echo "$VERSION" | tr '.' ' '))
-    VERSION="${VerArr[0]}.${VerArr[1]}.`expr ${VerArr[2]} + 1`"
-    echo $VERSION > VERSION
+VERSION=`cat VERSION`
+BUILD_DATE=`date +'%Y-%m-%d_%H:%M:%S'`
+ARCH=$(uname -i)
+OS=$(uname)
+ZAP_BASEDIR=$(pwd)
+
+if [[ $ARCH == x86_64* ]]; then
+    ARCH="amd64"
+elif  [[ $arch == arm* ]] || [[ $arch = aarch64 ]]; then
+    ARCH="arm64"
 fi
 
-
-if [ "$1" = "pkg" ]
-then
-    rm -rf ./zapd
-    rm -rf ./zapctl
-    GO111MODULE=on CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-X 'github.com/zapj/zap/core.Version=v${VERSION}'" cmd/zapctl/zapctl.go
-    GO111MODULE=on CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-X 'github.com/zapj/zap/core.Version=v${VERSION}'" cmd/zapd/zapd.go
-elif [ "$1" = "build" ]
-then
-    rm -rf ./zapd
-    rm -rf ./zapctl
-    GO111MODULE=on CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-X 'github.com/zapj/zap/core.Version=v${VERSION}'" cmd/zapctl/zapctl.go
-    GO111MODULE=on CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-X 'github.com/zapj/zap/core.Version=v${VERSION}'" cmd/zapd/zapd.go
-else
-    go build -ldflags="-X 'github.com/zapj/zap/core.Version=v${VERSION}'" cmd/zapctl/zapctl.go
-    go build -ldflags="-X 'github.com/zapj/zap/core.Version=v${VERSION}'" cmd/zapd/zapd.go
+if [ "$OS" = "Linux" ];then
+    OS="linux"
 fi
 
-
-if [ "$1" = "run" ]
-then
-    sudo ./zapd master
-elif [ "$1" = "pkg" ]
-then
-    
-    rm -rf dist/zap
+create_pkg(){
+    rm -rf dist
     #打包
     mkdir -p dist/zap
     cp -f zapd dist/zap/
@@ -48,11 +28,69 @@ then
     cp -Rf conf dist/zap/
     # cp -Rf data dist/zap/
     cd dist/
-    tar czvf "zap-release-v${VERSION}.tar.gz" zap/
+    tar czvf "zap-v${VERSION}-${OS}-${ARCH}.tar.gz" zap/
+}
+
+
+
+upload_pkg(){
     # zapfile put zap/version.txt $VERSION
-    echo "latest.txt"
+    echo -n "linux_install.sh > "
+    zapfile upload zap/dist/linux_install.sh zap/scripts/install.sh
+    echo -n "latest.txt > "
     zapfile put zap/dist/latest.txt $VERSION
-    echo "release file"
-    zapfile upload zap/dist/ "zap-release-v${VERSION}.tar.gz"
+    echo -n "release file : zap-v${VERSION}-${OS}-${ARCH}.tar.gz > "
+    zapfile upload zap/dist/ "zap-v${VERSION}-${OS}-${ARCH}.tar.gz"
     echo "v${VERSION} 发布成功"
+}
+
+
+
+LD_FLAGS_STRING="-w -s -X 'main.Version=v${VERSION}' -X 'main.BuildDate=${BUILD_DATE}'"
+
+if [ "$1" = "pkg" ]
+then
+    if [ -n "$2" ]
+    then
+        VERSION=$2
+        echo $VERSION > VERSION
+    else
+        VERSION=`cat VERSION`
+        VerArr=($(echo "$VERSION" | tr '.' ' '))
+        VERSION="${VerArr[0]}.${VerArr[1]}.`expr ${VerArr[2]} + 1`"
+        echo $VERSION > VERSION
+    fi
+    rm -rf ./zapd
+    rm -rf ./zapctl
+    cd web
+    npm run build
+    cd ../
+    GO111MODULE=on CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="${LD_FLAGS_STRING}" -trimpath cmd/zapctl/zapctl.go
+    GO111MODULE=on CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="${LD_FLAGS_STRING}" -trimpath cmd/zapd/zapd.go
+elif [ "$1" = "build" ]
+then
+    rm -rf ./zapd
+    rm -rf ./zapctl
+    GO111MODULE=on CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="${LD_FLAGS_STRING}" -trimpath cmd/zapctl/zapctl.go
+    GO111MODULE=on CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="${LD_FLAGS_STRING}" -trimpath cmd/zapd/zapd.go
+else
+    go build -ldflags="${LD_FLAGS_STRING}" cmd/zapctl/zapctl.go
+    go build -ldflags="${LD_FLAGS_STRING}" cmd/zapd/zapd.go
 fi
+
+
+if [ "$1" = "run" ]
+then
+    sudo ./zapd master
+elif [ "$1" = "build" ]
+then
+    create_pkg
+elif [ "$1" = "pkg" ]
+then
+    
+    create_pkg
+    upload_pkg
+    
+fi
+
+

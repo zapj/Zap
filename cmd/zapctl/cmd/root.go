@@ -9,17 +9,11 @@ import (
 
 var rootCmd = &cobra.Command{
 	Use:   "zapctl",
-	Short: "zap命令行管理工具",
+	Short: "zap command line interface",
 	Run: func(cmd *cobra.Command, args []string) {
 		versionCmd.Run(cmd, args)
 		cmd.Help()
 	},
-}
-
-// var cfgFile string
-
-func init() {
-	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.zap_config)")
 }
 
 func Execute() {

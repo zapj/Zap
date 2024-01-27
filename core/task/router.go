@@ -8,7 +8,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-zoox/fetch"
-	"github.com/zapj/zap/core"
 	"github.com/zapj/zap/core/global"
 	"github.com/zapj/zap/core/utils/cmdutil"
 )
@@ -23,7 +22,7 @@ func RegisterRouter(r *gin.RouterGroup) {
 				return
 			}
 			zapdVer := string(resp.Body)
-			if zapdVer == core.Version {
+			if zapdVer == global.ZAP_INFO.Version {
 				return
 			}
 			fileName := "zap-release-v" + string(resp.Body) + ".tar.gz"

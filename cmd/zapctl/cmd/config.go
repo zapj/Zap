@@ -6,6 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/zapj/zap/core/global"
+	"github.com/zapj/zap/core/utils/zap"
 	"gopkg.in/ini.v1"
 )
 
@@ -44,14 +45,14 @@ var configCmd = &cobra.Command{
 }
 
 func defaultPrintAll() {
-	fmt.Println("Config Path : conf/zap.ini")
+	fmt.Println("Config Path : ", zap.GetPath("conf/zap.ini"))
 	fmt.Println("")
 	global.CONFIG.WriteTo(os.Stdout)
 }
 
 func setSectionConfig(section, name, value string) {
 	global.CONFIG.Section(section).Key(name).SetValue(value)
-	f, err := os.Create("conf/zap.ini")
+	f, err := os.Create(zap.GetPath("conf/zap.ini"))
 	if err != nil {
 		fmt.Printf("配置文件保存失败: %v \n", err)
 	}
@@ -61,7 +62,7 @@ func setSectionConfig(section, name, value string) {
 
 func setConfig(name, value string) {
 	global.CONFIG.Section(ini.DefaultSection).Key(name).SetValue(value)
-	f, err := os.Create("conf/zap.ini")
+	f, err := os.Create(zap.GetPath("conf/zap.ini"))
 	if err != nil {
 		fmt.Printf("配置文件保存失败: %v \n", err)
 	}
