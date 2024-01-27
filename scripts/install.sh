@@ -4,7 +4,7 @@
 OS=`uname`
 
 # x86_64  / ARM64 /ppc64le / s390x
-ARCH=$(uname -i)
+ARCH=$(uname -m)
 
 
 VERSION="latest"

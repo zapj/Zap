@@ -27,6 +27,8 @@ create_pkg(){
     cp -Rf scripts dist/zap/
     cp -Rf conf dist/zap/
     # cp -Rf data dist/zap/
+    mkdir dist/zap/data
+    mkdir dist/zap/data/logs
     cd dist/
     tar czvf "zap-v${VERSION}-${OS}-${ARCH}.tar.gz" zap/
 }

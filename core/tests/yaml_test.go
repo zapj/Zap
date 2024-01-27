@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"os"
 	"strings"
 	"testing"
 
@@ -9,20 +8,46 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+var BUILD_YAML = `
+# nginx 安装包
+name : Nginx
+title : Nginx
+version : 1.0.0
+icon: "icon.png"
+author: ZAP
+OrganizationName: ZAP Inc
+actions: 
+  install: 安装
+  build: 编译安装
+steps:
+  - name : "初始化环境"
+    run : | 
+          time -a "asdfasdf"
+          date
+          ls -la
+  - name : "Build"
+    run : | 
+          time
+          date
+          ls -la
+  - name: "v1.0.2"
+    file: v1-0-2.yaml
+          
+
+`
+
 func Test_YAMLPackage(t *testing.T) {
-	ng := "/home/zap/works/go/Zap/data/appstore/zap/build.yaml"
-	conf, _ := os.ReadFile(ng)
+
 	out := &workflows.Workflows{}
-	yaml.Unmarshal(conf, out)
+	yaml.Unmarshal([]byte(BUILD_YAML), out)
 	t.Log(out.Steps)
 	// t.Logf("%v", out)
 }
 
 func Test_YAMLREAD(t *testing.T) {
-	ng := "/home/zap/works/go/Zap/data/appstore/zap/build.yaml"
-	conf, _ := os.ReadFile(ng)
+
 	rs := make(map[any]any)
-	err := yaml.Unmarshal(conf, &rs)
+	err := yaml.Unmarshal([]byte(BUILD_YAML), &rs)
 	t.Log(err)
 	runs := rs["steps"].([]any)
 	for _, v := range runs {

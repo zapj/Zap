@@ -1,9 +1,12 @@
 package task
 
-import "github.com/go-zoox/fetch"
+import (
+	"github.com/go-zoox/fetch"
+	"github.com/zapj/zap/core/utils/zap"
+)
 
 var defaultConfig = fetch.Config{
-	UnixDomainSocket:      "./data/task",
+	UnixDomainSocket:      zap.GetPath("data/task"),
 	TLSInsecureSkipVerify: true,
 	BaseURL:               "https://127.0.0.1",
 }

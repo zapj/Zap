@@ -12,11 +12,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/zapj/zap/core/ssl"
+	"github.com/zapj/zap/core/utils/zap"
 )
 
 func StartTask() {
-	os.Remove("./data/task")
-	crtFile, keyFile := "data/server.crt", "data/server.key"
+	os.Remove(zap.GetPath("data/task"))
+	crtFile, keyFile := zap.GetPath("data/server.crt"), zap.GetPath("data/server.key")
 	ssl.AutoGenCertAndKey(crtFile, keyFile)
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
@@ -29,7 +30,7 @@ func StartTask() {
 	}
 
 	go func() {
-		unixListener, err := net.Listen("unix", "./data/task")
+		unixListener, err := net.Listen("unix", zap.GetPath("data/task"))
 		if err != nil {
 			panic(err)
 		}
@@ -40,7 +41,6 @@ func StartTask() {
 	}()
 	<-ctx.Done()
 	stop()
-	
 
 	fmt.Println("shutting down gracefully, press Ctrl+C again to force")
 
