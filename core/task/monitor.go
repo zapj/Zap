@@ -13,7 +13,6 @@ func StartServer() {
 		serverCmd := exec.Command(os.Args[0], "server")
 		err := serverCmd.Run()
 		if err != nil {
-			global.LOG.Info(err)
 			time.Sleep(time.Second * 10)
 		}
 		global.ServerPID = serverCmd.Process.Pid

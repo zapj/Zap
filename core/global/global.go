@@ -11,11 +11,12 @@ import (
 	"gorm.io/gorm"
 )
 
+var ZAP_MODE string
 var ZAP_BASE_DIR string
 var ServerPID int
 var DB *gorm.DB
 var StatisticsDB *gorm.DB
-var LOG *logrus.Logger = logrus.New()
+var LOG *logrus.Logger
 var CONFIG *ini.File
 var CRON *cron.Cron
 

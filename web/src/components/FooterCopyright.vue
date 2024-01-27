@@ -5,7 +5,7 @@
     <el-row justify="space-between">
       <el-col :span="12">@ Copyright zap.cn</el-col>
       <el-col :span="12" class="text-right">
-        <el-text> 当前版本 {{ globalStore.settings.version }} <el-link @click="upgrade">更新</el-link> </el-text>
+        <el-text> 当前版本 {{ globalStore.settings.version }}({{ globalStore.settings.build_date }}) <el-link  @click="upgrade">更新</el-link> </el-text>
       </el-col>
     </el-row>
   </el-footer>

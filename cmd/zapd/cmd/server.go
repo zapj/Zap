@@ -34,7 +34,7 @@ func init() {
 
 var serverCmd = &cobra.Command{
 	Use:   "server",
-	Short: "启动ZAP服务",
+	Short: "zap server",
 	Run: func(cmd *cobra.Command, args []string) {
 		daemonServ, _ := cmd.Flags().GetBool("daemon")
 		if daemonServ {
@@ -62,8 +62,8 @@ var serverCmd = &cobra.Command{
 		}
 		//初始化缓存
 		global.CACHE = cache.New(5*time.Minute, 10*time.Minute)
-		conf.LogInit()
 		conf.InitEnv()
+		conf.LogInit()
 		conf.DbInit()
 		conf.ServerStart_INIT()
 		conf.InitCrons()

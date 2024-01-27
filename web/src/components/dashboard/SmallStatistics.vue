@@ -137,6 +137,11 @@
               <td>服务器已经运行</td>
               <td class="color-zinc-400">{{ statData.host.uptime }}</td>
             </tr>
+            <tr>
+              <td>ZAP 版本</td>
+              <td class="color-zinc-400">{{ globalStore.settings.version }}({{ globalStore.settings.build_date }})</td>
+            </tr>
+            
           </table>
         </div>
       </el-card>
@@ -187,7 +192,7 @@ echarts.use([
   UniversalTransition,
   LegendComponent
 ])
-
+import {useGlobalStore} from '../../stores/global'
 import { formatBytes, fmtBytes } from '@/commons/commons'
 import { computed, onMounted, onUnmounted, reactive } from 'vue'
 import { Icon } from '@iconify/vue'
@@ -224,6 +229,7 @@ const swapmemPercent = computed(() =>
 const diskPercent = computed(() =>
   statData.disk.used_percent ? parseFloat(statData.disk.used_percent) : 0.0
 )
+const globalStore = useGlobalStore()
 
 //定时刷新
 let refreshInterval

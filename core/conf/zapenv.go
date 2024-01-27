@@ -1,7 +1,7 @@
 package conf
 
 import (
-	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 
@@ -12,6 +12,10 @@ import (
 )
 
 func InitEnv() {
+	global.ZAP_MODE = "PROD"
+	if os.Getenv("ZAP_MODE") == "DEV" {
+		global.ZAP_MODE = "DEV"
+	}
 	var err error
 	execpath, err := os.Executable()
 	if err != nil {
@@ -23,14 +27,14 @@ func InitEnv() {
 	if !fileutils.IsDir(zap.GetPath("data")) {
 		err = os.MkdirAll(zap.GetPath("data/logs"), 0755)
 		if err != nil {
-			fmt.Println(err)
+			slog.Error("mkdir data/logs", err)
 			os.Exit(1)
 		}
 	}
 
 	global.CONFIG, err = ini.Load(zap.GetPath("conf/zap.ini"))
 	if err != nil {
-		global.LOG.Errorf("Fail to read file: %v", err)
+		slog.Error("Fail to read file: %v", err)
 	}
 	// fmt.Println(global.CONFIG.Section("server").Key("port").MustInt(2828))
 }

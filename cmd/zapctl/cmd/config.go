@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -64,7 +65,7 @@ func setConfig(name, value string) {
 	global.CONFIG.Section(ini.DefaultSection).Key(name).SetValue(value)
 	f, err := os.Create(zap.GetPath("conf/zap.ini"))
 	if err != nil {
-		fmt.Printf("配置文件保存失败: %v \n", err)
+		slog.Info("配置文件保存失败: %v \n", err)
 	}
 	defer f.Close()
 	global.CONFIG.WriteTo(f)

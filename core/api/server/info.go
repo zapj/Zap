@@ -3,6 +3,7 @@ package server
 import (
 	"bytes"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -146,9 +147,8 @@ func ServerNetInterfaces(c *gin.Context) {
 
 func ServerTopInfo(c *gin.Context) {
 	out, err := cmdutil.ExecCmd("top", "-bn1")
-	// // out, err := cmdutil.ExecCmdString("top", []string{"-bn1","-E","g", -e m})
 	if err != nil {
-		fmt.Println(err)
+		c.JSON(200, gin.H{"code": 1, "msg": "执行失败", "data": "", "rows": []gin.H{}})
 	}
 	// scanner := bufio.NewScanner(bytes.NewBuffer(out))
 	// scanner.Split(bufio.ScanWords)
@@ -190,12 +190,13 @@ func ServerTopInfo(c *gin.Context) {
 }
 
 func UpgradeCheck(c *gin.Context) {
-	if global.ZAP_INFO.Version == "0.0.0" {
+	slog.Info("upgrade check")
+	if global.ZAP_MODE == "DEV" {
 		c.JSON(200, gin.H{"code": 0, "msg": "开发环境不能执行更新操作"})
 	}
 	_, err := task.Get("/upgrade")
 	if err != nil {
 		c.JSON(200, gin.H{"code": 1, "msg": "任务执行失败"})
 	}
-	c.JSON(200, gin.H{"code": 0, "msg": "开发环境不能执行更新操作"})
+	c.JSON(200, gin.H{"code": 0, "msg": "请求已处理，升级成功后自动重启zap"})
 }

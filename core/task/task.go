@@ -2,7 +2,7 @@ package task
 
 import (
 	"context"
-	"fmt"
+	"log/slog"
 	"net"
 	"net/http"
 	"os"
@@ -42,13 +42,13 @@ func StartTask() {
 	<-ctx.Done()
 	stop()
 
-	fmt.Println("shutting down gracefully, press Ctrl+C again to force")
+	slog.Info("shutting down gracefully, press Ctrl+C again to force")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
-		fmt.Printf("Server forced to shutdown: %s \n", err)
+		slog.Info("Server forced to shutdown: %s \n", err)
 	}
 
-	fmt.Println("Server exiting")
+	slog.Info("Server exiting")
 }

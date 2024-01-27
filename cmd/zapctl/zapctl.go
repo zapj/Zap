@@ -12,8 +12,8 @@ var BuildDate = "0000-00-00_00:00:00"
 
 func main() {
 	global.ZAP_INFO = &core.ZapInfo{Version: Version, BuildDate: BuildDate}
-	conf.LogInit()
 	conf.InitEnv()
+	conf.LogInit()
 	conf.DbInit()
 	cmd.Execute()
 }

@@ -1,7 +1,10 @@
 package task
 
 import (
+	"fmt"
+	"log/slog"
 	"os"
+	"runtime"
 	"strconv"
 	"syscall"
 	"time"
@@ -25,24 +28,26 @@ func RegisterRouter(r *gin.RouterGroup) {
 			if zapdVer == global.ZAP_INFO.Version {
 				return
 			}
-			fileName := "zap-release-v" + string(resp.Body) + ".tar.gz"
+			fileName := fmt.Sprintf("zap-v%s-%s-%s.tar.gz", zapdVer, runtime.GOOS, runtime.GOARCH)
 			tmpFile := "/tmp/" + fileName
 			_, err = fetch.Download("https://mirrors.zap.cn/zap/dist/"+fileName, tmpFile)
 			if err != nil {
 				global.LOG.Info(err)
 				return
 			}
+
 			_, err = cmdutil.ExecBashCmd("tar zxf " + tmpFile + " -C /usr/local/")
 			if err != nil {
-				global.LOG.Info(err)
+				slog.Info("解压缩失败", err)
 			}
 			os.Remove(tmpFile)
 			// cmdutil.ExecBashCmd("systemctl restart zapd.service")
 			ServerProc, err := os.FindProcess(global.ServerPID)
 			if err != nil {
-				global.LOG.Info(err)
+				slog.Info("find process err", err)
 			}
 			if err = ServerProc.Signal(syscall.SIGTERM); err != nil {
+				slog.Info("signal err, restart zapd.service", err)
 				cmdutil.ExecBashCmd("systemctl restart zapd.service")
 			}
 

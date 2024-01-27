@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Linux
 OS=`uname`
