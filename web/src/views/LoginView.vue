@@ -1,7 +1,7 @@
 <template>
   <el-container>
     <el-main class="login">
-      <el-form :model="form" label-width="100px" :rules="formRules" ref="ruleFormRef" status-icon>
+      <el-form :model="form" label-width="100px" :rules="formRules" ref="ruleFormRef" status-icon @submit.native.prevent>
         <el-card class="box-card">
           <template #header>
             <div class="card-header">
@@ -24,7 +24,7 @@
           </div>
           <template #footer>
             <el-form-item>
-              <el-button type="primary" @click="onSubmit(ruleFormRef)">登陆</el-button>
+              <el-button type="primary" @click="onSubmit(ruleFormRef)" native-type="submit">登陆</el-button>
             </el-form-item>
           </template>
         </el-card>

@@ -83,8 +83,8 @@ func DashBoardStats(c *gin.Context) {
 	var netBytesRecv, netBytesSent, netBytesRecvTotal, netBytesSentTotal uint64 = 0, 0, 0, 0
 	netIOCounters, _ := net.IOCounters(false)
 	if global.NET_IO_COUNTERS != nil {
-		netBytesSent = (netIOCounters[0].BytesSent - global.NET_IO_COUNTERS[0].BytesSent) / 4
-		netBytesRecv = (netIOCounters[0].BytesRecv - global.NET_IO_COUNTERS[0].BytesRecv) / 4
+		netBytesSent = (netIOCounters[0].BytesSent - global.NET_IO_COUNTERS[0].BytesSent)
+		netBytesRecv = (netIOCounters[0].BytesRecv - global.NET_IO_COUNTERS[0].BytesRecv)
 	}
 	netBytesRecvTotal = netIOCounters[0].BytesRecv
 	netBytesSentTotal = netIOCounters[0].BytesSent

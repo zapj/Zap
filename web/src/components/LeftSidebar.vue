@@ -50,7 +50,7 @@ const router = useRouter()
 
 function logout() {
   sessionStorage.removeItem('access_token')
-  ElMessage({ message: '退出成功', type: 'warning' })
+  ElMessage({ message: '退出成功', type: 'success' })
 
   router.replace({
     path: '/login',

@@ -77,6 +77,7 @@ then
     GO111MODULE=on CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="${LD_FLAGS_STRING}" -trimpath cmd/zapctl/zapctl.go
     GO111MODULE=on CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="${LD_FLAGS_STRING}" -trimpath cmd/zapd/zapd.go
 else
+    echo "Current Version: ${VERSION}"
     go build -ldflags="${LD_FLAGS_STRING}" cmd/zapctl/zapctl.go
     go build -ldflags="${LD_FLAGS_STRING}" cmd/zapd/zapd.go
 fi
