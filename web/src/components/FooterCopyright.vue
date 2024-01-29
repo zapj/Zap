@@ -1,11 +1,11 @@
 <template>
   <el-backtop :right="100" :bottom="100" />
 
-  <el-footer class="text-gray:70 font-size-3 border-1 bg-light-color:700">
+  <el-footer class="text-gray  border-1" style="font-size:12px">
     <el-row justify="space-between">
-      <el-col :span="12">@ Copyright zap.cn</el-col>
-      <el-col :span="12" class="text-right">
-        <el-text  size="small" class="text-gray:70"> 当前版本 {{ globalStore.settings.version }}({{ globalStore.settings.build_date }}) <el-link  @click="upgrade">更新</el-link> </el-text>
+      <!-- <el-col :span="12"></el-col> -->
+      <el-col :span="24" class="text-right">
+        @ Copyright zap.cn <span  > 当前版本 {{ globalStore.settings.version }}({{ globalStore.settings.build_date }}) <el-link  underline style="font-size:12px"  @click="upgrade">更新</el-link> </span>
       </el-col>
     </el-row>
   </el-footer>

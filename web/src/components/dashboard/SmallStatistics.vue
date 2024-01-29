@@ -147,7 +147,7 @@
       </el-card>
     </el-col>
     <el-col :md="14" :sm="24">
-      <el-card class="box-card">
+      <el-card class="box-card" style="width:100%">
         <div class="card-header font-size-4 mb-2">
           监控
           <!-- <el-radio-group v-model="switchTrafficDisk">
@@ -161,7 +161,7 @@
           <el-tag class="ml-2" type="success">{{ monitorTags.tag3 }}</el-tag>
           <el-tag class="ml-2" type="success">{{ monitorTags.tag4 }}</el-tag>
         </div>
-        <div id="zapcharts" style="height: 300px"></div>
+        <div id="zapcharts" style="height: 300px;width:100%"></div>
       </el-card>
     </el-col>
   </el-row>
@@ -274,30 +274,40 @@ function refreshData() {
       monitorTags.tag2 = '已接收:' + formatBytes(data.netBytesRecv, 2)
       let [sendBytes, sendUnit] = fmtBytes(data.netBytesSentPerSec, 2)
       let [recvBytes, recvUnit] = fmtBytes(data.netBytesRecvPerSec, 2)
-      monitorTags.tag3 = `下行：${sendBytes}${sendUnit}/秒`
-      monitorTags.tag4 = `上行：${recvBytes}${recvUnit}/秒`
+      monitorTags.tag3 = `下行：${recvBytes}${recvUnit}/秒`
+      monitorTags.tag4 = `上行：${sendBytes}${sendUnit}/秒`
 
       var option = window.myChart.getOption()
+      option.tooltip = {
+        trigger: 'axis',
+        formatter: function(params) {   
+            let relVal = params[0].axisValueLabel;
+            for (let i = 0; i < params.length; i++) {
+              relVal +="<br/>" +params[i].marker +params[i].seriesName +":  " +params[i].data;
+                    
+              if(params[i].seriesName == "下行") {
+                relVal += `${recvUnit}`
+              }else{
+                relVal += `${sendUnit}`
+              }
+                
+            }
+            return relVal;
+        }
+      } 
       option.yAxis = [
         {
           boundaryGap: [0, '100%'],
           alignTicks: true,
           axisLabel: {
-            formatter: '{value} ' + sendUnit
-          }
-        },
-        {
-          boundaryGap: [0, '100%'],
-          alignTicks: true,
-          axisLabel: {
-            formatter: '{value} ' + recvUnit
+            formatter: `{value} ${recvUnit}`
           }
         }
       ]
       let xAxisData = option.xAxis[0].data
       let seriesData = option.series[0].data
       let series1Data = option.series[1].data
-      if (seriesData.length > 100) {
+      if (seriesData.length > 200) {
         xAxisData.shift()
         seriesData.shift()
         series1Data.shift()
@@ -318,9 +328,7 @@ function drawCharts() {
   var chartDom = document.getElementById('zapcharts')
   var myChart = echarts.init(chartDom)
   window.myChart = myChart
-  var option
-
-  option = {
+  var option = {
     legend: {
       data: ['上行', '下行'],
       right: 10
