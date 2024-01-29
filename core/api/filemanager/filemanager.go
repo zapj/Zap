@@ -85,3 +85,13 @@ func FileManager_List(c *gin.Context) {
 		"total_page": totalpage,
 	})
 }
+
+func FileManager_Fetch(c *gin.Context) {
+	filename := c.PostForm("filename")
+	data, err := os.ReadFile(filename)
+	if err != nil {
+		c.JSON(200, gin.H{"code": 1, "msg": filename + "无法读取文件内容" + err.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"code": 0, "msg": "OK", "data": string(data)})
+}

@@ -6,10 +6,12 @@
       </el-icon>
     </el-link>
     <div class="right-buttons">
-      <el-link :underline="false" @click="dialogVisible = true">Console</el-link>
-      <el-link :underline="false" class="hidden-xs-only">Without Underline</el-link>
+      <el-link :underline="false" @click="dialogVisible = true">
+        <Icon icon="material-symbols-light:terminal" :width="24"  />
+      </el-link>
+      <!-- <el-link :underline="false" class="hidden-xs-only">Without Underline</el-link> -->
       <el-link :underline="false">
-        <el-icon :size="20"><notification /></el-icon>
+        <Icon icon="tdesign:notification" :width="20"  />
       </el-link>
       <el-dropdown>
         <el-link :underline="false">
@@ -34,9 +36,9 @@
       </el-dropdown>
     </div>
   </el-header>
-
-  <el-dialog v-model="dialogVisible" title="Tips" draggable :modal="false" append-to-body :close-on-click-modal="false"   class="te-window" >
+  <el-dialog modal-class="zeditor" v-model="dialogVisible" title="Tips" draggable :modal="false" :append-to-body="true" :close-on-click-modal="false"   class="te-window" >
     <span>It's a draggable Dialog</span>
+    <EditVue></EditVue>
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="dialogVisible = false">Cancel</el-button>
@@ -48,9 +50,11 @@
 
 <script setup>
 import { ArrowDown, Expand, Notification, SwitchButton, UserFilled } from '@element-plus/icons-vue'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, defineAsyncComponent } from 'vue'
+import { Icon } from '@iconify/vue';
 import router from '../router'
 // const leftMenuStore = useLeftMenuStore()
+const EditVue = defineAsyncComponent(()=>import('../components/editor/CodeEditor.vue'))
 const dialogVisible = ref(false)
 onMounted(function () {
   const overlay = document.querySelector('.zap-overlay')
@@ -110,4 +114,6 @@ function logout() {
     right: 0;
     z-index: 9;
 }
+
+
 </style>

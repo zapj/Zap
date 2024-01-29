@@ -35,6 +35,7 @@ func RegisterAPIV1Router(c *gin.RouterGroup) {
 	c.GET("/sync/user/settings", users.SyncUserSettings)
 
 	c.POST("/filemanager/list", filemanager.FileManager_List)
+	c.POST("/filemanager/fetch", filemanager.FileManager_Fetch)
 
 	c.GET("/server/info", server.ServerInfo)
 	c.GET("/server/processlist", server.ServerProcessList)

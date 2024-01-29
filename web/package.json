@@ -1,6 +1,6 @@
 {
   "name": "vue-zap-admin",
-  "version": "0.0.1",
+  "version": "0.0.52",
   "private": true,
   "scripts": {
     "dev": "tsc --noEmit && vite",
@@ -11,10 +11,10 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@codemirror/lang-javascript": "^6.2.1",
     "@element-plus/icons-vue": "^2.1.0",
-    "ace-builds": "^1.32.3",
     "axios": "^1.6.5",
-    "chart.js": "^4.4.1",
+    "codemirror": "^6.0.1",
     "cookie": "^0.6.0",
     "echarts": "^5.4.3",
     "element-plus": "^2.3.14",
@@ -26,8 +26,8 @@
     "vite-plugin-inspect": "^0.7.41",
     "vue": "^3.4.7",
     "vue-router": "^4.2.4",
-    "vue3-apexcharts": "^1.4.4",
     "vue3-clipboard": "^1.0.0",
+    "vuedraggable": "^2.24.3",
     "xterm": "^5.3.0",
     "xterm-addon-attach": "^0.9.0",
     "xterm-addon-fit": "^0.8.0",

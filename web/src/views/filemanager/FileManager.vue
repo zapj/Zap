@@ -111,6 +111,9 @@
       />
     </template>
   </el-card>
+
+
+  <CodeDialog v-model="dialogVisible" ref="zapEdit"></CodeDialog>
 </template>
 <script setup>
 import { Icon } from '@iconify/vue'
@@ -120,12 +123,15 @@ import { useGlobalStore } from '../../stores/global'
 import { ElMessage } from 'element-plus'
 import { Edit, ArrowLeftBold } from '@element-plus/icons-vue'
 import { copyText } from 'vue3-clipboard'
+import CodeDialog from '../../components/editor/CodeDialog.vue'
+// const zapEdit = ref(null)
+// const CodeEditor = defineAsyncComponent(()=>import('../../components/editor/CodeEditor.vue'))
 const globalStore = useGlobalStore()
 const tableData = ref([])
 const tableHeight = ref(300)
-
+const dialogVisible  = ref(false)
 const inputFileDynPath = ref('')
-
+const zapEdit = ref(null)
 const handlePaginration = (currentPage, pageSize) => {
   pageState.currentpage = currentPage
   pageState.pagesize = pageSize
@@ -175,6 +181,9 @@ const openFile = (index) => {
     ElMessage({
       message: 'open file'
     })
+    // console.log(zapEdit);
+    zapEdit.value.openFile(globalStore.lastFilePath + '/' + row.name)
+    dialogVisible.value = true
   }
 }
 

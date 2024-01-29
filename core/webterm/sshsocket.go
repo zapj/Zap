@@ -3,6 +3,7 @@ package webterm
 import (
 	"encoding/json"
 	"io"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/exec"
@@ -12,7 +13,6 @@ import (
 	"github.com/creack/pty"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
-	log "github.com/sirupsen/logrus"
 )
 
 type windowSize struct {
@@ -34,7 +34,6 @@ var upgrader = websocket.Upgrader{
 func HandlerLocalWS(c *gin.Context) {
 	w := c.Writer
 	r := c.Request
-	l := log.WithField("remoteaddr", r.RemoteAddr)
 	h := http.Header{}
 	for _, access_token := range websocket.Subprotocols(r) {
 		h.Set("Sec-Websocket-Protocol", access_token)
@@ -43,7 +42,7 @@ func HandlerLocalWS(c *gin.Context) {
 
 	conn, err := upgrader.Upgrade(w, r, h)
 	if err != nil {
-		l.WithError(err).Error("Unable to upgrade connection")
+		slog.Error("Unable to upgrade connection", slog.Any("err", err))
 		return
 	}
 	// conn.SetReadDeadline(time.Now().Add(time.Second * 10))
@@ -57,7 +56,7 @@ func HandlerLocalWS(c *gin.Context) {
 
 	tty, err := pty.Start(cmd)
 	if err != nil {
-		l.WithError(err).Error("Unable to start pty/cmd")
+		slog.Error("Unable to start pty/cmd", slog.Any("err", err))
 		conn.WriteMessage(websocket.TextMessage, []byte(err.Error()))
 		return
 	}
@@ -75,7 +74,7 @@ func HandlerLocalWS(c *gin.Context) {
 			read, err := tty.Read(buf)
 			if err != nil {
 				conn.WriteMessage(websocket.TextMessage, []byte(err.Error()))
-				l.WithError(err).Error("Unable to read from pty/cmd")
+				slog.Error("Unable to read from pty/cmd", slog.Any("err", err))
 				return
 			}
 			conn.WriteMessage(websocket.BinaryMessage, buf[:read])
@@ -85,7 +84,7 @@ func HandlerLocalWS(c *gin.Context) {
 	for {
 		messageType, reader, err := conn.NextReader()
 		if err != nil {
-			l.WithError(err).Error("Unable to grab next reader")
+			slog.Error("Unable to grab next reader", slog.Any("err", err))
 			return
 		}
 
@@ -98,13 +97,13 @@ func HandlerLocalWS(c *gin.Context) {
 		dataTypeBuf := make([]byte, 1)
 		read, err := reader.Read(dataTypeBuf)
 		if err != nil {
-			l.WithError(err).Error("Unable to read message type from reader")
+			slog.Error("Unable to read message type from reader", slog.Any("err", err))
 			conn.WriteMessage(websocket.TextMessage, []byte("Unable to read message type from reader"))
 			return
 		}
 
 		if read != 1 {
-			l.WithField("bytes", read).Error("Unexpected number of bytes read")
+			slog.Error("Unexpected number of bytes read", slog.Any("err", err), slog.Any("bytes", read))
 			return
 		}
 
@@ -114,7 +113,7 @@ func HandlerLocalWS(c *gin.Context) {
 
 			copied, err := io.Copy(tty, reader)
 			if err != nil {
-				l.WithError(err).Errorf("Error after copying %d bytes", copied)
+				slog.Error("Error after copying ", "bytes", copied, "err", err)
 			}
 		case 1:
 			decoder := json.NewDecoder(reader)
@@ -124,7 +123,7 @@ func HandlerLocalWS(c *gin.Context) {
 				conn.WriteMessage(websocket.TextMessage, []byte("Error decoding resize message: "+err.Error()))
 				continue
 			}
-			log.WithField("resizeMessage", resizeMessage).Info("Resizing terminal")
+			slog.Info("Resizing terminal", "resize", resizeMessage)
 			_, _, errno := syscall.Syscall(
 				syscall.SYS_IOCTL,
 				tty.Fd(),
@@ -132,10 +131,10 @@ func HandlerLocalWS(c *gin.Context) {
 				uintptr(unsafe.Pointer(&resizeMessage)),
 			)
 			if errno != 0 {
-				l.WithError(syscall.Errno(errno)).Error("Unable to resize terminal")
+				slog.Info("Unable to resize terminal", "errno", syscall.Errno(errno))
 			}
 		default:
-			l.WithField("dataType", dataTypeBuf[0]).Error("Unknown data type")
+			slog.Info("Unknown data type", "dataType", dataTypeBuf[0])
 		}
 	}
 

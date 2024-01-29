@@ -97,14 +97,16 @@ body {
   }
 }
 
-te-window
-.te-window {
+
+.zeditor {
   .el-dialog__header,
   .el-dialog__body,
   .el-dialog__footer {
     pointer-events: auto !important;
   }
 }
-// :has(> .el-overlay-dialog .te-window) {
-//   pointer-events: none !important;
-// }
+.zeditor:has(> .el-overlay-dialog .te-window) {
+  pointer-events: auto !important;
+}
+
+

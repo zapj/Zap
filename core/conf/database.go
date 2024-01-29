@@ -2,6 +2,7 @@ package conf
 
 import (
 	"errors"
+	"log/slog"
 	"os"
 
 	"github.com/glebarez/sqlite"
@@ -18,26 +19,29 @@ func DbInit() {
 	global.DB, err = gorm.Open(sqlite.Open(zap.GetPath("data/zap.db")), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent),
 	})
+
 	if err != nil {
-		global.LOG.Error("DB init error")
+		slog.Error("DB init error")
 		os.Exit(1)
 	}
 	global.StatisticsDB, err = gorm.Open(sqlite.Open(zap.GetPath("data/statistics.db")), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent),
 	})
 	if err != nil {
-		global.LOG.Error("DB init error")
+		slog.Error("DB init error")
 		os.Exit(1)
 	}
 
+	//DB
 	global.DB.AutoMigrate(&models.ZapUsers{})
-	global.DB.AutoMigrate(&models.ZapLoadAvg{})
 	global.DB.AutoMigrate(&models.ZapWebSite{})
 	global.DB.AutoMigrate(&models.ZapDataBase{})
-	global.DB.AutoMigrate(&models.ZapDiskIOCounters{})
-	global.DB.AutoMigrate(&models.ZapNetIOCounters{})
-
 	global.DB.AutoMigrate(&models.ZapAppStore{})
+
+	// StatisticsDB
+	global.StatisticsDB.AutoMigrate(&models.ZapLoadAvg{})
+	global.StatisticsDB.AutoMigrate(&models.ZapDiskIOCounters{})
+	global.StatisticsDB.AutoMigrate(&models.ZapNetIOCounters{})
 
 	user := models.ZapUsers{}
 	result := global.DB.First(&user)

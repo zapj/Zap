@@ -15,7 +15,7 @@ func ZapCrons() {
 	global.CRON.AddFunc("@every 1m", func() {
 		avg, err := load.Avg()
 		if err == nil {
-			global.DB.Save(&models.ZapLoadAvg{
+			global.StatisticsDB.Save(&models.ZapLoadAvg{
 				Load1:  avg.Load1,
 				Load5:  avg.Load5,
 				Load15: avg.Load15,
