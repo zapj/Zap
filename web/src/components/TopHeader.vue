@@ -35,15 +35,7 @@
     </div>
   </el-header>
 
-  <el-dialog
-    v-model="dialogVisible"
-    title="Tips"
-    draggable
-    :modal="false"
-    append-to-body
-    :close-on-click-modal="false"
-    class="te-window"
-  >
+  <el-dialog v-model="dialogVisible" title="Tips" draggable :modal="false" append-to-body :close-on-click-modal="false"   class="te-window" >
     <span>It's a draggable Dialog</span>
     <template #footer>
       <span class="dialog-footer">
@@ -110,3 +102,12 @@ function logout() {
   // })
 }
 </script>
+<style scoped>
+.fixed-header {
+  width:calc(100% - 200px);
+  position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 9;
+}
+</style>

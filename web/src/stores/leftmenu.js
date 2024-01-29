@@ -4,8 +4,9 @@ import { defineStore } from 'pinia'
 export const useLeftMenuStore = defineStore(
   'left_menu',
   () => {
-    const marginLeft = ref('0')
-    return { marginLeft }
+    const marginLeft = ref('200')
+    const ExpandStatus = ref('showAside')
+    return { marginLeft,ExpandStatus }
   },
   {
     persist: true

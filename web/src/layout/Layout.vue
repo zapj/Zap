@@ -16,18 +16,27 @@ onMounted(()=>{
 </script>
 
 <template>
-  <el-container>
+  <!-- <el-container style="height: 100%"> -->
     <LeftSidebar></LeftSidebar>
     <el-container direction="vertical">
       <Header></Header>
       <el-scrollbar class="zap-content-scroll">
-        <el-main>
+        <el-main style="margin:0">
+          <!-- <el-scrollbar class="zap-content-scroll"> -->
+          <!-- <div class="content"> -->
           <RouterView></RouterView>
+         <!-- </div> -->
+        <!-- </el-scrollbar> -->
         </el-main>
         <FooterCopyright></FooterCopyright>
       </el-scrollbar>
     </el-container>
-  </el-container>
+  <!-- </el-container> -->
 </template>
  
-<style scoped></style>
+<style scoped>
+/* .content{
+  padding-top: 84px;
+  min-height: calc(100vh - 127px);
+} */
+</style>
