@@ -27,16 +27,16 @@ var userCmd = &cobra.Command{
 			if len(args) == 3 {
 				changePassword(args[1], args[2])
 			} else {
-				global.LOG.Println("zapctl user passwd [username] [password]")
+				cmd.Println("zapctl user passwd [username] [password]")
 			}
 		case "check":
 			if len(args) == 3 {
 				checkPassword(args[1], args[2])
 			} else {
-				global.LOG.Println("zapctl user check [username] [password]")
+				cmd.Println("zapctl user check [username] [password]")
 			}
 		default:
-			global.LOG.Printf("不支持该参数 %s", args[0])
+			cmd.Printf("不支持该参数 %s", args[0])
 		}
 	},
 }

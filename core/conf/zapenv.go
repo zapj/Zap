@@ -36,5 +36,12 @@ func InitEnv() {
 	if err != nil {
 		slog.Error("Fail to read file: %v", err)
 	}
-	// fmt.Println(global.CONFIG.Section("server").Key("port").MustInt(2828))
+	global.SERVER_CONF = &global.ServerConf{
+		Host:     global.CONFIG.Section("zapd").Key("host").MustString(""),
+		Port:     global.CONFIG.Section("zapd").Key("port").MustInt(2828),
+		IPv6:     global.CONFIG.Section("zapd").Key("ipv6").MustBool(true),
+		CertFile: global.CONFIG.Section("zapd").Key("cert_file").MustString(zap.GetPath("data/server.crt")),
+		KeyFile:  global.CONFIG.Section("zapd").Key("key_file").MustString(zap.GetPath("data/server.key")),
+	}
+
 }

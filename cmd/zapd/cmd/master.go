@@ -6,8 +6,8 @@ import (
 
 	"github.com/sevlyar/go-daemon"
 	"github.com/spf13/cobra"
-	"github.com/zapj/zap/core/global"
 	"github.com/zapj/zap/core/task"
+	"github.com/zapj/zap/core/utils/zap"
 )
 
 var taskDaemon bool = false
@@ -34,7 +34,7 @@ var taskCmd = &cobra.Command{
 
 			d, err := cntxt.Reborn()
 			if err != nil {
-				global.LOG.Fatal("Unable to run: ", err)
+				cmd.PrintErrln("Unable to run: ", err)
 			}
 			if d != nil {
 				return
@@ -42,7 +42,7 @@ var taskCmd = &cobra.Command{
 			defer cntxt.Release()
 		} else {
 			pid := os.Getpid()
-			os.WriteFile("zap_master.pid", []byte(strconv.Itoa(pid)), 0644)
+			os.WriteFile(zap.GetPath("zap_master.pid"), []byte(strconv.Itoa(pid)), 0644)
 		}
 		task.StartTask()
 	},

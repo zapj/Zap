@@ -22,16 +22,8 @@ func LogInit() {
 			MaxBackups: 3,
 			MaxAge:     30, // days
 		}
-
 		slog.SetDefault(slog.New(slog.NewTextHandler(logger, nil)))
 	}
-
-	// log.SetOutput(&lumberjack.Logger{
-	// 	Filename:   zap.GetPath("data/logs/zap.log"),
-	// 	MaxSize:    500, // megabytes
-	// 	MaxBackups: 3,
-	// 	MaxAge:     30, // days
-	// })
 
 	global.LOG.SetFormatter(&logrus.TextFormatter{FullTimestamp: true})
 }

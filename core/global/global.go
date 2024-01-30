@@ -26,3 +26,4 @@ var CACHE *cache.Cache
 
 var NET_IO_COUNTERS []net.IOCountersStat
 var ZAP_INFO *core.ZapInfo
+var SERVER_CONF *ServerConf

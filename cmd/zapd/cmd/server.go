@@ -3,8 +3,9 @@ package cmd
 import (
 	"crypto/rand"
 	"crypto/tls"
+	"fmt"
 	"io/fs"
-	"log"
+	"log/slog"
 	"net"
 	"net/http"
 	"os"
@@ -23,6 +24,7 @@ import (
 	"github.com/zapj/zap/core/api"
 	"github.com/zapj/zap/core/conf"
 	"github.com/zapj/zap/core/global"
+	"github.com/zapj/zap/core/utils/zlog"
 	"github.com/zapj/zap/web"
 )
 
@@ -50,7 +52,7 @@ var serverCmd = &cobra.Command{
 
 			d, err := cntxt.Reborn()
 			if err != nil {
-				global.LOG.Fatal("Unable to run: ", err)
+				zlog.Fatal("Unable to run: ", err)
 			}
 			if d != nil {
 				return
@@ -95,7 +97,7 @@ var serverCmd = &cobra.Command{
 				cmd.SysProcAttr = &syscall.SysProcAttr{GidMappingsEnableSetgroups: true}
 				cmd.SysProcAttr.Credential = &syscall.Credential{Uid: 65534, Gid: 65534, NoSetGroups: true}
 				if err := cmd.Run(); err != nil {
-					global.LOG.Error(err)
+					slog.Error("", err)
 				}
 
 			}()
@@ -103,45 +105,30 @@ var serverCmd = &cobra.Command{
 		api.RegisterRouter(router)
 		api.RegisterAPIV1Router(router.Group("/api/v1"))
 
-		// srv := &http.Server{
-		// 	// Addr:    ":2828",
-		// 	Handler: router,
-		// }
-
-		// if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-		// 	global.LOG.Errorf("listen: %s\n", err)
-		// } else {
-		// 	global.LOG.Debugf("Listen Port : %s", ":2828")
-		// }
-		// debugServ, _ := cmd.Flags().GetBool("debug")
-		// if debugServ {
-		// 	fmt.Println("debug")
-		// }
-		// if len(args) >= 1 && args[0] == "" {
-		// 	fmt.Println(args[0])
-		// }
-		l, err := net.Listen("tcp", ":2828")
+		l, err := net.Listen("tcp", fmt.Sprintf("%s:%d", global.SERVER_CONF.Host, global.SERVER_CONF.Port))
 		if err != nil {
-			global.LOG.Panic(err)
+			zlog.Fatal("port 无法监听", err)
 		}
-		global.LOG.Println("listen and serve on https://0.0.0.0:2828")
+		zlog.Infof("listen and serve on https://%s:%d", global.SERVER_CONF.Host, global.SERVER_CONF.Port)
 		m := cmux.New(l)
 
 		httpl := m.Match(cmux.HTTP1Fast())
 		tlsl := m.Match(cmux.Any())
 
-		go serveHTTP(httpl, router)
+		go serveHTTP(httpl)
 		go serveHTTPS(tlsl, router)
 
 		if err := m.Serve(); !strings.Contains(err.Error(), "use of closed network connection") {
-			global.LOG.Panic(err)
+			zlog.Fatal("start server err", err)
 		}
 	},
 }
 
-func serveHTTP(l net.Listener, router *gin.Engine) {
+func serveHTTP(l net.Listener) {
 	s := &http.Server{
-		Handler: router,
+		Handler: http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+			http.Redirect(w, req, fmt.Sprintf("https://%s%s", req.Host, req.RequestURI), http.StatusMovedPermanently)
+		}),
 	}
 	if err := s.Serve(l); err != cmux.ErrListenerClosed {
 		panic(err)
@@ -150,9 +137,9 @@ func serveHTTP(l net.Listener, router *gin.Engine) {
 
 func serveHTTPS(l net.Listener, router *gin.Engine) {
 	// Load certificates.
-	certificate, err := tls.LoadX509KeyPair("data/server.crt", "data/server.key")
+	certificate, err := tls.LoadX509KeyPair(global.SERVER_CONF.CertFile, global.SERVER_CONF.KeyFile)
 	if err != nil {
-		log.Panic(err)
+		zlog.Fatal("load certificate", err)
 	}
 
 	config := &tls.Config{
@@ -163,6 +150,26 @@ func serveHTTPS(l net.Listener, router *gin.Engine) {
 	// Create TLS listener.
 	tlsl := tls.NewListener(l, config)
 
-	// Serve HTTP over TLS.
-	serveHTTP(tlsl, router)
+	s := &http.Server{
+		Handler: router,
+	}
+	if err := s.Serve(tlsl); err != cmux.ErrListenerClosed {
+		panic(err)
+	}
 }
+
+// type RedirectHttps struct {
+// }
+
+// func (r *RedirectHttps) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+// 	slog.Info("redirect", "url", req.URL.String())
+// 	http.Redirect(w, req, fmt.Sprintf("https://%s%s", req.Host, req.RequestURI), http.StatusMovedPermanently)
+// }
+
+// func redirect(w http.ResponseWriter, req *http.Request) {
+// 	slog.Info("req.URL.RawPath", "raw", req.URL.RawPath, "port", req.URL.Port())
+// 	slog.Info(fmt.Sprintf("https://%s:%s%s", req.Host, req.URL.Port(), req.URL.RawPath))
+// 	http.Redirect(w, req,
+// 		fmt.Sprintf("https://%s:%s%s", req.Host, req.URL.Port(), req.URL.RawPath),
+// 		http.StatusMovedPermanently)
+// }

@@ -3,7 +3,7 @@
 #-ldflags="-w -s -buildid="
 # zapctl config set signing_key `openssl rand -hex 12`
 VERSION=`cat VERSION`
-BUILD_DATE=`date +'%Y%m%d_%H:%M'`
+BUILD_DATE=`date +'%Y%m%d_%H:%M:%S'`
 ARCH=$(uname -m)
 OS=$(uname)
 ZAP_BASEDIR=$(pwd)

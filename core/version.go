@@ -1,6 +1,7 @@
 package core
 
 type ZapInfo struct {
-	Version   string
-	BuildDate string
+	Version        string
+	BuildDate      string
+	BuildShortDate string
 }
