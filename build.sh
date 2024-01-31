@@ -2,8 +2,8 @@
 
 #-ldflags="-w -s -buildid="
 # zapctl config set signing_key `openssl rand -hex 12`
-VERSION=`cat VERSION`
-BUILD_DATE=`date +'%Y%m%d_%H:%M:%S'`
+VERSION=$(cat VERSION)
+BUILD_DATE=$(date +'%Y%m%d_%H:%M:%S')
 ARCH=$(uname -m)
 OS=$(uname)
 ZAP_BASEDIR=$(pwd)
@@ -57,9 +57,9 @@ then
         VERSION=$2
         echo $VERSION > VERSION
     else
-        VERSION=`cat VERSION`
+        VERSION=$(cat VERSION)
         VerArr=($(echo "$VERSION" | tr '.' ' '))
-        VERSION="${VerArr[0]}.${VerArr[1]}.`expr ${VerArr[2]} + 1`"
+        VERSION="${VerArr[0]}.${VerArr[1]}.$(expr ${VerArr[2]} + 1)"
         echo $VERSION > VERSION
     fi
     rm -rf ./zapd

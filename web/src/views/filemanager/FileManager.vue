@@ -178,12 +178,12 @@ const openFile = (index) => {
   if (row.is_dir) {
     getFiles({ path: globalStore.lastFilePath + '/' + row.name })
   } else {
-    ElMessage({
-      message: 'open file'
-    })
-    // console.log(zapEdit);
-    zapEdit.value.openFile(globalStore.lastFilePath + '/' + row.name)
+    // ElMessage({
+    //   message: 'open file'
+    // })
+    zapEdit.value.openFile(globalStore.lastFilePath + '/' + row.name,row.name)
     dialogVisible.value = true
+// console.log(dialogVisible.value);
   }
 }
 
@@ -240,7 +240,7 @@ const coypFilePath = (index) => {
 }
 
 function getFiles(options) {
-  console.log('request getFIle', options)
+  // console.log('request getFIle', options)
   const defaultOptions = {
     path: globalStore.lastFilePath,
     page: 1,

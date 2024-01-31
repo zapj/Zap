@@ -117,7 +117,8 @@ var serverCmd = &cobra.Command{
 
 		go serveHTTP(httpl)
 		go serveHTTPS(tlsl, router)
-
+		// syscall.Setegid(65534)
+		// syscall.Seteuid(65534)
 		if err := m.Serve(); !strings.Contains(err.Error(), "use of closed network connection") {
 			zlog.Fatal("start server err", err)
 		}

@@ -1,6 +1,7 @@
 package filemanager
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path"
@@ -9,8 +10,10 @@ import (
 	"syscall"
 
 	"github.com/dustin/go-humanize"
+	"github.com/gabriel-vasile/mimetype"
 	"github.com/gin-gonic/gin"
 	"github.com/zapj/zap/core/global"
+	"github.com/zapj/zap/core/protect"
 	"github.com/zapj/zap/core/utils/time_utils"
 )
 
@@ -88,10 +91,34 @@ func FileManager_List(c *gin.Context) {
 
 func FileManager_Fetch(c *gin.Context) {
 	filename := c.PostForm("filename")
+	mimeType, _ := mimetype.DetectFile(filename)
+	if !protect.IsTextFile(mimeType.String()) {
+		c.JSON(200, gin.H{"code": 1, "msg": filename + "不是文本类型"})
+		return
+	}
 	data, err := os.ReadFile(filename)
 	if err != nil {
 		c.JSON(200, gin.H{"code": 1, "msg": filename + "无法读取文件内容" + err.Error()})
 		return
 	}
-	c.JSON(200, gin.H{"code": 0, "msg": "OK", "data": string(data)})
+	c.JSON(200, gin.H{"code": 0, "msg": "OK", "data": string(data), "mimetype": mimeType.String()})
+}
+
+func FileManager_PutFile(c *gin.Context) {
+	filename := c.PostForm("filename")
+	content := c.PostForm("content")
+	finfo, err := os.Stat(filename)
+	fmode := os.FileMode(0644)
+	if err != nil && !errors.Is(err, os.ErrNotExist) {
+		c.JSON(200, gin.H{"code": 1, "msg": filename + "无法保存" + err.Error()})
+		return
+	} else if err != nil && errors.Is(err, os.ErrNotExist) {
+		fmode = finfo.Mode()
+	}
+	err = os.WriteFile(filename, []byte(content), fmode)
+	if err != nil {
+		c.JSON(200, gin.H{"code": 1, "msg": filename + "无法写入文件内容" + err.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"code": 0, "msg": "文件保存成功"})
 }
