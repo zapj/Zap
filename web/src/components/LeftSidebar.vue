@@ -1,11 +1,12 @@
 <template>
   <div class="zap-overlay"></div>
   <el-aside width="200px">
-    <div class="font-bold color-green h-60px lh-60px text-center">
-      <span>ZAP</span>
+    <div class="font-bold color-green h-50px lh-50px text-center">
+      <span class="font-size-5">ZAP</span>
     </div>
+    <hr class="divhr" />
     <!-- :collapse="true" -->
-    <el-menu :default-active="route.path" background-color="#363636" text-color="#fff" router>
+    <el-menu :default-active="route.path" background-color="rgb(58, 63, 70)" text-color="#fff" router>
       <el-menu-item index="/">
         <Icon icon="ic:round-dashboard" style="font-size: 24px" class="mr-1" />
         <span>控制面板</span>
@@ -72,3 +73,28 @@ function logout() {
   // })
 }
 </script>
+<style scoped>
+.divhr {
+  border-width: 0px 0px thin;
+    border-style: solid;
+    border-color: rgba(0, 0, 0, 0.12);
+    background-color: rgba(0, 0, 0, 0.12);
+    color: rgb(34, 34, 34);
+}
+.el-aside {
+  background-color: rgb(58, 63, 70);
+}
+.el-menu-item{
+  font-weight: 700;
+}
+.el-menu-item.is-active{
+  background:linear-gradient(98deg, rgb(56, 88, 75) 1%, rgb(58, 80, 73) 166%);
+  color: white;
+}
+
+.el-menu-item:hover  {
+  background:linear-gradient(98deg, rgb(56, 88, 75) 1%, rgb(58, 80, 73) 166%);
+  color: white;
+}
+
+</style>

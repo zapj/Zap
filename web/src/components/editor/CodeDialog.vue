@@ -16,8 +16,15 @@
   >
   <el-link :underline="false" @click="handleSelectFile(key)">{{ value.filename }}</el-link> 
   </el-tag>
+  <div class="edit-toolbars"></div>
+  <Suspense>
     <CodeEditor v-for="(value,key,index) in editorFiles" :ref="el=>{editorRefs[key]=el}" :key="key" :filename="key" :id="value.id" v-show="showEditor(value.id)" 
-        @closefile="closeFile"></CodeEditor>
+        @closefile="closeFile" v-on="$listeners"></CodeEditor>
+    <template #fallback>
+        <el-skeleton :rows="5" />
+    </template>
+  </Suspense>
+    
     <template #footer>
       <span class="dialog-footer">
         <!-- <el-button @click="dialogVisible = false">Cancel</el-button> -->
@@ -29,10 +36,15 @@
 <script setup>
 import { ElMessage } from 'element-plus';
 import { onMounted,defineExpose,defineAsyncComponent, computed, reactive } from 'vue'
-const CodeEditor = defineAsyncComponent(()=>import('../../components/editor/CodeEditor.vue'))
+const CodeEditor = defineAsyncComponent(()=>import('./CodeEditor.vue'))
 var editorFiles = reactive({})
 var idFileMaps = reactive({})
 var editorRefs = reactive({})
+const dialogWidth = ref("70%")
+const curEditFile = ref()
+const activeFile = ref()
+// const dialogVisable = ref(false)
+
 onMounted(()=>{
     window.addEventListener('resize',()=>{
         if (document.body.clientWidth < 768){
@@ -41,15 +53,12 @@ onMounted(()=>{
     })
     // console.log(props.dialogVisible);
 })
-const dialogWidth = ref("70%")
-const curEditFile = ref()
-// const dialogVisable = ref(false)
 const showEditor = computed((id)=>{
     return function(id){
         return activeFile.value === id
     }
 })
-const activeFile = ref()
+
 const handleCloseFile = (file) => {
     if (editorFiles.hasOwnProperty(file)){
         delete idFileMaps[editorFiles[file].id] 

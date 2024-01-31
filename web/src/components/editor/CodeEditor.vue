@@ -6,12 +6,12 @@
     </div>
 </template>
 <script setup>
-import { onMounted } from 'vue'
+import { onMounted,inject } from 'vue'
 import {EditorView, basicSetup} from "codemirror"
 import {javascript} from "@codemirror/lang-javascript"
 import apiRequest from '../../httpclient/client';
 import { ElMessage } from 'element-plus';
-
+const dialogVisible = inject("dialogVisible")
 let editInstance = null
 const showEmpty = ref(true)
 onMounted(()=>{
@@ -36,9 +36,6 @@ onMounted(()=>{
     })
     
 })
-const openFile = (file) => {
-    alert(file)
-}
 
 const props = defineProps({
     filename:String,
@@ -53,22 +50,13 @@ const saveFile = ()=>{
         dataType:"form",
     }).then((resp)=>{
         if(resp.code === 0 ){
-            ElMessage({
-                message:resp.msg,
-                type:"success"
-            })
+            ElMessage({message:resp.msg,type:"success"})
             $emits('closefile',props.filename)
         }else{
-            ElMessage({
-                message:resp.msg,
-                type:"error"
-            })
+            ElMessage({message:resp.msg,type:"error"})
         }
     }).catch((resp)=>{
-        ElMessage({
-                message:resp.msg,
-                type:"error"
-            })
+        ElMessage({message:resp.msg,type:"error"})
     })
 }
 defineExpose({

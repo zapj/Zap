@@ -1,6 +1,6 @@
 <template>
-  <el-card class="box-card">
-    <el-radio-group v-model="activeName" type="success" @change="handleSwitch">
+  <el-card class="box-card " style="overflow-x: auto;white-space: nowrap;">
+    <el-radio-group v-model="activeName" type="success" @change="handleSwitch" style="flex-wrap: nowrap;">
       <el-radio-button label="服务器信息" />
       <el-radio-button label="Top 命令" />
       <el-radio-button label="进程管理" />

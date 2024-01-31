@@ -1,5 +1,5 @@
 <template>
-  <el-card class="box-card">
+  <el-card class="box-card filemanager" >
     <template #header>
       <div class="card-header">
         <el-row :gutter="20">
@@ -22,9 +22,10 @@
             </ul>
           </el-col>
           <el-col :sm="24" :md="12" :lg="12">
-            <el-button title="上一级"
-              ><el-icon><ArrowLeftBold /></el-icon
-            ></el-button>
+            <el-button-group class="mb-top">
+              <el-button type="default" :icon="ArrowUpBold" @click="upLevelDirectory" />
+              <!-- <el-button type="default" :icon="Delete" /> -->
+            </el-button-group>
           </el-col>
         </el-row>
       </div>
@@ -38,7 +39,7 @@
       v-loading="pageState.tbLoading"
       fit 
     >
-      <el-table-column type="selection" width="50" />
+      <el-table-column type="selection" width="30" />
       <el-table-column prop="name" label="文件名" min-width="250" show-overflow-tooltip>
         <template #default="{ row, $index }">
           <el-button link @click.prevent="openFile($index)">
@@ -65,14 +66,14 @@
       <el-table-column prop="gid" label="GID" width="60" />
       <el-table-column prop="mod_time" label="修改时间" width="180" />
       <el-table-column prop="filesize" label="文件大小" width="120" />
-      <el-table-column fixed="right" label="操作" width="120">
+      <el-table-column fixed="right" label="操作" width="100">
         <template #default="scope">
           <el-button
             :icon="Edit"
             circle
-            class="mr-2"
+            class="mr-2 hidden-md-and-down"
             title="编辑"
-            @click="editFile(scope.$index)"
+            @click.prevent="openFile(scope.$index)"
           />
           <el-dropdown>
             <span class="el-dropdown-link">
@@ -113,15 +114,15 @@
   </el-card>
 
 
-  <CodeDialog v-model="dialogVisible" ref="zapEdit"></CodeDialog>
+  <CodeDialog v-model="dialogVisible" ref="zapDialog"></CodeDialog>
 </template>
 <script setup>
 import { Icon } from '@iconify/vue'
-import { onMounted, ref } from 'vue'
+import { onMounted, onUnmounted, provide, ref } from 'vue'
 import apiRequest from '../../httpclient/client'
 import { useGlobalStore } from '../../stores/global'
 import { ElMessage } from 'element-plus'
-import { Edit, ArrowLeftBold } from '@element-plus/icons-vue'
+import { Edit, ArrowUpBold } from '@element-plus/icons-vue'
 import { copyText } from 'vue3-clipboard'
 import CodeDialog from '../../components/editor/CodeDialog.vue'
 // const zapEdit = ref(null)
@@ -129,9 +130,20 @@ import CodeDialog from '../../components/editor/CodeDialog.vue'
 const globalStore = useGlobalStore()
 const tableData = ref([])
 const tableHeight = ref(300)
+//Dialog状态
 const dialogVisible  = ref(false)
 const inputFileDynPath = ref('')
-const zapEdit = ref(null)
+const zapDialog = ref(null)
+const pageState = reactive({
+  inputFileDynPath: '',
+  breadcrumbPaths: [],
+  total: 0,
+  pagesize: 50,
+  currentpage: 1,
+  tbLoading: false
+})
+provide("dialogVisible",dialogVisible)
+
 const handlePaginration = (currentPage, pageSize) => {
   pageState.currentpage = currentPage
   pageState.pagesize = pageSize
@@ -141,14 +153,7 @@ const handlePaginration = (currentPage, pageSize) => {
     pagesize: pageSize
   })
 }
-const pageState = reactive({
-  inputFileDynPath: '',
-  breadcrumbPaths: [],
-  total: 0,
-  pagesize: 50,
-  currentpage: 1,
-  tbLoading: false
-})
+
 const resizeTable = () => {
   let tbHeight = document.body.clientHeight - 215 - 140
   if (tbHeight < 300) {
@@ -157,6 +162,7 @@ const resizeTable = () => {
     tableHeight.value = tbHeight
   }
 }
+
 onMounted(() => {
   if (globalStore.lastFilePath === '') {
     globalStore.lastFilePath = '/'
@@ -167,7 +173,10 @@ onMounted(() => {
     pagesize: pageState.pagesize
   })
 
-  window.onresize = resizeTable
+  window.addEventListener('resize',resizeTable)
+})
+onUnmounted(()=>{
+  window.removeEventListener('resize',resizeTable)
 })
 
 const openFile = (index) => {
@@ -178,10 +187,8 @@ const openFile = (index) => {
   if (row.is_dir) {
     getFiles({ path: globalStore.lastFilePath + '/' + row.name })
   } else {
-    // ElMessage({
-    //   message: 'open file'
-    // })
-    zapEdit.value.openFile(globalStore.lastFilePath + '/' + row.name,row.name)
+    // ElMessage({message: 'open file'})
+    zapDialog.value.openFile(globalStore.lastFilePath + '/' + row.name,row.name)
     dialogVisible.value = true
 // console.log(dialogVisible.value);
   }
@@ -200,6 +207,10 @@ const changePath = (index) => {
 //刷新
 const refreshData = () => {
   updateBreadCrumb(globalStore.lastFilePath)
+}
+
+const upLevelDirectory = () => {
+  changePath(pageState.breadcrumbPaths.length-2 ? pageState.breadcrumbPaths.length-2 : 0)
 }
 //更新Path
 function updateBreadCrumb(path) {
@@ -274,7 +285,7 @@ function getFiles(options) {
     .finally(() => (pageState.tbLoading = false))
 }
 </script>
-<style scoped>
+<style >
 .fm-breadcrumb {
   position: absolute;
   top: 8px;
@@ -284,5 +295,15 @@ function getFiles(options) {
 .fm-breadcrumb li {
   display: inline-block;
   padding-left: 7px;
+}
+
+.filemanager .el-card__body {
+  padding: 0 !important;
+}
+
+@media screen and (max-width:768px) {
+  .mb-top{
+    margin-top: 0.5rem;
+  }
 }
 </style>
