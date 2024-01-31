@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+	"log/slog"
 	"net/http"
 	"strings"
 
@@ -13,7 +14,6 @@ import (
 	"github.com/zapj/zap/core/api/server"
 	"github.com/zapj/zap/core/api/users"
 	"github.com/zapj/zap/core/auth/jwtauth"
-	"github.com/zapj/zap/core/global"
 	"github.com/zapj/zap/core/webterm"
 )
 
@@ -78,7 +78,6 @@ func parseToken(jwtToken string) (*jwt.Token, error) {
 }
 
 func jwtTokenCheck(c *gin.Context) {
-	// global.LOG.Println("REQ_URI", c.Request.RequestURI)
 	// if c.Request.RequestURI == "/api/v1/local/ws" {
 	// 	c.Next()
 	// 	return
@@ -91,12 +90,12 @@ func jwtTokenCheck(c *gin.Context) {
 	// }
 	// }
 	if token := c.GetHeader("Sec-Websocket-Protocol"); token != "" {
-		global.LOG.Info("Sec-Websocket-Protocol", c.GetHeader("Sec-Websocket-Protocol"))
+		slog.Info("sec websocket protocol", "Sec-Websocket-Protocol", c.GetHeader("Sec-Websocket-Protocol"))
 		jwtToken = token
 		err = nil
 	}
 	if err != nil {
-		global.LOG.Info("StatusBadRequest", err.Error())
+		slog.Info("StatusBadRequest", "err", err.Error())
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"msg":  err.Error(),
 			"code": 1,
@@ -110,7 +109,7 @@ func jwtTokenCheck(c *gin.Context) {
 			"msg":  "bad jwt token",
 			"code": 1,
 		})
-		global.LOG.Info("bad jwt token")
+		slog.Info("bad jwt token")
 		return
 	}
 
@@ -120,7 +119,7 @@ func jwtTokenCheck(c *gin.Context) {
 			"msg":  "unable to parse claims",
 			"code": 1,
 		})
-		global.LOG.Info("unable to parse claims")
+		slog.Info("unable to parse claims")
 		return
 	}
 	subject, err := claims.GetSubject()
@@ -129,11 +128,10 @@ func jwtTokenCheck(c *gin.Context) {
 			"msg":  "jwt invalid",
 			"code": 1,
 		})
-		global.LOG.Info("jwt invalid")
+		slog.Info("jwt invalid")
 		return
 	}
 	c.Set("JWT_SUBJECT", subject)
 	c.Set("JWT_TOKEN", jwtToken)
 	c.Next()
-	// global.LOG.Info("jwt success")
 }

@@ -2,11 +2,11 @@ package jwtauth
 
 import (
 	"errors"
+	"log/slog"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/zapj/zap/core/global"
 )
 
 var SigningKey = []byte("AllYourBase")
@@ -57,7 +57,7 @@ func CheckJwtToken(jwtToken string) (*jwt.RegisteredClaims, error) {
 		return SigningKey, nil
 	}, jwt.WithLeeway(5*time.Second))
 	if err != nil {
-		global.LOG.Error(err)
+		slog.Error("check jwt token", "err", err)
 		return nil, err
 	} else if claims, ok := token.Claims.(*jwt.RegisteredClaims); ok {
 		return claims, err

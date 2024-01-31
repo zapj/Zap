@@ -5,17 +5,17 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 	"strings"
 
 	"github.com/zapj/goutils/fileutils"
-	"github.com/zapj/zap/core/global"
 )
 
 func CreateUser(user UserEntry) error {
 	users, err := ReadSystemUsers()
 	if err != nil {
-		global.LOG.Error("读取passwd失败")
+		slog.Error("读取passwd失败")
 		return err
 	}
 	if _, ok := users[user.Username]; ok {
@@ -31,7 +31,7 @@ func CreateUser(user UserEntry) error {
 func CheckUserExists(username string) bool {
 	users, err := ReadSystemUsers()
 	if err != nil {
-		global.LOG.Error("读取passwd失败")
+		slog.Error("读取passwd失败")
 		return false
 	}
 	if _, ok := users[username]; ok {

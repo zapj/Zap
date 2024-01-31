@@ -52,7 +52,7 @@ func DashBoardStats(c *gin.Context) {
 	//https://stackoverflow.com/questions/11356330/how-to-get-cpu-usage
 	//内存使用率
 	// 1
-	// global.LOG.Info("pec", (float64(memory.Total-memory.Available))/float64(memory.Total)*100.0)
+	// slog.Info("pec", (float64(memory.Total-memory.Available))/float64(memory.Total)*100.0)
 	// 2
 	//strconv.FormatFloat(memory.UsedPercent, 'f', 2, 64),
 	var pCores int = 0

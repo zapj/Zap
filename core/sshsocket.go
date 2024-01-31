@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"strconv"
@@ -16,7 +17,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"github.com/mitchellh/go-homedir"
-	"github.com/sirupsen/logrus"
+	"github.com/zapj/zap/core/utils/zlog"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -100,7 +101,7 @@ func HandlerWS(c *gin.Context) {
 	//if wshandleError(wsConn, err) {
 	//	return
 	//}
-	logrus.Info("websocket finished")
+	slog.Info("websocket finished")
 }
 
 func JsonError(c *gin.Context, msg interface{}) {
@@ -109,7 +110,7 @@ func JsonError(c *gin.Context, msg interface{}) {
 
 func HandleError(c *gin.Context, err error) bool {
 	if err != nil {
-		//logrus.WithError(err).Error("gin context http handler error")
+		//slog.Error("gin context http handler error")
 		JsonError(c, err.Error())
 		return true
 	}
@@ -118,10 +119,10 @@ func HandleError(c *gin.Context, err error) bool {
 
 func WshandleError(ws *websocket.Conn, err error) bool {
 	if err != nil {
-		logrus.WithError(err).Error("handler ws ERROR:")
+		slog.Error("handler ws ERROR:", "err", err)
 		dt := time.Now().Add(time.Second)
 		if err := ws.WriteControl(websocket.CloseMessage, []byte(err.Error()), dt); err != nil {
-			logrus.WithError(err).Error("websocket writes control message failed:")
+			slog.Error("websocket writes control message failed:", "err", err)
 		}
 		return true
 	}
@@ -175,7 +176,7 @@ func hostKeyCallBackFunc(host string) ssh.HostKeyCallback {
 		}
 	}
 	if hostKey == nil {
-		log.Fatalf("no hostkey for %s,%v", host, err)
+		zlog.Errorf("no hostkey for %s,%v", host, err)
 	}
 	return ssh.FixedHostKey(hostKey)
 }
@@ -183,16 +184,16 @@ func hostKeyCallBackFunc(host string) ssh.HostKeyCallback {
 func publicKeyAuthFunc(kPath string) ssh.AuthMethod {
 	keyPath, err := homedir.Expand(kPath)
 	if err != nil {
-		log.Fatal("find key's home dir failed", err)
+		slog.Error("find key's home dir failed", "err", err)
 	}
 	key, err := os.ReadFile(keyPath)
 	if err != nil {
-		log.Fatal("ssh key file read failed", err)
+		slog.Error("ssh key file read failed", "err", err)
 	}
 	// Create the Signer for this private key.
 	signer, err := ssh.ParsePrivateKey(key)
 	if err != nil {
-		log.Fatal("ssh key signer failed", err)
+		slog.Error("ssh key signer failed", "err", err)
 	}
 	return ssh.PublicKeys(signer)
 }
@@ -211,7 +212,7 @@ func runCommand(client *ssh.Client, command string) (stdout string, err error) {
 		//log.Print(err)
 		return
 	}
-	stdout = string(buf.Bytes())
+	stdout = buf.String()
 
 	return
 }
@@ -323,7 +324,7 @@ func (ssConn *SshConn) ReceiveWsMsg(wsConn *websocket.Conn, logBuff *bytes.Buffe
 			//read websocket msg
 			_, wsData, err := wsConn.ReadMessage()
 			if err != nil {
-				logrus.WithError(err).Error("reading webSocket message failed")
+				slog.Error("reading webSocket message failed")
 				return
 			}
 			//unmashal bytes into struct
@@ -334,14 +335,14 @@ func (ssConn *SshConn) ReceiveWsMsg(wsConn *websocket.Conn, logBuff *bytes.Buffe
 				Cols: 180,
 			}
 			//if err := json.Unmarshal(wsData, &msgObj); err != nil {
-			//	logrus.WithError(err).WithField("wsData", string(wsData)).Error("unmarshal websocket message failed")
+			//	slog.WithField("wsData", string(wsData)).Error("unmarshal websocket message failed")
 			//}
 			switch msgObj.Type {
 			case wsMsgResize:
 				//handle xterm.js size change
 				if msgObj.Cols > 0 && msgObj.Rows > 0 {
 					if err := ssConn.Session.WindowChange(msgObj.Rows, msgObj.Cols); err != nil {
-						logrus.WithError(err).Error("ssh pty change windows size failed")
+						slog.Error("ssh pty change windows size failed")
 					}
 				}
 			case wsMsgCmd:
@@ -349,14 +350,14 @@ func (ssConn *SshConn) ReceiveWsMsg(wsConn *websocket.Conn, logBuff *bytes.Buffe
 				//decodeBytes, err := base64.StdEncoding.DecodeString(msgObj.Cmd)
 				decodeBytes := wsData
 				if err != nil {
-					logrus.WithError(err).Error("websock cmd string base64 decoding failed")
+					slog.Error("websock cmd string base64 decoding failed")
 				}
 				if _, err := ssConn.StdinPipe.Write(decodeBytes); err != nil {
-					logrus.WithError(err).Error("ws cmd bytes write to ssh.stdin pipe failed")
+					slog.Error("ws cmd bytes write to ssh.stdin pipe failed")
 				}
 				//write input cmd to log buffer
 				if _, err := logBuff.Write(decodeBytes); err != nil {
-					logrus.WithError(err).Error("write received cmd into log buffer failed")
+					slog.Error("write received cmd into log buffer failed")
 				}
 			}
 		}
@@ -375,7 +376,7 @@ func (ssConn *SshConn) SendComboOutput(wsConn *websocket.Conn, exitCh chan bool)
 		case <-tick.C:
 			//write combine output bytes into websocket response
 			if err := flushComboOutput(ssConn.ComboOutput, wsConn); err != nil {
-				logrus.WithError(err).Error("ssh sending combo output to webSocket failed")
+				slog.Error("ssh sending combo output to webSocket failed")
 				return
 			}
 		case <-exitCh:
@@ -386,7 +387,7 @@ func (ssConn *SshConn) SendComboOutput(wsConn *websocket.Conn, exitCh chan bool)
 
 func (ssConn *SshConn) SessionWait(quitChan chan bool) {
 	if err := ssConn.Session.Wait(); err != nil {
-		logrus.WithError(err).Error("ssh session wait failed")
+		slog.Error("ssh session wait failed")
 		setQuit(quitChan)
 	}
 }

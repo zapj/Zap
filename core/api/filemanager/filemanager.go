@@ -3,6 +3,7 @@ package filemanager
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 	"path"
 	"path/filepath"
@@ -12,7 +13,6 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/gin-gonic/gin"
-	"github.com/zapj/zap/core/global"
 	"github.com/zapj/zap/core/protect"
 	"github.com/zapj/zap/core/utils/time_utils"
 )
@@ -33,7 +33,7 @@ func FileManager_List(c *gin.Context) {
 	}
 	dirFs, err := os.ReadDir(basePath)
 	if err != nil {
-		global.LOG.Info(err)
+		slog.Info("readdir", "err", err)
 	}
 	total := len(dirFs)
 	totalpage := total % pagesize
@@ -50,7 +50,7 @@ func FileManager_List(c *gin.Context) {
 	if limit > total {
 		limit = total
 	}
-	// global.LOG.Info("basePath", basePath, "    total:", total, "  page", page, "   Limit:", limit, "   Offset:", offset)
+	// slog.Info("basePath", basePath, "    total:", total, "  page", page, "   Limit:", limit, "   Offset:", offset)
 	fileList := []gin.H{}
 	for _, dirEntry := range dirFs[offset:limit] {
 		fileInfo, _ := dirEntry.Info()

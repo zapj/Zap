@@ -89,7 +89,7 @@ func ServerInfo(c *gin.Context) {
 		// },
 	}
 	diskPartStat, _ := disk.Partitions(false)
-	// global.LOG.Info("diskPartStat", diskPartStat)
+	// slog.Info("diskPartStat", diskPartStat)
 	var diskUsageStat []*disk.UsageStat
 	for i := 0; i < len(diskPartStat); i++ {
 		usageStat, err := disk.Usage(diskPartStat[i].Mountpoint)

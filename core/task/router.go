@@ -21,7 +21,7 @@ func RegisterRouter(r *gin.RouterGroup) {
 		go func() {
 			resp, err := fetch.Get("https://mirrors.zap.cn/zap/dist/latest.txt?" + strconv.FormatInt(time.Now().Unix(), 10))
 			if err != nil {
-				global.LOG.Info(err)
+				slog.Info("check version", "err", err)
 				return
 			}
 			zapdVer := string(resp.Body)
@@ -32,22 +32,22 @@ func RegisterRouter(r *gin.RouterGroup) {
 			tmpFile := "/tmp/" + fileName
 			_, err = fetch.Download("https://mirrors.zap.cn/zap/dist/"+fileName, tmpFile)
 			if err != nil {
-				global.LOG.Info(err)
+				slog.Info(fmt.Sprintf("download %s", fileName), "err", err)
 				return
 			}
 
 			_, err = cmdutil.ExecBashCmd("tar zxf " + tmpFile + " -C /usr/local/")
 			if err != nil {
-				slog.Info("解压缩失败", err)
+				slog.Info("解压缩失败", "err", err)
 			}
 			os.Remove(tmpFile)
 			// cmdutil.ExecBashCmd("systemctl restart zapd.service")
 			ServerProc, err := os.FindProcess(global.ServerPID)
 			if err != nil {
-				slog.Info("find process err", err)
+				slog.Info("find process err", "err", err)
 			}
 			if err = ServerProc.Signal(syscall.SIGTERM); err != nil {
-				slog.Info("signal err, restart zapd.service", err)
+				slog.Info("signal err, restart zapd.service", "err", err)
 				cmdutil.ExecBashCmd("systemctl restart zapd.service")
 			}
 
