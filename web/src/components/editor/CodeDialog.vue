@@ -35,7 +35,7 @@
 </template>
 <script setup>
 import { ElMessage } from 'element-plus';
-import { onMounted,defineExpose,defineAsyncComponent, computed, reactive } from 'vue'
+import { onMounted,defineExpose,defineAsyncComponent, computed, reactive,inject } from 'vue'
 const CodeEditor = defineAsyncComponent(()=>import('./CodeEditor.vue'))
 var editorFiles = reactive({})
 var idFileMaps = reactive({})
@@ -43,8 +43,7 @@ var editorRefs = reactive({})
 const dialogWidth = ref("70%")
 const curEditFile = ref()
 const activeFile = ref()
-// const dialogVisable = ref(false)
-
+const dialogVisible = inject("dialogVisible")
 onMounted(()=>{
     window.addEventListener('resize',()=>{
         if (document.body.clientWidth < 768){
@@ -70,8 +69,7 @@ const handleCloseFile = (file) => {
         activeFile.value = editorFiles[lastKey].id;
        }
        if(keys.length === 0){
-        // dialogVisable.value = false
-        // $emits("update:modelValue", false);
+        dialogVisible.value = false
        }
     }
 
