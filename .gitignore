@@ -25,7 +25,7 @@ web/node_modules
 *.log
 *.pid
 /dist
-/web/static
+# /web/static
 /data/task
 /data/*.db
 /data/*.crt
