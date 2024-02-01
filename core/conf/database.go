@@ -8,15 +8,15 @@ import (
 	"github.com/glebarez/sqlite"
 	"github.com/zapj/zap/core/global"
 	"github.com/zapj/zap/core/models"
-	"github.com/zapj/zap/core/utils/bcrypt_util"
-	"github.com/zapj/zap/core/utils/zap"
+	"github.com/zapj/zap/core/utils/pathutil"
+	"github.com/zapj/zap/core/utils/zcrypt"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
 
 func DbInit() {
 	var err error
-	global.DB, err = gorm.Open(sqlite.Open(zap.GetPath("data/zap.db")), &gorm.Config{
+	global.DB, err = gorm.Open(sqlite.Open(pathutil.GetPath("data/zap.db")), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent),
 	})
 
@@ -24,7 +24,7 @@ func DbInit() {
 		slog.Error("DB init error")
 		os.Exit(1)
 	}
-	global.StatisticsDB, err = gorm.Open(sqlite.Open(zap.GetPath("data/statistics.db")), &gorm.Config{
+	global.StatisticsDB, err = gorm.Open(sqlite.Open(pathutil.GetPath("data/statistics.db")), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent),
 	})
 	if err != nil {
@@ -40,15 +40,17 @@ func DbInit() {
 
 	// StatisticsDB
 	global.StatisticsDB.AutoMigrate(&models.ZapLoadAvg{})
+	global.StatisticsDB.AutoMigrate(&models.ZapCrontab{})
 	global.StatisticsDB.AutoMigrate(&models.ZapDiskIOCounters{})
 	global.StatisticsDB.AutoMigrate(&models.ZapNetIOCounters{})
+	global.StatisticsDB.AutoMigrate(&models.ZapAccessLog{})
 
 	user := models.ZapUsers{}
 	result := global.DB.First(&user)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		user.ID = 1
 		user.Username = "admin"
-		passwd, _ := bcrypt_util.HashPassword("zapzap")
+		passwd, _ := zcrypt.HashPassword("zapzap")
 		user.Password = passwd
 		user.Home = "/home/" + user.Username
 		user.Gid = 1000

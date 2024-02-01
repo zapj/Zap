@@ -8,7 +8,7 @@ import (
 	"github.com/zapj/zap/core/auth/jwtauth"
 	"github.com/zapj/zap/core/global"
 	"github.com/zapj/zap/core/models"
-	"github.com/zapj/zap/core/utils/bcrypt_util"
+	"github.com/zapj/zap/core/utils/zcrypt"
 	"gorm.io/gorm"
 )
 
@@ -34,11 +34,11 @@ func LoginAuthHandler(c *gin.Context) {
 		c.JSON(200, gin.H{"code": 1, "msg": "用户名或密码不正确"})
 		return
 	}
-	if !bcrypt_util.CheckPasswordHash(userForm.Passowrd, user.Password) {
+	if !zcrypt.CheckPasswordHash(userForm.Passowrd, user.Password) {
 		c.JSON(200, gin.H{"code": 1, "msg": "用户名或密码不正确"})
 		return
 	}
-	access_token, err := jwtauth.GenerateAccessToken(fmt.Sprint(user.ID))
+	access_token, err := jwtauth.GenerateAccessToken(fmt.Sprint(user.ID), user.Username)
 	if err != nil {
 		c.JSON(200, gin.H{"code": 1, "msg": "生成Token 失败"})
 		return
@@ -64,7 +64,7 @@ func RefreshTokenHandler(c *gin.Context) {
 		c.JSON(200, gin.H{"code": 1, "msg": "Token 无效"})
 	}
 
-	h, err := jwtauth.GenerateAccessToken(claims.ID)
+	h, err := jwtauth.GenerateAccessToken(claims.ID, claims.Username)
 	if err != nil {
 		c.JSON(200, gin.H{"code": 1, "msg": "Token 无效"})
 	}

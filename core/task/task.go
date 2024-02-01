@@ -11,14 +11,22 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/zapj/goutils/fileutils"
+	"github.com/zapj/zap/core/global"
 	"github.com/zapj/zap/core/ssl"
-	"github.com/zapj/zap/core/utils/zap"
+	"github.com/zapj/zap/core/utils/pathutil"
 )
 
-func StartTask() {
-	os.Remove(zap.GetPath("data/task"))
-	crtFile, keyFile := zap.GetPath("data/server.crt"), zap.GetPath("data/server.key")
-	ssl.AutoGenCertAndKey(crtFile, keyFile)
+func StartTaskScheduler() {
+	os.Remove(pathutil.GetPath("data/task"))
+	crtFile, keyFile := pathutil.GetPath("data/server.crt"), pathutil.GetPath("data/server.key")
+	if fileutils.IsFile(global.SERVER_CONF.CertFile) && fileutils.IsFile(global.SERVER_CONF.KeyFile) {
+		crtFile = global.SERVER_CONF.CertFile
+		keyFile = global.SERVER_CONF.KeyFile
+	} else {
+		ssl.AutoGenCertAndKey(crtFile, keyFile)
+	}
+
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
@@ -30,7 +38,7 @@ func StartTask() {
 	}
 
 	go func() {
-		unixListener, err := net.Listen("unix", zap.GetPath("data/task"))
+		unixListener, err := net.Listen("unix", pathutil.GetPath("data/task"))
 		if err != nil {
 			panic(err)
 		}

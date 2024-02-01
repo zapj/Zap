@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/zapj/zap/core/api/appstore"
 	"github.com/zapj/zap/core/api/dashboard"
 	"github.com/zapj/zap/core/api/filemanager"
@@ -62,21 +61,6 @@ func extractBearerToken(header string) (string, error) {
 	return jwtToken[1], nil
 }
 
-func parseToken(jwtToken string) (*jwt.Token, error) {
-	token, err := jwt.Parse(jwtToken, func(token *jwt.Token) (interface{}, error) {
-		if _, OK := token.Method.(*jwt.SigningMethodHMAC); !OK {
-			return nil, errors.New("bad signed method received")
-		}
-		return jwtauth.SigningKey, nil
-	})
-
-	if err != nil {
-		return nil, errors.New("bad jwt token")
-	}
-
-	return token, nil
-}
-
 func jwtTokenCheck(c *gin.Context) {
 	// if c.Request.RequestURI == "/api/v1/local/ws" {
 	// 	c.Next()
@@ -103,27 +87,10 @@ func jwtTokenCheck(c *gin.Context) {
 		return
 	}
 
-	token, err := parseToken(jwtToken)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"msg":  "bad jwt token",
-			"code": 1,
-		})
-		slog.Info("bad jwt token")
-		return
-	}
+	claims, _ := jwtauth.CheckJwtToken(jwtToken)
 
-	claims, OK := token.Claims.(jwt.MapClaims)
-	if !OK {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"msg":  "unable to parse claims",
-			"code": 1,
-		})
-		slog.Info("unable to parse claims")
-		return
-	}
-	subject, err := claims.GetSubject()
-	if err != nil {
+	ID := claims.ID
+	if ID == "" {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 			"msg":  "jwt invalid",
 			"code": 1,
@@ -131,7 +98,8 @@ func jwtTokenCheck(c *gin.Context) {
 		slog.Info("jwt invalid")
 		return
 	}
-	c.Set("JWT_SUBJECT", subject)
+	c.Set("JWT_ID", claims.ID)
+	c.Set("JWT_USERNAME", claims.Username)
 	c.Set("JWT_TOKEN", jwtToken)
 	c.Next()
 }

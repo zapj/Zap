@@ -9,7 +9,7 @@ import (
 
 var rootCmd = &cobra.Command{
 	Use:   "zapd",
-	Short: "zap master",
+	Short: "zapd daemon",
 	Run: func(cmd *cobra.Command, args []string) {
 		versionCmd.Run(cmd, args)
 		cmd.Help()

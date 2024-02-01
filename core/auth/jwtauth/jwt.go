@@ -12,12 +12,20 @@ import (
 var SigningKey = []byte("AllYourBase")
 var ErrJwtUnknownClaimsType = errors.New("unknown claims type, cannot proceed")
 
-func GenerateAccessToken(id string) (string, error) {
-	claims := &jwt.MapClaims{
-		"exp": jwt.NewNumericDate(time.Now().Add(time.Hour * 24)),
-		"sub": id,
-	}
+type ZapClaims struct {
+	Username string `json:"u"`
+	jwt.RegisteredClaims
+}
 
+func GenerateAccessToken(id, username string) (string, error) {
+	claims := ZapClaims{
+		username,
+		jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute * 10)),
+			Issuer:    "ZAP",
+			ID:        id,
+		},
+	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	access_token, err := token.SignedString(SigningKey)
 
@@ -29,10 +37,13 @@ func GenerateAccessToken(id string) (string, error) {
 }
 
 func GenerateAccessAndRefreshToken() (gin.H, error) {
-	claims := &jwt.RegisteredClaims{
-		ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute * 10)),
-		Issuer:    "ZAP",
-		ID:        "",
+	claims := &ZapClaims{
+		"",
+		jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute * 10)),
+			Issuer:    "ZAP",
+			ID:        "",
+		},
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -52,14 +63,14 @@ func GenerateAccessAndRefreshToken() (gin.H, error) {
 	return gin.H{"access_token": access_token, "refresh_token": refresh_token, "expire_at": time.Minute * 10, "code": 0}, nil
 }
 
-func CheckJwtToken(jwtToken string) (*jwt.RegisteredClaims, error) {
-	token, err := jwt.ParseWithClaims(jwtToken, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
+func CheckJwtToken(jwtToken string) (*ZapClaims, error) {
+	token, err := jwt.ParseWithClaims(jwtToken, &ZapClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return SigningKey, nil
 	}, jwt.WithLeeway(5*time.Second))
 	if err != nil {
 		slog.Error("check jwt token", "err", err)
 		return nil, err
-	} else if claims, ok := token.Claims.(*jwt.RegisteredClaims); ok {
+	} else if claims, ok := token.Claims.(*ZapClaims); ok {
 		return claims, err
 	}
 	return nil, ErrJwtUnknownClaimsType

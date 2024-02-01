@@ -14,7 +14,7 @@ import (
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/gin-gonic/gin"
 	"github.com/zapj/zap/core/protect"
-	"github.com/zapj/zap/core/utils/time_utils"
+	"github.com/zapj/zap/core/utils/zdate"
 )
 
 func FileManager_List(c *gin.Context) {
@@ -71,7 +71,7 @@ func FileManager_List(c *gin.Context) {
 			"is_file":    is_file,
 			"is_symlink": is_symlink,
 			"symlink_to": symlink,
-			"mod_time":   fileInfo.ModTime().Format(time_utils.DATE_TIME_FORMAT),
+			"mod_time":   fileInfo.ModTime().Format(zdate.DATE_TIME_FORMAT),
 			"perm":       fmt.Sprintf("%#o", fileInfo.Mode().Perm()),
 			"uid":        fileInfo.Sys().(*syscall.Stat_t).Uid,
 			"gid":        fileInfo.Sys().(*syscall.Stat_t).Gid,

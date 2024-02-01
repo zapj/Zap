@@ -19,7 +19,6 @@ type ZapDataBase struct {
 
 type ZapAppStore struct {
 	gorm.Model
-	Uid              uint
 	AppId            string
 	AppName          string
 	AppTitle         string
@@ -29,4 +28,13 @@ type ZapAppStore struct {
 	ScriptName       string
 	Author           string
 	OrganizationName string
+}
+
+type ZapAccessLog struct {
+	gorm.Model
+	Username   string
+	LogDate    string
+	IpAddr     string
+	UserAgent  string
+	RequestUri string
 }

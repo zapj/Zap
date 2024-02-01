@@ -6,8 +6,9 @@ import (
 
 	"github.com/sevlyar/go-daemon"
 	"github.com/spf13/cobra"
+	"github.com/zapj/zap/core/conf"
 	"github.com/zapj/zap/core/task"
-	"github.com/zapj/zap/core/utils/zap"
+	"github.com/zapj/zap/core/utils/pathutil"
 )
 
 var taskDaemon bool = false
@@ -42,8 +43,11 @@ var taskCmd = &cobra.Command{
 			defer cntxt.Release()
 		} else {
 			pid := os.Getpid()
-			os.WriteFile(zap.GetPath("zap_master.pid"), []byte(strconv.Itoa(pid)), 0644)
+			os.WriteFile(pathutil.GetPath("zap_master.pid"), []byte(strconv.Itoa(pid)), 0644)
 		}
-		task.StartTask()
+		conf.InitEnv()
+		conf.LogInit()
+		conf.DbInit()
+		task.StartTaskScheduler()
 	},
 }

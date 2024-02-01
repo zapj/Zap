@@ -35,7 +35,7 @@
 </template>
 <script setup>
 import { ElMessage } from 'element-plus';
-import { onMounted,defineExpose,defineAsyncComponent, computed, reactive,inject } from 'vue'
+import { onMounted,defineAsyncComponent, computed, reactive,inject } from 'vue'
 const CodeEditor = defineAsyncComponent(()=>import('./CodeEditor.vue'))
 var editorFiles = reactive({})
 var idFileMaps = reactive({})

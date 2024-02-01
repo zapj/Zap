@@ -22,8 +22,8 @@ import (
 	"github.com/zapj/zap/core/global"
 	"github.com/zapj/zap/core/task"
 	"github.com/zapj/zap/core/utils/cmdutil"
-	datautils "github.com/zapj/zap/core/utils/data_utils"
-	"github.com/zapj/zap/core/utils/time_utils"
+	"github.com/zapj/zap/core/utils/format"
+	"github.com/zapj/zap/core/utils/zdate"
 )
 
 func ServerInfo(c *gin.Context) {
@@ -63,7 +63,7 @@ func ServerInfo(c *gin.Context) {
 		"cpu_cores": len(cpusInfo),
 		"cpu_ghz":   strconv.FormatFloat(cpuInfo.Mhz/1000, 'f', 2, 64),
 
-		"BootTime": time.Unix(int64(hostInfo.BootTime), 0).Format(time_utils.DATE_TIME_FORMAT),
+		"BootTime": time.Unix(int64(hostInfo.BootTime), 0).Format(zdate.DATE_TIME_FORMAT),
 		"Hostname": hostInfo.Hostname,
 		"uptime":   humanize.Time(time.Unix(int64(hostInfo.BootTime), 0)),
 		// "uptime1":         time.Now().Sub(time.Unix(int64(hostInfo.BootTime), 0)).String(),
@@ -119,13 +119,13 @@ func ServerProcessList(c *gin.Context) {
 		}
 		pMap["name"], _ = proc.Name()
 		create_time, _ := proc.CreateTime()
-		pMap["create_time"] = time_utils.FormatUnixMilliToDateTime(create_time)
+		pMap["create_time"] = zdate.FormatUnixMilliToDateTime(create_time)
 		pMap["background"], _ = proc.Background()
 		cpu_percent, _ := proc.CPUPercent()
-		pMap["cpu_percent"] = datautils.FmtPercentFloat64(cpu_percent)
+		pMap["cpu_percent"] = format.FmtPercentFloat64(cpu_percent)
 		// pMap["is_running"], _ = proc.IsRunning()
 		mem_percent, _ := proc.MemoryPercent()
-		pMap["mem_percent"] = datautils.FmtPercentFloat32(mem_percent)
+		pMap["mem_percent"] = format.FmtPercentFloat32(mem_percent)
 		// pMap["mem_percent"] = datautils.FmtPercentFloat64(pMap["mem_percent"].(float32))
 		pMap["cmdline"], _ = proc.Cmdline()
 		pMap["username"], _ = proc.Username()
