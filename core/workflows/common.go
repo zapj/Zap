@@ -7,13 +7,14 @@ import (
 	"github.com/zapj/goutils"
 	"github.com/zapj/zap/core/global"
 	"github.com/zapj/zap/core/models"
+	"github.com/zapj/zap/core/utils/pathutil"
 	"gopkg.in/yaml.v3"
 )
 
 var ZAP_SCRIPT_FILES = "data/appstore/zap/*.yaml"
 
 func ReadZAPWorkflowsInfo() []*WorkflowsInfo {
-	scriptFiles, _ := filepath.Glob(ZAP_SCRIPT_FILES)
+	scriptFiles, _ := filepath.Glob(pathutil.GetPath(ZAP_SCRIPT_FILES))
 	var workflows []*WorkflowsInfo
 
 	var totalApp int64 = 0

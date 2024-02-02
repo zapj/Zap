@@ -100,10 +100,11 @@ func LoadTask() {
 	}
 	taskJob := NewZapJob()
 	taskJob.Task = taskData
-	globalTaskQueue <- taskJob
 	taskData.StartTime = taskJob.StartTime
 	taskData.Status = STATUS_READY
 	global.DB.Updates(taskData)
+	globalTaskQueue <- taskJob
+
 }
 
 func StartTaskQueue() {

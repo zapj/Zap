@@ -44,6 +44,7 @@ func RegisterAPIV1Router(c *gin.RouterGroup) {
 	c.GET("/server/top_info", server.ServerTopInfo)
 
 	c.GET("/app/appstore", appstore.ListApp)
+	c.GET("/task/appinstall/tasklist", appstore.TaskList)
 
 	c.GET("/upgrade/check", server.UpgradeCheck)
 

@@ -5,14 +5,11 @@ import (
 	"crypto/tls"
 	"fmt"
 	"io/fs"
-	"log/slog"
 	"net"
 	"net/http"
 	"os"
-	"os/exec"
 	"strconv"
 	"strings"
-	"syscall"
 	"time"
 
 	"github.com/gin-contrib/gzip"
@@ -70,7 +67,7 @@ var serverCmd = &cobra.Command{
 		conf.ServerStart_INIT()
 		conf.InitCrons()
 		gin.SetMode(gin.ReleaseMode)
-		if len(args) == 1 && args[0] == "debug" {
+		if global.ZAP_MODE == "DEV" {
 			gin.SetMode(gin.DebugMode)
 		}
 		router := gin.Default()
@@ -92,22 +89,22 @@ var serverCmd = &cobra.Command{
 		})
 
 		router.GET("/start", func(c *gin.Context) {
-			go func() {
-				cmd := exec.Command("./zap_cli", "version")
-				cmd.SysProcAttr = &syscall.SysProcAttr{GidMappingsEnableSetgroups: true}
-				cmd.SysProcAttr.Credential = &syscall.Credential{Uid: 65534, Gid: 65534, NoSetGroups: true}
-				if err := cmd.Run(); err != nil {
-					slog.Error("", err)
-				}
+			// go func() {
+			// 	cmd := exec.Command("./zap_cli", "version")
+			// 	cmd.SysProcAttr = &syscall.SysProcAttr{GidMappingsEnableSetgroups: true}
+			// 	cmd.SysProcAttr.Credential = &syscall.Credential{Uid: 65534, Gid: 65534, NoSetGroups: true}
+			// 	if err := cmd.Run(); err != nil {
+			// 		slog.Error("", err)
+			// 	}
 
-			}()
+			// }()
 		})
 		api.RegisterRouter(router)
 		api.RegisterAPIV1Router(router.Group("/api/v1"))
 
 		l, err := net.Listen("tcp", fmt.Sprintf("%s:%d", global.SERVER_CONF.Host, global.SERVER_CONF.Port))
 		if err != nil {
-			zlog.Fatal("port 无法监听", err)
+			zlog.Fatalf("无法监听port:%d , err : %s", global.SERVER_CONF.Port, err.Error())
 		}
 		zlog.Infof("listen and serve on https://%s:%d", global.SERVER_CONF.Host, global.SERVER_CONF.Port)
 		m := cmux.New(l)
@@ -120,7 +117,7 @@ var serverCmd = &cobra.Command{
 		// syscall.Setegid(65534)
 		// syscall.Seteuid(65534)
 		if err := m.Serve(); !strings.Contains(err.Error(), "use of closed network connection") {
-			zlog.Fatal("start server err", err)
+			zlog.Fatal("start server err", "err", err)
 		}
 	},
 }
@@ -140,7 +137,7 @@ func serveHTTPS(l net.Listener, router *gin.Engine) {
 	// Load certificates.
 	certificate, err := tls.LoadX509KeyPair(global.SERVER_CONF.CertFile, global.SERVER_CONF.KeyFile)
 	if err != nil {
-		zlog.Fatal("load certificate", err)
+		zlog.Fatal("load certificate", "err", err)
 	}
 
 	config := &tls.Config{
