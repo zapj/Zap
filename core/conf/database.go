@@ -38,9 +38,14 @@ func DbInit() {
 	global.DB.AutoMigrate(&models.ZapDataBase{})
 	global.DB.AutoMigrate(&models.ZapAppStore{})
 
+	//system task job
+	global.DB.AutoMigrate(&models.ZapTask{})
+	//user cron
+	global.DB.AutoMigrate(&models.ZapCrontab{})
+
 	// StatisticsDB
 	global.StatisticsDB.AutoMigrate(&models.ZapLoadAvg{})
-	global.StatisticsDB.AutoMigrate(&models.ZapCrontab{})
+
 	global.StatisticsDB.AutoMigrate(&models.ZapDiskIOCounters{})
 	global.StatisticsDB.AutoMigrate(&models.ZapNetIOCounters{})
 	global.StatisticsDB.AutoMigrate(&models.ZapAccessLog{})

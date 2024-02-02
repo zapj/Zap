@@ -18,7 +18,7 @@ import (
 )
 
 func StartTaskScheduler() {
-	os.Remove(pathutil.GetPath("data/task"))
+	os.Remove(pathutil.GetPath(TASK_SERV_SOCK))
 	crtFile, keyFile := pathutil.GetPath("data/server.crt"), pathutil.GetPath("data/server.key")
 	if fileutils.IsFile(global.SERVER_CONF.CertFile) && fileutils.IsFile(global.SERVER_CONF.KeyFile) {
 		crtFile = global.SERVER_CONF.CertFile
@@ -38,7 +38,7 @@ func StartTaskScheduler() {
 	}
 
 	go func() {
-		unixListener, err := net.Listen("unix", pathutil.GetPath("data/task"))
+		unixListener, err := net.Listen("unix", pathutil.GetPath(TASK_SERV_SOCK))
 		if err != nil {
 			panic(err)
 		}
@@ -47,6 +47,7 @@ func StartTaskScheduler() {
 	go func() {
 		StartServer()
 	}()
+	StartTaskQueue()
 	<-ctx.Done()
 	stop()
 

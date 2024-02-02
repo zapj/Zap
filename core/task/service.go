@@ -6,7 +6,7 @@ import (
 )
 
 var defaultConfig = fetch.Config{
-	UnixDomainSocket:      pathutil.GetPath("data/task"),
+	UnixDomainSocket:      pathutil.GetPath(TASK_SERV_SOCK),
 	TLSInsecureSkipVerify: true,
 	BaseURL:               "https://127.0.0.1",
 }

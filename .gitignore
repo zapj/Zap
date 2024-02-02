@@ -26,9 +26,11 @@ web/node_modules
 *.pid
 /dist
 # /web/static
+/data/tmp
 /data/task
 /data/*.db
 /data/*.crt
 /data/*.key
+/custombuilds
 
 

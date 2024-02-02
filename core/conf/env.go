@@ -9,6 +9,7 @@ import (
 	"github.com/zapj/goutils/fileutils"
 	"github.com/zapj/zap/core/global"
 	"github.com/zapj/zap/core/utils/pathutil"
+	"github.com/zapj/zap/core/utils/str"
 	"github.com/zapj/zap/core/utils/zlog"
 	"gopkg.in/ini.v1"
 )
@@ -41,7 +42,7 @@ func InitEnv() {
 		zlog.Errorf("Fail to read file: %v", err)
 	}
 	global.SERVER_CONF = &global.ServerConf{
-		SigningKey: global.CONFIG.Section("").Key("signing_key").MustString(""),
+		SigningKey: global.CONFIG.Section("zapd").Key("signing_key").MustString(str.RandUString(16)),
 		Host:       global.CONFIG.Section("zapd").Key("host").MustString(""),
 		Port:       global.CONFIG.Section("zapd").Key("port").MustInt(2828),
 		IPv6:       global.CONFIG.Section("zapd").Key("ipv6").MustBool(true),

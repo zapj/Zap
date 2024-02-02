@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/zapj/zap/core/api/appstore"
 	"github.com/zapj/zap/core/api/dashboard"
 	"github.com/zapj/zap/core/api/filemanager"
@@ -87,15 +88,23 @@ func jwtTokenCheck(c *gin.Context) {
 		return
 	}
 
-	claims, _ := jwtauth.CheckJwtToken(jwtToken)
-
-	ID := claims.ID
-	if ID == "" {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"msg":  "jwt invalid",
+	claims, err := jwtauth.CheckJwtToken(jwtToken)
+	if err != nil && errors.Is(err, jwt.ErrTokenExpired) {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"msg":  "Token 已过期",
 			"code": 1,
 		})
-		slog.Info("jwt invalid")
+		return
+	} else if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"msg":  "认证失败" + err.Error(),
+			"code": 1,
+		})
+		return
+	}
+	ID := claims.ID
+	if ID == "" {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"msg": "jwt invalid", "code": 1})
 		return
 	}
 	c.Set("JWT_ID", claims.ID)

@@ -7,9 +7,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/zapj/zap/core/global"
 )
 
-var SigningKey = []byte("AllYourBase")
 var ErrJwtUnknownClaimsType = errors.New("unknown claims type, cannot proceed")
 
 type ZapClaims struct {
@@ -21,13 +21,13 @@ func GenerateAccessToken(id, username string) (string, error) {
 	claims := ZapClaims{
 		username,
 		jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute * 10)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute * 120)),
 			Issuer:    "ZAP",
 			ID:        id,
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	access_token, err := token.SignedString(SigningKey)
+	access_token, err := token.SignedString([]byte(global.SERVER_CONF.SigningKey))
 
 	if err != nil {
 		return "", err
@@ -47,7 +47,7 @@ func GenerateAccessAndRefreshToken() (gin.H, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	access_token, err := token.SignedString(SigningKey)
+	access_token, err := token.SignedString(global.SERVER_CONF.SigningKey)
 
 	if err != nil {
 		return gin.H{}, err
@@ -56,7 +56,7 @@ func GenerateAccessAndRefreshToken() (gin.H, error) {
 	rtClaims := refreshToken.Claims.(jwt.MapClaims)
 	rtClaims["sub"] = 1
 	rtClaims["exp"] = time.Now().Add(time.Hour * 24).Unix()
-	refresh_token, err := refreshToken.SignedString([]byte(SigningKey))
+	refresh_token, err := refreshToken.SignedString([]byte(global.SERVER_CONF.SigningKey))
 	if err != nil {
 		return gin.H{}, err
 	}
@@ -65,7 +65,7 @@ func GenerateAccessAndRefreshToken() (gin.H, error) {
 
 func CheckJwtToken(jwtToken string) (*ZapClaims, error) {
 	token, err := jwt.ParseWithClaims(jwtToken, &ZapClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return SigningKey, nil
+		return []byte(global.SERVER_CONF.SigningKey), nil
 	}, jwt.WithLeeway(5*time.Second))
 	if err != nil {
 		slog.Error("check jwt token", "err", err)

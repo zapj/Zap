@@ -17,6 +17,10 @@ func LogInit() {
 			MaxBackups: 3,
 			MaxAge:     30, // days
 		}
-		slog.SetDefault(slog.New(slog.NewTextHandler(logger, nil)))
+		opts := &slog.HandlerOptions{
+			AddSource: true,
+			Level:     slog.LevelInfo,
+		}
+		slog.SetDefault(slog.New(slog.NewTextHandler(logger, opts)))
 	}
 }

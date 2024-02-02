@@ -40,7 +40,7 @@ func LoginAuthHandler(c *gin.Context) {
 	}
 	access_token, err := jwtauth.GenerateAccessToken(fmt.Sprint(user.ID), user.Username)
 	if err != nil {
-		c.JSON(200, gin.H{"code": 1, "msg": "生成Token 失败"})
+		c.JSON(200, gin.H{"code": 1, "msg": "生成Token 失败", "err": err.Error()})
 		return
 	}
 

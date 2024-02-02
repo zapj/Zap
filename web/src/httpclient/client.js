@@ -5,7 +5,7 @@ import router from '../router'
 import { ElLoading, ElMessage } from 'element-plus'
 
 const apiRequest = axios.create({
-  baseURL: serverConfig.baseURL, //请求后端数据的基本地址，自定义
+  baseURL: serverConfig.baseURL, 
   timeout: 200000, //请求超时设置，单位ms
   withCredentials: true, // 异步请求携带cookie
   loading: true,
@@ -25,7 +25,6 @@ function start() {
 }
 
 // loading.close()
-// 添加请求拦截器
 apiRequest.interceptors.request.use(
   (config) => {
     if (config.url != '/v1/statistics/dashboard' && config.loading === true) {
@@ -48,7 +47,6 @@ apiRequest.interceptors.request.use(
   }
 )
 
-// 添加响应拦截器
 apiRequest.interceptors.response.use(
   function (response) {
     if (loading) {
@@ -76,7 +74,7 @@ apiRequest.interceptors.response.use(
       case 400:
         ElMessage({
           type: 'error',
-          message: '无效的Token，请重新登录'
+          message: '无效的Token,请重新登录'
         })
         router.replace({
           path: '/login',
@@ -86,7 +84,10 @@ apiRequest.interceptors.response.use(
         })
         break
       case 401:
-        // 跳转登录页
+        ElMessage({
+          type: 'error',
+          message: error.response.data.msg
+        })
         router.replace({
           path: '/login',
           query: {
@@ -96,7 +97,6 @@ apiRequest.interceptors.response.use(
         break
       // 403: token过期
       case 403:
-        // 弹出错误信息
         ElMessage({
           type: 'error',
           message: '登录信息过期，请重新登录'
@@ -115,14 +115,13 @@ apiRequest.interceptors.response.use(
       // 404请求不存在
       case 404:
         ElMessage({
-          message: error.response.data.message || '网络请求不存在',
+          message: error.response.data.msg || '网络请求不存在',
           type: 'error'
         })
         break
-      // 其他错误，直接抛出错误提示
       default:
         ElMessage({
-          message: error.response.data.message || error.response.statusText,
+          message: error.response.data.msg || error.response.statusText,
           type: 'error'
         })
     }
