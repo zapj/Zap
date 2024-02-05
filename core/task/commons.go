@@ -9,6 +9,7 @@ import (
 var ZAP_MIRROR_URL = "https://mirrors.zap.cn/zap"
 var TASK_SERV_SOCK = "data/task"
 var GL sync.Map
+var globalTask sync.Map
 
 type InstallApp struct {
 	ID    int

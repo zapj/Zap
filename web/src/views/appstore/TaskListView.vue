@@ -4,14 +4,22 @@
         <el-card :body-style="{ padding: '0px' }"  shadow="hover">
           <el-table :data="tbDataRef" stripe style="width: 100%">
 
-            <el-table-column prop="ID" label="ID" width="180" />
-            <el-table-column prop="title" label="任务名称" width="180" />
-            <el-table-column prop="start_time" label="开始时间" width="180" />
-            <el-table-column prop="end_time" label="完成时间" width="180" />
-            <el-table-column prop="Cmd" label="Cmd" />
-            <el-table-column prop="Status" label="Status" />
+            <el-table-column prop="id" label="ID" width="180" />
+            <el-table-column prop="title" label="任务名称"  />
+            <el-table-column prop="start_time" label="开始时间" width="180" :formatter="formatDate" />
+            <el-table-column prop="end_time" label="完成时间" width="180" :formatter="formatDate" />
+            <el-table-column prop="Status" label="状态" width="120" />
+            <el-table-column label="操作" width="120">
+              <template #default="scope">
+                <el-button link type="primary" size="small" @click.prevent="removeTask(scope.$index,scope.row.id)" > 删除 </el-button>
+                <el-button link type="primary" size="small" @click.prevent="cancelTask(scope.$index,scope.row.id)" > 取消 </el-button>
+              </template>
+            </el-table-column>
           </el-table>
-          
+          <template #footer>
+            <el-button type="primary" @click="genTask">安装</el-button>
+            <el-button type="primary" @click="getAppList">刷新</el-button>
+          </template>
        </el-card>
     </el-col>
 
@@ -22,11 +30,14 @@
 <script setup>
 import { onMounted } from 'vue';
 import apiRequest from '../../httpclient/client';
+import { ElMessage } from 'element-plus';
+import { formatDate } from '../../commons/commons.js'
 const tbDataRef = ref([]) 
 
 onMounted(()=>{
   getAppList()
 })
+
 
 const getAppList = ()=>{
   apiRequest({
@@ -36,6 +47,41 @@ const getAppList = ()=>{
   })
 }
 
+const removeTask = (index,id) => {
+  apiRequest({
+    url:'/v1/task/appinstall/removetask',
+    data:{id:id},
+    dataType:"form",
+    method  :"post"
+  }).then((resp)=>{
+    tbDataRef.value.splice(index, 1)
+    // tbDataRef.value = resp.data
+    ElMessage({message:"删除成功",type:"success"})
+  })
+}
+
+const cancelTask = (index,id) => {
+  apiRequest({
+    url:'/v1/task/appinstall/canceltask',
+    data:{id:id},
+    dataType:"form",
+    method  :"post"
+  }).then((resp)=>{
+    getAppList()
+    ElMessage({message:"取消成功",type:"success"})
+  })
+}
+
+const genTask = ()=>{
+  apiRequest({
+    url:'/v1/task/appinstall/gentask',
+    dataType:"form",
+    method  :"post"
+  }).then((resp)=>{
+    ElMessage({message:"生成成功",type:"success"})
+  })
+ 
+}
 
 function installApp(Id,actionName){
   console.log(Id,actionName);

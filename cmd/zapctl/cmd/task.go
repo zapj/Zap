@@ -39,7 +39,7 @@ func listTaskJob() {
 	}
 	for _, task := range result {
 		fmt.Printf("--------------------------------------\n")
-		fmt.Printf("ID: %d \n", task.ID)
+		fmt.Printf("ID: %d \n", task.Id)
 		fmt.Printf("Title: %s \n", task.Title)
 		fmt.Printf("Cmd: %s \n", task.Cmd)
 		fmt.Printf("Retry: %d \n", task.Retry)
@@ -63,9 +63,11 @@ func putTask() {
 }
 
 func refreshTask() {
-	_, err := task.Post("/task/refresh")
+	resp, err := task.Post("/task/refresh")
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println("Success")
+	result := map[string]interface{}{}
+	resp.UnmarshalJSON(&result)
+	fmt.Println("Result:", result["msg"], "Code:", result["code"])
 }
