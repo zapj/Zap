@@ -1,0 +1,9 @@
+name: php
+title: PHP
+version: [8.3.1]
+category: application
+description: PHP is a server-side scripting language designed for web development.
+icon: php.png
+tags: [php]
+dependencies:
+  - nginx 

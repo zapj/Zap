@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"log/slog"
-	"os/exec"
 	"time"
 
 	"github.com/zapj/zap/core/global"
@@ -19,10 +18,13 @@ const (
 	STATUS_RUNNING  = "running"
 	STATUS_COMPLETE = "complete"
 	STATUS_CANCEL   = "cancel"
+	STATUS_FAILED   = "failed"
 )
 
 const (
 	TASK_TYPE_INSTALL = "install"
+	TASK_TYPE_EMAIL   = "email"
+	TASK_TYPE_HTTP    = "http"
 )
 
 const (
@@ -49,26 +51,45 @@ type ZapJob struct {
 	Status     bool
 }
 
-func CancelTask(id uint) {
+func CancelTask(id uint) bool {
 	taskJob, ok := globalTask.Load(id)
 	if !ok {
-		slog.Error("task not found", "id", id)
-		return
+		return false
 	}
-	slog.Info("taskJob", "taskJob", taskJob)
 	taskJob.(*ZapJob).TaskCancel()
 	if taskJob.(*ZapJob).TaskType == TASK_TYPE_INSTALL {
 		GL.Delete(INSTALL_RUNNING_KEY)
 	}
 	globalTask.Delete(id)
+	return true
 }
 
 func (z *ZapJob) Cancel() {
 	z.TaskCancel()
 }
 
+func (z *ZapJob) Exit(status string) {
+	z.TaskData.EndTime = time.Now().Unix()
+	z.TaskData.Status = status
+	global.DB.Save(z.TaskData)
+	z.Unlock()
+}
+
+func (z *ZapJob) ExecuteSuccess() {
+	z.TaskData.EndTime = time.Now().Unix()
+	z.TaskData.Status = STATUS_COMPLETE
+	global.DB.Save(z.TaskData)
+	z.Unlock()
+}
+
+func (z *ZapJob) Unlock() {
+	globalTask.Delete(z.TaskData.Id)
+	if z.TaskType == TASK_TYPE_INSTALL {
+		GL.Delete(INSTALL_RUNNING_KEY)
+	}
+}
+
 func (z *ZapJob) Execute() {
-	//运行中
 	z.TaskData.Status = STATUS_RUNNING
 	z.TaskData.StartTime = time.Now().Unix()
 	global.DB.Save(z.TaskData)
@@ -79,29 +100,27 @@ func (z *ZapJob) Execute() {
 	for i := 1; i <= z.Retry; i++ {
 		select {
 		case <-z.TaskCtx.Done():
-			z.TaskData.Status = STATUS_CANCEL
-			global.DB.Save(z.TaskData)
-			globalTask.Delete(z.TaskData.Id)
-			if z.TaskType == TASK_TYPE_INSTALL {
-				GL.Delete(INSTALL_RUNNING_KEY)
-			}
+			z.Exit(STATUS_CANCEL)
 			slog.Info("task cancel")
 			return
 		default:
-			//执行任务
+			z.TaskData.RetryCount = i
 			slog.Info("z.TaskData.Cmd", "cmd", z.TaskData.Cmd, "ID", z.TaskData.Id)
-
-			if err := exec.CommandContext(z.TaskCtx, "sleep", "60").Run(); err != nil {
-				slog.Info("task error", "err", err)
-			}
-			z.TaskData.RetryCount = i //更新执行次数
-			z.TaskData.EndTime = time.Now().Unix()
-			z.TaskData.Status = STATUS_COMPLETE
-			global.DB.Save(z.TaskData)
-			globalTask.Delete(z.TaskData.Id)
 			if z.TaskType == TASK_TYPE_INSTALL {
-				GL.Delete(INSTALL_RUNNING_KEY)
+				buildInstall := &BuildInstallJob{
+					Ctx: z.TaskCtx,
+				}
+				if err := buildInstall.Execute(); err != nil {
+					z.Exit(STATUS_FAILED)
+					return
+				}
+				z.Exit(STATUS_COMPLETE)
+				return
+
+			} else if z.TaskType == TASK_TYPE_EMAIL {
+				z.Exit(STATUS_COMPLETE)
 			}
+
 			slog.Info("task complete", "id", z.TaskData.Id)
 			if z.TaskData.Status == STATUS_COMPLETE {
 				LoadTask()

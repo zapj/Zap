@@ -12,13 +12,36 @@ import (
 )
 
 func ListApp(c *gin.Context) {
-	workFLows := workflows.ReadZAPWorkflowsInfo()
+	appInfoList := workflows.ReadAppstoreList()
 
 	c.JSON(200, gin.H{
 		"code": 0,
 		"msg":  "OK",
-		"data": workFLows,
+		"data": appInfoList,
 	})
+}
+
+func AppInstall(c *gin.Context) {
+	id := c.PostForm("id")
+	app := &models.ZapAppStore{}
+	if err := global.DB.Where("app_id = ?", id).First(app).Error; err != nil {
+		c.JSON(200, commons.Error(1, "error", "应用不存在"))
+		return
+	}
+	resp, err := task.Post("/task/install/app", &fetch.Config{
+		Headers: map[string]string{
+			"Content-Type": "application/x-www-form-urlencoded",
+		},
+		Body: map[string]string{
+			"id": id,
+		},
+	})
+
+	if err != nil {
+		c.JSON(200, commons.Error(1, "error", err.Error()))
+		return
+	}
+	c.Data(200, gin.MIMEJSON, resp.Body)
 }
 
 // 应用安装任务列表
@@ -48,10 +71,6 @@ func GenTask(c *gin.Context) {
 
 func CancelTask(c *gin.Context) {
 	id := c.PostForm("id")
-	// global.DB.Model(&models.ZapTask{}).Where("id = ?", id).Update("status", task.STATUS_CANCEL)
-	// if id, err := strconv.Atoi(id); err == nil {
-	// 	task.CancelTask(uint(id))
-	// }
 	_, err := task.Post("/task/cancel", &fetch.Config{
 		Headers: map[string]string{
 			"Content-Type": "application/x-www-form-urlencoded",

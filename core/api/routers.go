@@ -44,10 +44,14 @@ func RegisterAPIV1Router(c *gin.RouterGroup) {
 	c.GET("/server/top_info", server.ServerTopInfo)
 
 	c.GET("/app/appstore", appstore.ListApp)
+	c.POST("/app/appstore/install", appstore.AppInstall)
+
+
 	c.GET("/task/appinstall/tasklist", appstore.TaskList)
 	c.POST("/task/appinstall/removetask", appstore.RemoveTask)
 	c.POST("/task/appinstall/gentask", appstore.GenTask)
 	c.POST("/task/appinstall/canceltask", appstore.CancelTask)
+	
 
 	c.GET("/upgrade/check", server.UpgradeCheck)
 

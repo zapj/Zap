@@ -10,5 +10,6 @@ func SyncUserSettings(c *gin.Context) {
 		"version":    global.ZAP_INFO.Version,
 		"build_date": global.ZAP_INFO.BuildShortDate,
 		"theme":      "light",
+		"lname":      c.GetString("JWT_USERNAME"),
 	}})
 }

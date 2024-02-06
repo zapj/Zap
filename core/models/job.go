@@ -5,13 +5,12 @@ import "time"
 type ZapTask struct {
 	Id uint `json:"id" gorm:"primarykey;autoIncrement"`
 
-	Title string `json:"title"` //任务名称
-
-	TaskType  string `json:"task_type" gorm:"default:install"` // httpclient | install : "安装应用"
-	Cmd       string
-	LogFile   string //日志文件
-	TargetDir string //临时文件目录
-	Request   string // json  {header:{},body:{}}
+	Title     string `json:"title"`                            //任务名称
+	TaskType  string `json:"task_type" gorm:"default:install"` // email | http | install
+	Cmd       string `json:"cmd"`                              //命令
+	LogFile   string `json:"log_file"`                         //日志文件
+	TargetDir string `json:"target_dir"`                       //临时文件目录
+	Request   string `json:"request"`                          // json  {header:{},body:{}}
 
 	Retry      int `json:"retry"` //重试次数
 	RetryCount int `json:"retry_count"`
@@ -22,5 +21,5 @@ type ZapTask struct {
 	CreateBy  string    `json:"create_by"`  //创建用户
 	CreatedAt time.Time `gorm:"autoCreateTime"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime"`
-	Status    string    // Status ： wait | suspend | ready | running | complete | cancel
+	Status    string    // Status ： wait | suspend | ready | running | complete | cancel | failed
 }

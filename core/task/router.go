@@ -21,6 +21,24 @@ func RegisterRouter(r *gin.RouterGroup) {
 	r.POST("/task/put", func(c *gin.Context) {
 		global.DB.Save(&models.ZapTask{Cmd: "test", Retry: 0, Title: "test 1", Status: STATUS_WAIT})
 	})
+	r.POST("/task/install/app", func(c *gin.Context) {
+		id := c.PostForm("id")
+		app := models.ZapAppStore{}
+		if err := global.DB.First(&app, "app_id = ?", id).Error; err != nil {
+			c.JSON(200, gin.H{"code": 1, "msg": "App无法安装"})
+			return
+		}
+
+		global.DB.Save(&models.ZapTask{
+			Cmd:      "test",
+			Retry:    0,
+			TaskType: "install",
+			CreateBy: "admin",
+			Title:    app.AppTitle,
+			Status:   STATUS_WAIT,
+		})
+		c.JSON(200, gin.H{"code": 0, "msg": "提交成功，系统将自动安装App"})
+	})
 	r.POST("/task/cancel", func(c *gin.Context) {
 		id := c.PostForm("id")
 		taskId, _ := strconv.Atoi(id)
