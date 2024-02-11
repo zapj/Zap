@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+	"sync"
 	"time"
 
 	"github.com/zapj/zap/core/global"
@@ -33,7 +34,7 @@ const (
 
 var globalTaskQueue = make(chan ZapJobInterface, 10)
 
-// var rwGTQ sync.Mutex
+var enqueueMux sync.Mutex
 
 type ZapJobInterface interface {
 	Execute()
@@ -73,6 +74,7 @@ func (z *ZapJob) Exit(status string) {
 	z.TaskData.Status = status
 	global.DB.Save(z.TaskData)
 	z.Unlock()
+	LoadTask()
 }
 
 func (z *ZapJob) ExecuteSuccess() {
@@ -101,16 +103,16 @@ func (z *ZapJob) Execute() {
 		select {
 		case <-z.TaskCtx.Done():
 			z.Exit(STATUS_CANCEL)
-			slog.Info("task cancel")
 			return
 		default:
 			z.TaskData.RetryCount = i
-			slog.Info("z.TaskData.Cmd", "cmd", z.TaskData.Cmd, "ID", z.TaskData.Id)
 			if z.TaskType == TASK_TYPE_INSTALL {
-				buildInstall := &BuildInstallJob{
-					Ctx: z.TaskCtx,
+
+				installJob := &InstallJob{
+					Ctx:      z.TaskCtx,
+					TaskData: z.TaskData,
 				}
-				if err := buildInstall.Execute(); err != nil {
+				if err := installJob.Execute(); err != nil {
 					z.Exit(STATUS_FAILED)
 					return
 				}
@@ -119,12 +121,8 @@ func (z *ZapJob) Execute() {
 
 			} else if z.TaskType == TASK_TYPE_EMAIL {
 				z.Exit(STATUS_COMPLETE)
-			}
-
-			slog.Info("task complete", "id", z.TaskData.Id)
-			if z.TaskData.Status == STATUS_COMPLETE {
-				LoadTask()
-				return
+			} else if z.TaskType == TASK_TYPE_HTTP {
+				z.Exit(STATUS_COMPLETE)
 			}
 		}
 
@@ -150,8 +148,8 @@ func LoadTask(status ...string) {
 	if len(status) == 0 {
 		status = append(status, STATUS_WAIT, STATUS_READY)
 	}
-	// rwGTQ.Lock()
-	// defer rwGTQ.Unlock()
+	enqueueMux.Lock()
+	defer enqueueMux.Unlock()
 
 	taskList := []models.ZapTask{}
 
@@ -197,5 +195,14 @@ func taskQueue() {
 	for v := range globalTaskQueue {
 		//读取下一条
 		go v.Execute()
+	}
+}
+
+func isCancel(ctx context.Context) bool {
+	select {
+	case <-ctx.Done():
+		return true
+	default:
+		return false
 	}
 }

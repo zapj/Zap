@@ -1,12 +1,9 @@
 package workflows
 
 type AppInfo struct {
-	// Id is the unique identifier of the model.
-	Id string `json:"id"`
-	// ScriptName is the name of the script associated with the model.
-	ScriptName string `json:"scriptName"`
-	// Title is the title of the model.
-	Title string `json:"title"`
+	Id         string `json:"id"`
+	ConfigName string `json:"config_name"`
+	Title      string `json:"title"`
 	// Name is the name of the model.
 	Name string `json:"name"`
 	// Version is the version of the model.
@@ -25,7 +22,8 @@ type AppInfo struct {
 	// Tags is a list of tags associated with the model.
 	Tags []string `json:"tags"`
 	// Actions is a map of actions and their associated values.
-	Actions map[string]string `json:"actions"`
+	Actions map[string]string            `json:"actions"`
+	Options map[string]map[string]string `json:"options"`
 	// Steps            []Job
 	// Build            []Job
 	// Install          []Job

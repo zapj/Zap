@@ -15,15 +15,16 @@ import (
 
 func UpgradeZapd() {
 	GL.Store("upgrade", time.Now().Unix())
+	defer func() {
+		GL.Delete("upgrade")
+	}()
 	resp, err := fetch.Get(fmt.Sprintf("%s/dist/latest.txt?t=%d", ZAP_MIRROR_URL, time.Now().Unix()))
 	if err != nil {
 		slog.Info("check version", "err", err)
-		GL.Delete("upgrade")
 		return
 	}
 	zapdVer := string(resp.Body)
 	if zapdVer == global.ZAP_INFO.Version {
-		GL.Delete("upgrade")
 		return
 	}
 	fileName := fmt.Sprintf("zap-v%s-%s-%s.tar.gz", zapdVer, runtime.GOOS, runtime.GOARCH)
@@ -31,13 +32,11 @@ func UpgradeZapd() {
 	_, err = fetch.Download(fmt.Sprintf("%s/dist/%s", ZAP_MIRROR_URL, fileName), tmpFile)
 	if err != nil {
 		slog.Info(fmt.Sprintf("download %s", fileName), "err", err)
-		GL.Delete("upgrade")
 		return
 	}
 
 	_, err = cmdutil.ExecBashCmd("tar zxf " + tmpFile + " -C /usr/local/")
 	if err != nil {
-		GL.Delete("upgrade")
 		slog.Info("解压缩失败", "err", err)
 		return
 	}
@@ -51,5 +50,4 @@ func UpgradeZapd() {
 		slog.Info("signal err, restart zapd.service", "err", err)
 		cmdutil.ExecBashCmd("systemctl restart zapd.service")
 	}
-	GL.Delete("upgrade")
 }

@@ -25,3 +25,12 @@ var CACHE *cache.Cache
 var NET_IO_COUNTERS []net.IOCountersStat
 var ZAP_INFO *core.ZapInfo
 var SERVER_CONF *ServerConf
+
+// app status
+const (
+	APP_STATUS_RUNNING   = "running"
+	APP_STATUS_INSTALL   = "install"
+	APP_STATUS_UNINSTALL = "uninstall"
+	APP_STATUS_STOP      = "stop"
+	APP_STATUS_ACTIVE    = "active"
+)

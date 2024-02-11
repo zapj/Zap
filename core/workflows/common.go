@@ -9,6 +9,7 @@ import (
 	"github.com/zapj/goutils"
 	"github.com/zapj/zap/core/global"
 	"github.com/zapj/zap/core/models"
+	"github.com/zapj/zap/core/utils/jsonutil"
 	"github.com/zapj/zap/core/utils/pathutil"
 	"gopkg.in/yaml.v3"
 )
@@ -35,24 +36,29 @@ func ReadAppstoreList() []*AppInfo {
 		saveAppFlag = true
 	}
 	for _, ymlPath := range scriptFiles {
-		slog.Info("Read appstore", "appstore", ymlPath)
 		ymlBytes, _ := os.ReadFile(ymlPath)
 		appInfo := &AppInfo{}
 		yaml.Unmarshal(ymlBytes, appInfo)
-		appInfo.ScriptName, _ = filepath.Rel("data/appstore", ymlPath)
-		appInfo.Id = goutils.MD5(appInfo.ScriptName)
+		slog.Info("Read appstore", "appInfo", appInfo)
+		appInfo.ConfigName, _ = filepath.Rel("data/appstore", ymlPath)
+		appInfo.Id = goutils.MD5(appInfo.ConfigName)
 		appInfoList = append(appInfoList, appInfo)
 		if saveAppFlag {
+
 			global.DB.Save(&models.ZapAppStore{
 				AppId:            appInfo.Id,
 				AppName:          appInfo.Name,
 				Icon:             appInfo.Icon,
 				AppTitle:         appInfo.Title,
+				Category:         appInfo.Category,
+				ConfigName:       appInfo.ConfigName,
 				AppVersion:       strings.Join(appInfo.Version, ","),
-				ScriptName:       appInfo.ScriptName,
+				Tags:             strings.Join(appInfo.Tags, ","),
 				Description:      appInfo.Description,
 				Author:           appInfo.Author,
 				OrganizationName: appInfo.OrganizationName,
+				Actions:          jsonutil.EncodeToString(appInfo.Actions),
+				Options:          jsonutil.EncodeToString(appInfo.Options),
 			})
 		}
 	}

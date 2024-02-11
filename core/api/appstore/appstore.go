@@ -1,6 +1,8 @@
 package appstore
 
 import (
+	"fmt"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-zoox/fetch"
 	"github.com/zapj/zap/core/api/commons"
@@ -13,16 +15,28 @@ import (
 
 func ListApp(c *gin.Context) {
 	appInfoList := workflows.ReadAppstoreList()
-
+	alreadyInstallApps := []models.ZapApps{}
+	global.DB.Select("name,title").Find(&alreadyInstallApps, "status NOT IN ?", []string{global.APP_STATUS_UNINSTALL})
+	alreadyApps := make(map[string]string)
+	alreadyAppsVersion := make(map[string]string)
+	for _, v := range alreadyInstallApps {
+		alreadyApps[v.Name] = v.Title
+		alreadyAppsVersion[fmt.Sprintf("%s-%s", v.Name, v.Version)] = v.Title
+	}
+	alreadyInstallApps = nil
 	c.JSON(200, gin.H{
-		"code": 0,
-		"msg":  "OK",
-		"data": appInfoList,
+		"code":               0,
+		"msg":                "OK",
+		"data":               appInfoList,
+		"alreadyApps":        alreadyApps,
+		"alreadyAppsVersion": alreadyAppsVersion,
 	})
 }
 
 func AppInstall(c *gin.Context) {
 	id := c.PostForm("id")
+	action := c.PostForm("action")
+	version := c.PostForm("version")
 	app := &models.ZapAppStore{}
 	if err := global.DB.Where("app_id = ?", id).First(app).Error; err != nil {
 		c.JSON(200, commons.Error(1, "error", "应用不存在"))
@@ -33,7 +47,9 @@ func AppInstall(c *gin.Context) {
 			"Content-Type": "application/x-www-form-urlencoded",
 		},
 		Body: map[string]string{
-			"id": id,
+			"id":      id,
+			"action":  action,
+			"version": version,
 		},
 	})
 

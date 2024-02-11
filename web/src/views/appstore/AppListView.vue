@@ -9,7 +9,7 @@
             
             <time class="time font-size-3 me-2" >{{ app.version[0] }}</time>
             <template v-if="app.actions" >
-              <el-button  class="button" v-for="actTitle,actionName in app.actions" @click.prevent="installApp(app.id,actionName)">{{ actTitle }} </el-button>
+              <el-button  class="button" v-for="actTitle,actionName in app.actions" @click.prevent="installApp(app.id,actionName,app.version[0])">{{ actTitle }} </el-button>
             </template>
             <template v-else>
               <el-button  class="button" @click.prevent="installApp(app.id,)">安装</el-button>
@@ -26,6 +26,7 @@
 <script setup>
 import { onMounted } from 'vue';
 import apiRequest from '../../httpclient/client';
+import { ElMessage } from 'element-plus';
 const appListRef = ref([]) 
 
 onMounted(()=>{
@@ -41,18 +42,29 @@ const getAppList = ()=>{
 }
 
 
-function installApp(Id,actionName){
+function installApp(Id,actionName,version){
   console.log(Id,actionName);
   apiRequest({
     url:'/v1/app/appstore/install',
     method:'post',
     data:{
       id:Id,
-      action:actionName
+      action:actionName,
+      version:version
     },
     dataType:'form'
   }).then((resp)=>{
-    console.log(resp.data);
+    if(resp.code == 0){
+      ElMessage({
+        type:'success',
+        message:resp.msg
+      })
+    }else{
+      ElMessage({
+        type:'error',
+        message:resp.msg
+      })
+    }
   })
 }
 </script>

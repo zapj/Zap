@@ -37,6 +37,7 @@ func DbInit() {
 	global.DB.AutoMigrate(&models.ZapWebSite{})
 	global.DB.AutoMigrate(&models.ZapDataBase{})
 	global.DB.AutoMigrate(&models.ZapAppStore{})
+	global.DB.AutoMigrate(&models.ZapApps{})
 
 	//system task job
 	global.DB.AutoMigrate(&models.ZapTask{})
