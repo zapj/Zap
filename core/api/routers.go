@@ -34,25 +34,30 @@ func RegisterAPIV1Router(c *gin.RouterGroup) {
 	c.GET("/statistics/dashboard", dashboard.DashBoardStats)
 	c.GET("/sync/user/settings", users.SyncUserSettings)
 
+	// filemanager
 	c.POST("/filemanager/list", filemanager.FileManager_List)
 	c.POST("/filemanager/fetch", filemanager.FileManager_Fetch)
 	c.POST("/filemanager/putfile", filemanager.FileManager_PutFile)
 
+	// server
 	c.GET("/server/info", server.ServerInfo)
 	c.GET("/server/processlist", server.ServerProcessList)
 	c.GET("/server/netinterface_list", server.ServerNetInterfaces)
 	c.GET("/server/top_info", server.ServerTopInfo)
 
+	// appstore
 	c.GET("/app/appstore", appstore.ListApp)
+	c.GET("/app/appstore/already_install", appstore.ListInstalledApp)
+	c.POST("/app/appstore/uninstall", appstore.UninstallApp)
 	c.POST("/app/appstore/install", appstore.AppInstall)
 
-
+	//task queue
 	c.GET("/task/appinstall/tasklist", appstore.TaskList)
 	c.POST("/task/appinstall/removetask", appstore.RemoveTask)
 	c.POST("/task/appinstall/gentask", appstore.GenTask)
 	c.POST("/task/appinstall/canceltask", appstore.CancelTask)
-	
 
+	// upgrade
 	c.GET("/upgrade/check", server.UpgradeCheck)
 
 }

@@ -1,6 +1,10 @@
 package jsonutil
 
-import "encoding/json"
+import (
+	"encoding/json"
+
+	"github.com/zapj/zap/core/defines"
+)
 
 func EncodeToString(v any) string {
 	r, err := json.Marshal(v)
@@ -16,4 +20,16 @@ func Encode(v any) []byte {
 		return nil
 	}
 	return r
+}
+
+func DecodeToMap(r string) map[string]any {
+	v := make(map[string]any)
+	json.Unmarshal([]byte(r), &v)
+	return v
+}
+
+func DecodeToZapMap(r string) defines.ZapMap {
+	v := make(defines.ZapMap)
+	json.Unmarshal([]byte(r), &v)
+	return v
 }

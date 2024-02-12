@@ -9,6 +9,7 @@
             <el-table-column prop="start_time" label="开始时间" width="180" :formatter="formatDate" />
             <el-table-column prop="end_time" label="完成时间" width="180" :formatter="formatDate" />
             <el-table-column prop="Status" label="状态" width="120" />
+            <el-table-column prop="error" label="Error"  />
             <el-table-column label="操作" width="120">
               <template #default="scope">
                 <el-button link type="primary" size="small" @click.prevent="removeTask(scope.$index,scope.row.id)" > 删除 </el-button>

@@ -35,24 +35,27 @@ func ReadAppstoreList() []*AppInfo {
 		global.DB.Where("1 = 1").Delete(&models.ZapAppStore{})
 		saveAppFlag = true
 	}
+	global.DB.Where("1 = 1").Delete(&models.ZapAppStore{})
+	saveAppFlag = true
 	for _, ymlPath := range scriptFiles {
 		ymlBytes, _ := os.ReadFile(ymlPath)
 		appInfo := &AppInfo{}
 		yaml.Unmarshal(ymlBytes, appInfo)
 		slog.Info("Read appstore", "appInfo", appInfo)
-		appInfo.ConfigName, _ = filepath.Rel("data/appstore", ymlPath)
+		// appInfo.ConfigName, _ = filepath.Rel("data/appstore", ymlPath)
+		appInfo.ConfigName = ymlPath
 		appInfo.Id = goutils.MD5(appInfo.ConfigName)
 		appInfoList = append(appInfoList, appInfo)
 		if saveAppFlag {
 
 			global.DB.Save(&models.ZapAppStore{
 				AppId:            appInfo.Id,
-				AppName:          appInfo.Name,
+				Name:             appInfo.Name,
 				Icon:             appInfo.Icon,
-				AppTitle:         appInfo.Title,
+				Title:            appInfo.Title,
 				Category:         appInfo.Category,
 				ConfigName:       appInfo.ConfigName,
-				AppVersion:       strings.Join(appInfo.Version, ","),
+				Version:          strings.Join(appInfo.Version, ","),
 				Tags:             strings.Join(appInfo.Tags, ","),
 				Description:      appInfo.Description,
 				Author:           appInfo.Author,

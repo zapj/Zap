@@ -43,7 +43,6 @@ const getAppList = ()=>{
 
 
 function installApp(Id,actionName,version){
-  console.log(Id,actionName);
   apiRequest({
     url:'/v1/app/appstore/install',
     method:'post',
@@ -54,6 +53,7 @@ function installApp(Id,actionName,version){
     },
     dataType:'form'
   }).then((resp)=>{
+    console.log(resp)
     if(resp.code == 0){
       ElMessage({
         type:'success',

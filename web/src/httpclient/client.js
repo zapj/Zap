@@ -54,13 +54,13 @@ apiRequest.interceptors.response.use(
     }
     const dataAxios = response.data
 
-    if (dataAxios.code) {
-      ElMessage({
-        type: 'error',
-        message: dataAxios.msg
-      })
-      // Promise.reject(dataAxios)
-    }
+    // if (dataAxios.code) {
+    //   ElMessage({
+    //     type: 'error',
+    //     message: dataAxios.msg
+    //   })
+    //   // Promise.reject(dataAxios)
+    // }
 
     return dataAxios
   },

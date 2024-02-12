@@ -33,13 +33,25 @@ func ListApp(c *gin.Context) {
 	})
 }
 
+func ListInstalledApp(c *gin.Context) {
+	installedApps := []models.ZapApps{}
+	global.DB.Find(&installedApps)
+	c.JSON(200, commons.Success(installedApps))
+}
+
+func UninstallApp(c *gin.Context) {
+	id := c.PostForm("id")
+	global.DB.Delete(&models.ZapApps{}, id)
+	c.JSON(200, commons.Success("删除成功"))
+}
+
 func AppInstall(c *gin.Context) {
 	id := c.PostForm("id")
 	action := c.PostForm("action")
 	version := c.PostForm("version")
 	app := &models.ZapAppStore{}
-	if err := global.DB.Where("app_id = ?", id).First(app).Error; err != nil {
-		c.JSON(200, commons.Error(1, "error", "应用不存在"))
+	if err := global.DB.First(app, "app_id = ?", id).Error; err != nil {
+		c.JSON(200, commons.Error(1, "应用不存在", nil))
 		return
 	}
 	resp, err := task.Post("/task/install/app", &fetch.Config{
@@ -79,7 +91,7 @@ func GenTask(c *gin.Context) {
 		Retry:    0,
 		Title:    str.RandUString(12),
 		Status:   task.STATUS_WAIT,
-		TaskType: task.TASK_TYPE_INSTALL,
+		TaskType: task.TASK_TYPE_APPSTORE,
 		CreateBy: "admin",
 	})
 	c.JSON(200, commons.Success("生成成功"))

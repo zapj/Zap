@@ -26,6 +26,8 @@ var NET_IO_COUNTERS []net.IOCountersStat
 var ZAP_INFO *core.ZapInfo
 var SERVER_CONF *ServerConf
 
+var APPS_DIR string = "/usr/local/apps"
+
 // app status
 const (
 	APP_STATUS_RUNNING   = "running"

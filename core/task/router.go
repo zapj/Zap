@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/zapj/zap/core/global"
 	"github.com/zapj/zap/core/models"
+	"github.com/zapj/zap/core/utils/jsonutil"
 )
 
 func RegisterRouter(r *gin.RouterGroup) {
@@ -27,36 +28,34 @@ func RegisterRouter(r *gin.RouterGroup) {
 		id := c.PostForm("id")
 		version := c.PostForm("version")
 		action := c.PostForm("action")
-		app := models.ZapAppStore{}
-		if err := global.DB.First(&app, "app_id = ?", id).Error; err != nil {
+		appStore := models.ZapAppStore{}
+		if err := global.DB.First(&appStore, "app_id = ?", id).Error; err != nil {
 			c.JSON(200, gin.H{"code": 1, "msg": "App无法安装"})
 			return
 		}
-		if result := global.DB.First(&models.ZapApps{}, "name = ? and version = ?", app.AppName, version); result.RowsAffected > 0 {
+		if result := global.DB.First(&models.ZapApps{}, "name = ? and version = ?", appStore.Name, version); result.RowsAffected > 0 {
 			c.JSON(200, gin.H{"code": 1, "msg": "App无法安装"})
 			return
 		}
 
 		global.DB.Save(&models.ZapTask{
-			Cmd:      action,
-			Retry:    0,
-			TaskType: "install",
-			CreateBy: "admin",
-			Title:    fmt.Sprintf("安装 %s", app.AppTitle),
-			Status:   STATUS_WAIT,
+			Cmd:         jsonutil.EncodeToString(map[string]string{"action": action, "app_id": id, "app_version": version}),
+			Retry:       0,
+			TaskType:    TASK_TYPE_APPSTORE,
+			CreateBy:    "admin",
+			Title:       fmt.Sprintf("安装 %s", appStore.Title),
+			Status:      STATUS_WAIT,
+			ExtendsAttr: fmt.Sprint(appStore.Id),
 		})
 
-		// vers := strings.Split(app.AppVersion, ",")
-		// if len(vers) < 1 {
-		// 	vers = append(vers, "0.0.0")
-		// }
 		global.DB.Save(&models.ZapApps{
-			Name:        app.AppName,
+			AppStoreId:  appStore.Id,
+			Name:        appStore.Name,
 			Status:      global.APP_STATUS_INSTALL,
 			InstallBy:   "admin",
 			InstallDate: time.Now(),
-			Title:       app.AppTitle,
-			Description: app.Description,
+			Title:       appStore.Title,
+			Description: appStore.Description,
 			Version:     version,
 		})
 		LoadTask()

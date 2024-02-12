@@ -23,9 +23,9 @@ const (
 )
 
 const (
-	TASK_TYPE_INSTALL = "install"
-	TASK_TYPE_EMAIL   = "email"
-	TASK_TYPE_HTTP    = "http"
+	TASK_TYPE_APPSTORE = "appstore"
+	TASK_TYPE_EMAIL    = "email"
+	TASK_TYPE_HTTP     = "http"
 )
 
 const (
@@ -58,7 +58,7 @@ func CancelTask(id uint) bool {
 		return false
 	}
 	taskJob.(*ZapJob).TaskCancel()
-	if taskJob.(*ZapJob).TaskType == TASK_TYPE_INSTALL {
+	if taskJob.(*ZapJob).TaskType == TASK_TYPE_APPSTORE {
 		GL.Delete(INSTALL_RUNNING_KEY)
 	}
 	globalTask.Delete(id)
@@ -69,9 +69,12 @@ func (z *ZapJob) Cancel() {
 	z.TaskCancel()
 }
 
-func (z *ZapJob) Exit(status string) {
+func (z *ZapJob) Exit(status string, err error) {
 	z.TaskData.EndTime = time.Now().Unix()
 	z.TaskData.Status = status
+	if err != nil {
+		z.TaskData.Error = err.Error()
+	}
 	global.DB.Save(z.TaskData)
 	z.Unlock()
 	LoadTask()
@@ -86,7 +89,7 @@ func (z *ZapJob) ExecuteSuccess() {
 
 func (z *ZapJob) Unlock() {
 	globalTask.Delete(z.TaskData.Id)
-	if z.TaskType == TASK_TYPE_INSTALL {
+	if z.TaskType == TASK_TYPE_APPSTORE {
 		GL.Delete(INSTALL_RUNNING_KEY)
 	}
 }
@@ -102,27 +105,29 @@ func (z *ZapJob) Execute() {
 	for i := 1; i <= z.Retry; i++ {
 		select {
 		case <-z.TaskCtx.Done():
-			z.Exit(STATUS_CANCEL)
+			z.Exit(STATUS_CANCEL, nil)
 			return
 		default:
 			z.TaskData.RetryCount = i
-			if z.TaskType == TASK_TYPE_INSTALL {
+			if z.TaskType == TASK_TYPE_APPSTORE {
 
-				installJob := &InstallJob{
+				appJob := &AppStoreJob{
 					Ctx:      z.TaskCtx,
 					TaskData: z.TaskData,
+					Cmd:      z.TaskData.Cmd,
 				}
-				if err := installJob.Execute(); err != nil {
-					z.Exit(STATUS_FAILED)
+				if err := appJob.Execute(); err != nil {
+
+					z.Exit(STATUS_FAILED, err)
 					return
 				}
-				z.Exit(STATUS_COMPLETE)
+				z.Exit(STATUS_COMPLETE, nil)
 				return
 
 			} else if z.TaskType == TASK_TYPE_EMAIL {
-				z.Exit(STATUS_COMPLETE)
+				z.Exit(STATUS_COMPLETE, nil)
 			} else if z.TaskType == TASK_TYPE_HTTP {
-				z.Exit(STATUS_COMPLETE)
+				z.Exit(STATUS_COMPLETE, nil)
 			}
 		}
 
@@ -160,7 +165,7 @@ func LoadTask(status ...string) {
 
 	for _, v := range taskList {
 		taskData := v
-		if _, ok := GL.Load(INSTALL_RUNNING_KEY); taskData.TaskType == TASK_TYPE_INSTALL && ok {
+		if _, ok := GL.Load(INSTALL_RUNNING_KEY); taskData.TaskType == TASK_TYPE_APPSTORE && ok {
 			continue
 		}
 		if _, ok := globalTask.Load(taskData.Id); ok {
@@ -172,12 +177,12 @@ func LoadTask(status ...string) {
 		taskJob.JobId = taskData.Id
 		taskJob.TaskData = &taskData
 		taskJob.TaskType = taskData.TaskType
-		if taskData.TaskType == TASK_TYPE_INSTALL {
-			GL.Store("install_task_running", true)
-		}
-		globalTask.Store(taskData.Id, taskJob)
 		select {
 		case globalTaskQueue <- taskJob:
+			if taskData.TaskType == TASK_TYPE_APPSTORE {
+				GL.Store("install_task_running", true)
+			}
+			globalTask.Store(taskData.Id, taskJob)
 		default:
 		}
 
