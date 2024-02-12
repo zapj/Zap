@@ -3,7 +3,7 @@ package jsonutil
 import (
 	"encoding/json"
 
-	"github.com/zapj/zap/core/defines"
+	"github.com/zapj/zap/core/base"
 )
 
 func EncodeToString(v any) string {
@@ -28,8 +28,8 @@ func DecodeToMap(r string) map[string]any {
 	return v
 }
 
-func DecodeToZapMap(r string) defines.ZapMap {
-	v := make(defines.ZapMap)
+func DecodeToZapMap(r string) base.ZapMap {
+	v := make(base.ZapMap)
 	json.Unmarshal([]byte(r), &v)
 	return v
 }

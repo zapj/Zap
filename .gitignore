@@ -26,6 +26,8 @@ web/node_modules
 *.pid
 /dist
 # /web/static
+/data/pkg
+/data/backup
 /data/tmp
 /data/task
 /data/*.db
@@ -33,4 +35,5 @@ web/node_modules
 /data/*.key
 /custombuilds
 
+/.idea/
 

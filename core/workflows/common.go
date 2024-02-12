@@ -41,7 +41,6 @@ func ReadAppstoreList() []*AppInfo {
 		ymlBytes, _ := os.ReadFile(ymlPath)
 		appInfo := &AppInfo{}
 		yaml.Unmarshal(ymlBytes, appInfo)
-		slog.Info("Read appstore", "appInfo", appInfo)
 		// appInfo.ConfigName, _ = filepath.Rel("data/appstore", ymlPath)
 		appInfo.ConfigName = ymlPath
 		appInfo.Id = goutils.MD5(appInfo.ConfigName)

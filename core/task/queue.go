@@ -117,7 +117,7 @@ func (z *ZapJob) Execute() {
 					Cmd:      z.TaskData.Cmd,
 				}
 				if err := appJob.Execute(); err != nil {
-
+					appJob.Clean()
 					z.Exit(STATUS_FAILED, err)
 					return
 				}

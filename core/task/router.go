@@ -6,9 +6,11 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/zapj/zap/core/base"
 	"github.com/zapj/zap/core/global"
 	"github.com/zapj/zap/core/models"
 	"github.com/zapj/zap/core/utils/jsonutil"
+	"github.com/zapj/zap/core/utils/pathutil"
 )
 
 func RegisterRouter(r *gin.RouterGroup) {
@@ -33,22 +35,12 @@ func RegisterRouter(r *gin.RouterGroup) {
 			c.JSON(200, gin.H{"code": 1, "msg": "App无法安装"})
 			return
 		}
-		if result := global.DB.First(&models.ZapApps{}, "name = ? and version = ?", appStore.Name, version); result.RowsAffected > 0 {
-			c.JSON(200, gin.H{"code": 1, "msg": "App无法安装"})
+		app := models.ZapApps{}
+		if result := global.DB.First(&app, "name = ? and version = ?", appStore.Name, version); result.RowsAffected > 0 {
+			c.JSON(200, gin.H{"code": 1, "msg": "App已存在或正在安装"})
 			return
 		}
-
-		global.DB.Save(&models.ZapTask{
-			Cmd:         jsonutil.EncodeToString(map[string]string{"action": action, "app_id": id, "app_version": version}),
-			Retry:       0,
-			TaskType:    TASK_TYPE_APPSTORE,
-			CreateBy:    "admin",
-			Title:       fmt.Sprintf("安装 %s", appStore.Title),
-			Status:      STATUS_WAIT,
-			ExtendsAttr: fmt.Sprint(appStore.Id),
-		})
-
-		global.DB.Save(&models.ZapApps{
+		app = models.ZapApps{
 			AppStoreId:  appStore.Id,
 			Name:        appStore.Name,
 			Status:      global.APP_STATUS_INSTALL,
@@ -57,7 +49,21 @@ func RegisterRouter(r *gin.RouterGroup) {
 			Title:       appStore.Title,
 			Description: appStore.Description,
 			Version:     version,
+		}
+		global.DB.Create(&app)
+
+		global.DB.Save(&models.ZapTask{
+			Cmd:         jsonutil.EncodeToString(base.ZapMap{"action": action, "appstore_unique_id": id, "app_id": app.Id, "appstore_id": appStore.Id, "app_version": version}),
+			Retry:       0,
+			TaskType:    TASK_TYPE_APPSTORE,
+			CreateBy:    "admin",
+			Title:       fmt.Sprintf("安装 %s", appStore.Title),
+			Status:      STATUS_WAIT,
+			LogFile:     pathutil.GetPath(fmt.Sprintf("data/logs/install_%d.log", app.Id)),
+			TargetDir:   pathutil.GetPath(fmt.Sprintf("data/build/%s_%s", app.Name, app.Version)),
+			ExtendsAttr: fmt.Sprint(appStore.Id),
 		})
+
 		LoadTask()
 		c.JSON(200, gin.H{"code": 0, "msg": "提交成功，系统将自动安装App"})
 	})
