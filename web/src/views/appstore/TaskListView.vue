@@ -14,6 +14,7 @@
               <template #default="scope">
                 <el-button link type="primary" size="small" @click.prevent="removeTask(scope.$index,scope.row.id)" > 删除 </el-button>
                 <el-button link type="primary" size="small" @click.prevent="cancelTask(scope.$index,scope.row.id)" > 取消 </el-button>
+                <el-button link type="primary" size="small" @click.prevent="tailLog(scope.$index,scope.row.id)" > View Log </el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -27,19 +28,43 @@
   
    
   </el-row>
+
+  <el-dialog
+    v-model="dialogVisible"
+    title="Tips"
+    >
+    <span>This is a message</span>
+    <LogViewer></LogViewer>
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button @click="dialogVisible = false">Cancel</el-button>
+        <el-button type="primary" @click="dialogVisible = false">
+          Confirm
+        </el-button>
+      </div>
+    </template>
+  </el-dialog>
+
+
+
 </template>
 <script setup>
 import { onMounted } from 'vue';
 import apiRequest from '../../httpclient/client';
 import { ElMessage } from 'element-plus';
 import { formatDate } from '../../commons/commons.js'
+import LogViewer from '../../components/logviewer/LogViewer.vue';
 const tbDataRef = ref([]) 
+const dialogVisible = ref(false)
 
 onMounted(()=>{
   getAppList()
 })
 
-
+const handleClose = () => {
+  return true
+ 
+}
 const getAppList = ()=>{
   apiRequest({
     url:'/v1/task/appinstall/tasklist'
@@ -71,6 +96,18 @@ const cancelTask = (index,id) => {
     getAppList()
     ElMessage({message:"取消成功",type:"success"})
   })
+}
+
+const tailLog = (index,id) => {
+  dialogVisible.value = true
+  // apiRequest({
+  //   url:'/v1/task/appinstall/taillog',
+  //   data:{id:id},
+  //   dataType:"form",
+  //   method  :"post"
+  // }).then((resp)=>{
+  //   ElMessage({message:"查看成功",type:"success"})
+  // })
 }
 
 const genTask = ()=>{

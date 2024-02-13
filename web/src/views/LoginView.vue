@@ -36,7 +36,7 @@
 import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import apiRequest from '../httpclient/client'
-import { ElMessageBox, ElMessage } from 'element-plus'
+import { ElMessage } from 'element-plus'
 const router = useRouter()
 const form = reactive({
   username: '',
@@ -71,9 +71,6 @@ const login = () => {
       ElMessage({ message: '登陆成功', type: 'success' })
       router.push('/dashboard')
     }
-    // } else {
-    //   ElMessageBox.alert(data.msg)
-    // }
   })
 }
 </script>

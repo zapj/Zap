@@ -17,7 +17,7 @@ export default defineConfig({
           target:'https://127.0.0.1:2828',
           changeOrigin:true,
           secure: false,      
-          ws: true,
+          ws: true
       }
     }
 

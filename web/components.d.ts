@@ -49,6 +49,7 @@ declare module 'vue' {
     FooterCopyright: typeof import('./src/components/FooterCopyright.vue')['default']
     LeftSidebar: typeof import('./src/components/LeftSidebar.vue')['default']
     LineChart: typeof import('./src/components/echarts/LineChart.vue')['default']
+    LogViewer: typeof import('./src/components/logviewer/LogViewer.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     Skeleton: typeof import('./src/components/Skeleton.vue')['default']

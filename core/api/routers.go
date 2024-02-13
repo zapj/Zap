@@ -14,7 +14,7 @@ import (
 	"github.com/zapj/zap/core/api/server"
 	"github.com/zapj/zap/core/api/users"
 	"github.com/zapj/zap/core/auth/jwtauth"
-	"github.com/zapj/zap/core/webterm"
+	"github.com/zapj/zap/core/terminal"
 )
 
 // 无需授权的路由
@@ -30,7 +30,7 @@ func RegisterRouter(router *gin.Engine) {
 func RegisterAPIV1Router(c *gin.RouterGroup) {
 	c.Use(jwtTokenCheck)
 	//websocket
-	c.GET("/local/ws", webterm.HandlerLocalWS)
+	c.GET("/local/ws", terminal.HandlerLocalWS)
 	c.GET("/statistics/dashboard", dashboard.DashBoardStats)
 	c.GET("/sync/user/settings", users.SyncUserSettings)
 
@@ -59,6 +59,9 @@ func RegisterAPIV1Router(c *gin.RouterGroup) {
 
 	// upgrade
 	c.GET("/upgrade/check", server.UpgradeCheck)
+
+	// WSS
+	c.GET("/wss/logviewer", terminal.LogViewerHandler)
 
 }
 

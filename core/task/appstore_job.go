@@ -63,16 +63,18 @@ func (b *AppStoreJob) Execute() (err error) {
 
 	// appstore script path
 	appPath := path.Join(pathutil.GetPath("data/appstore"), appstore.Name)
-	scriptName := fmt.Sprintf("%s_%s.sh", runtime.GOOS, runtime.GOARCH)
+	osArch := fmt.Sprintf("%s_%s", runtime.GOOS, runtime.GOARCH)
+	// 默认使用action
+	scriptName := fmt.Sprintf("%s.sh", action)
 	var scriptFile string
+	// build.sh
 	if fileutils.IsFile(path.Join(appPath, scriptName)) {
 		scriptFile = path.Join(appPath, scriptName)
-	} else if fileutils.IsFile(path.Join(appPath, fmt.Sprintf("%s.sh", action))) {
-		scriptFile = path.Join(appPath, fmt.Sprintf("%s.sh", action))
+	} else if fileutils.IsFile(path.Join(appPath, fmt.Sprintf("%s_%s.sh", action, osArch))) { // build_linux_amd64.sh
+		scriptFile = path.Join(appPath, fmt.Sprintf("%s_%s.sh", action, osArch))
 	} else {
 		return fmt.Errorf("scriptFile not found %s", scriptName)
 	}
-	slog.Info("global.ZAP_BASE_DIR", "base dir", global.ZAP_BASE_DIR)
 	if !strings.HasPrefix(b.TaskData.TargetDir, global.ZAP_BASE_DIR) {
 		return fmt.Errorf("target dir is not allowed %s", b.TaskData.TargetDir)
 	}
@@ -92,10 +94,13 @@ func (b *AppStoreJob) Execute() (err error) {
 
 	cmd := exec.CommandContext(b.Ctx, "bash", scriptFile)
 	envs := []string{
+		"ZAP_OS=" + runtime.GOOS,
+		"ZAP_ARCH=" + runtime.GOARCH,
+		"ZAP_BASE_DIR=" + global.ZAP_BASE_DIR,
+		"ZAP_DATA_PATH=" + pathutil.GetPath("data"),
 		"APP_PATH=" + appPath,
 		"SCRIPT_PATH=" + scriptFile,
 		"APPS_DIR=" + global.APPS_DIR,
-		"DATA_PATH=" + pathutil.GetPath("data"),
 		"PKG_PATH=" + pathutil.GetPath("data/pkg"),
 		// "APP_STORE_ID=" + fmt.Sprint(app.AppStoreId),
 		// "APP_STORE_NAME=" + appstore.Name,
@@ -106,10 +111,13 @@ func (b *AppStoreJob) Execute() (err error) {
 		"APP_VERSION=" + version,
 		"APP_TITLE=" + app.Title,
 	}
+	// var errBuffer bytes.Buffer
+	// errMixed := io.MultiWriter(logFile, &errBuffer)
 	cmd.Env = append(os.Environ(), envs...)
 	cmd.Stderr = logFile
 	cmd.Stdout = logFile
 	if err := cmd.Run(); err != nil {
+		// return errors.Join(err, errors.New(errBuffer.String()))
 		return err
 	}
 	app.Status = global.APP_STATUS_ACTIVE

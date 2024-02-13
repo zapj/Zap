@@ -1,4 +1,4 @@
-package webterm
+package terminal
 
 import (
 	"bufio"
