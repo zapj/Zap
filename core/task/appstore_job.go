@@ -98,7 +98,8 @@ func (b *AppStoreJob) Execute() (err error) {
 		"ZAP_ARCH=" + runtime.GOARCH,
 		"ZAP_BASE_DIR=" + global.ZAP_BASE_DIR,
 		"ZAP_DATA_PATH=" + pathutil.GetPath("data"),
-		"APP_PATH=" + appPath,
+		"APPSTORE_PATH=" + appPath,
+		"APP_PATH=" + fmt.Sprintf("%s/%s_%s", global.APPS_DIR, app.Name, version),
 		"SCRIPT_PATH=" + scriptFile,
 		"APPS_DIR=" + global.APPS_DIR,
 		"PKG_PATH=" + pathutil.GetPath("data/pkg"),
@@ -117,6 +118,7 @@ func (b *AppStoreJob) Execute() (err error) {
 	cmd.Stderr = logFile
 	cmd.Stdout = logFile
 	if err := cmd.Run(); err != nil {
+		// logFile.Write(errBuffer.Bytes())
 		// return errors.Join(err, errors.New(errBuffer.String()))
 		return err
 	}

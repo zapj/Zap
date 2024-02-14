@@ -3,6 +3,7 @@ package terminal
 import (
 	"bufio"
 	"bytes"
+	"encoding/json"
 	"errors"
 	"io"
 	"log/slog"
@@ -18,15 +19,7 @@ import (
 
 func LogViewerHandler(c *gin.Context) {
 	logFile := c.Query("log_file")
-	if logFile == "" {
-		slog.Error("log file is empty")
-		return
-	}
-	logFile = pathutil.GetPath("data/logs", logFile)
-	if !fileutils.IsFile(logFile) {
-		slog.Error("log file is not exist", "log file", logFile)
-		return
-	}
+
 	w := c.Writer
 	r := c.Request
 	h := http.Header{}
@@ -40,7 +33,17 @@ func LogViewerHandler(c *gin.Context) {
 		slog.Error("Unable to upgrade connection", "err", err)
 		return
 	}
-
+	if logFile == "" {
+		slog.Error("log file is empty")
+		conn.WriteMessage(websocket.TextMessage, []byte("log file is empty"))
+		return
+	}
+	logFile = pathutil.GetPath("data/logs", logFile)
+	if !fileutils.IsFile(logFile) {
+		slog.Error("log file is not exist", "log file", logFile)
+		conn.WriteMessage(websocket.TextMessage, []byte("log file is not exist"))
+		return
+	}
 	logFd, err := os.Open(logFile)
 	if err != nil {
 		slog.Error("Unable to open log file", "err", err, "log file", logFile)
@@ -80,7 +83,7 @@ func LogViewerHandler(c *gin.Context) {
 	}()
 
 	for {
-		messageType, _, err := conn.NextReader()
+		messageType, reader, err := conn.NextReader()
 		if err != nil {
 			slog.Error("Unable to grab next reader", slog.Any("err", err))
 			return
@@ -90,6 +93,34 @@ func LogViewerHandler(c *gin.Context) {
 			// conn.WriteMessage(websocket.TextMessage, []byte("Unexpected text message"))
 			continue
 		}
+
+		dataTypeBuf := make([]byte, 1)
+		read, err := reader.Read(dataTypeBuf)
+		if err != nil {
+			slog.Error("Unable to read message type from reader", slog.Any("err", err))
+			conn.WriteMessage(websocket.TextMessage, []byte("Unable to read message type from reader"))
+			return
+		}
+
+		if read != 1 {
+			slog.Error("Unexpected number of bytes read", slog.Any("err", err), slog.Any("bytes", read))
+			return
+		}
+
+		switch dataTypeBuf[0] {
+		case 2:
+			decoder := json.NewDecoder(reader)
+			var msg map[string]string
+			decoder.Decode(&msg)
+			if logfile, ok := msg["logfile"]; ok {
+				logFd.Close()
+				logFd, _ = os.Open(pathutil.GetPath("data/logs", logfile))
+				logScan = bufio.NewReader(logFd)
+			}
+
+			// colsBuf := make([]byte, 4)
+		}
+
 	}
 
 }

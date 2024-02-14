@@ -31,16 +31,21 @@
 
   <el-dialog
     v-model="dialogVisible"
-    title="Tips"
+    width="80%"
+    title="LogViewer"
     >
-    <span>This is a message</span>
-    <LogViewer></LogViewer>
+    <Suspense>
+      <template #default>
+        <LogViewer :logfile="logfile"></LogViewer>
+      </template>
+      <template #fallback>
+        <ElSkeleton :rows="4"></ElSkeleton>
+      </template>
+    </Suspense>
+    
     <template #footer>
       <div class="dialog-footer">
-        <el-button @click="dialogVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="dialogVisible = false">
-          Confirm
-        </el-button>
+        <el-button @click="dialogVisible = false">关闭</el-button>
       </div>
     </template>
   </el-dialog>
@@ -49,14 +54,14 @@
 
 </template>
 <script setup>
-import { onMounted } from 'vue';
+import { defineAsyncComponent, onMounted } from 'vue';
 import apiRequest from '../../httpclient/client';
-import { ElMessage } from 'element-plus';
+import { ElMessage, ElSkeleton } from 'element-plus';
 import { formatDate } from '../../commons/commons.js'
-import LogViewer from '../../components/logviewer/LogViewer.vue';
 const tbDataRef = ref([]) 
 const dialogVisible = ref(false)
-
+const logfile = ref("")
+const LogViewer = defineAsyncComponent(()=>import('../../components/logviewer/LogViewer.vue'))
 onMounted(()=>{
   getAppList()
 })
@@ -99,7 +104,9 @@ const cancelTask = (index,id) => {
 }
 
 const tailLog = (index,id) => {
+  logfile.value = "install_"+id+".log"
   dialogVisible.value = true
+  
   // apiRequest({
   //   url:'/v1/task/appinstall/taillog',
   //   data:{id:id},

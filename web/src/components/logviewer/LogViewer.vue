@@ -9,11 +9,23 @@ import { createTerminal,createWebSocket } from '../../zap/terminal/terminal';
 
 
 
-import { onMounted } from 'vue'
-
+import { computed, onMounted, watch, watchEffect } from 'vue'
+const props = defineProps({
+    logfile: String
+})
+const logfile = computed(() => props.logfile)
+var socket
+var terminal
+watch(logfile,(newVal,oldVal) => {
+    //clean terminal
+    terminal.clear()
+    socket.send(
+        new TextEncoder().encode('\x02' + JSON.stringify({ logfile: newVal }))
+    )
+})
 onMounted(() => {
-    const socket = createWebSocket("/api/v1/wss/logviewer?log_file=install_32.log")
-    const terminal = createTerminal("terminal",socket)
+    socket = createWebSocket("/api/v1/wss/logviewer?log_file="+ props.logfile)
+    terminal = createTerminal("terminal",socket)
     socket.onmessage = (data) => {
         terminal.writeln(data)
     }

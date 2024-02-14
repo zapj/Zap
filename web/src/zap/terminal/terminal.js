@@ -8,14 +8,13 @@ export const ab2str = function (buf) {
     return String.fromCharCode.apply(null, new Uint8Array(buf))
 }
 
-export const terminal = new Terminal({
-    screenKeys: true,
-    useStyle: true,
-    cursorBlink: true
-})
-
 
 export const createTerminal = function (container, socket) {
+    const terminal = new Terminal({
+        screenKeys: true,
+        useStyle: true,
+        cursorBlink: true
+    })
     const fitAddon = new FitAddon()
     terminal.loadAddon(fitAddon)
     terminal.loadAddon(new WebLinksAddon())
