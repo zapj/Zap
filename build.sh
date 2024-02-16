@@ -81,7 +81,7 @@ else
     go build -ldflags="${LD_FLAGS_STRING}" cmd/zapctl/zapctl.go
     go build -ldflags="${LD_FLAGS_STRING}" cmd/zapd/zapd.go
 fi
-
+echo "Build Success"
 
 if [ "$1" = "run" ]
 then

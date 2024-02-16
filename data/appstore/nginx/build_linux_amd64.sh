@@ -67,4 +67,34 @@ cd $NGINX_DIRNAME
 --with-zlib=${PKG_PATH}/${ZLIB_DIRNAME}
 
 make
+echo "nginx build success"
 make install
+
+if [ "$?" != "0" ];then
+echo "Error building nginx"
+exit 1
+fi
+
+echo "Setting up nginx symlink"
+if [ ! -d "${APPS_DIR}/nginx" ];then
+    ln -s ${INSTALL_PATH} ${APPS_DIR}/nginx
+fi
+
+echo "Setting up nginx service"
+if [ ! -f "/etc/systemd/system/nginx.service" ];then
+    cp ${ZAP_PATH}/scripts/systemd/nginx.service /etc/systemd/system/nginx.service
+fi
+
+
+echo "Setting up nginx config"
+CHANGE_APPS_CONFIG='{
+    "install_dir": "${INSTALL_PATH}"
+}'
+${ZAPCTL} update apps -d ${CHANGE_APPS_CONFIG} -w "id=${APP_ID}"
+
+echo "nginx installed to ${INSTALL_PATH}"
+
+echo "Enabling nginx service"
+systemd enable nginx.service
+echo "Starting nginx service"
+systemd start nginx.service

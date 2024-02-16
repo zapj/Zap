@@ -4,13 +4,13 @@ import "gorm.io/gorm"
 
 type ZapUsers struct {
 	gorm.Model
-	Username string
+	Username string `json:"username"`
 	Password string `json:"-"`
-	Uid      uint
-	Gid      uint
-	Gecos    string
-	Home     string
-	Shell    string
+	Uid      uint   `json:"uid"`
+	Gid      uint   `json:"gid"`
+	Gecos    string `json:"gecos"`
+	Home     string `json:"home"`
+	Shell    string `json:"shell"`
 
 	// Days since Jan 1, 1970 password was last changed.
 	LastChange string
@@ -36,13 +36,13 @@ type ZapUsers struct {
 	// 帐户的到期日期，表示为自1970年1月1日以来的天数。
 	//
 	// -1 is account never expires.
-	AccountExpiry string
+	AccountExpiry string `json:"account_expiry"`
 
 	// Unused now.
-	Flags string
+	Flags string `json:"flags"`
 
 	//空间大小 kb
-	DiskSpaceSize int
-	DataBaseCount int
-	DataBaseSize  int
+	DiskSpaceSize int `json:"disk_space_size"`
+	DataBaseCount int `json:"database_count"`
+	DataBaseSize  int `json:"database_size"`
 }

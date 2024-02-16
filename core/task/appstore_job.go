@@ -94,9 +94,11 @@ func (b *AppStoreJob) Execute() (err error) {
 
 	cmd := exec.CommandContext(b.Ctx, "bash", scriptFile)
 	envs := []string{
+		"ZAPCTL=" + pathutil.GetPath("zapctl"),
 		"ZAP_OS=" + runtime.GOOS,
+		"ZAP_PATH=" + global.ZAP_BASE_DIR,
 		"ZAP_ARCH=" + runtime.GOARCH,
-		"ZAP_BASE_DIR=" + global.ZAP_BASE_DIR,
+		// "ZAP_BASE_DIR=" + global.ZAP_BASE_DIR,
 		"ZAP_DATA_PATH=" + pathutil.GetPath("data"),
 		"APPSTORE_PATH=" + appPath,
 		"APP_PATH=" + fmt.Sprintf("%s/%s_%s", global.APPS_DIR, app.Name, version),

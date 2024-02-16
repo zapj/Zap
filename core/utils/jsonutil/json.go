@@ -22,6 +22,17 @@ func Encode(v any) []byte {
 	return r
 }
 
+func Decode(r string, v any, defaultValue any) error {
+	if r == "" {
+		v = defaultValue
+		return nil
+	}
+	err := json.Unmarshal([]byte(r), &v)
+	if err != nil {
+		return err
+	}
+	return nil
+}
 func DecodeToMap(r string) map[string]any {
 	v := make(map[string]any)
 	json.Unmarshal([]byte(r), &v)

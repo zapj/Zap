@@ -8,9 +8,12 @@ import (
 
 type ZapWebSite struct {
 	gorm.Model
-	Uid  uint `gorm:"index"`
-	Gid  uint
-	Home string
+	Uid         uint   `gorm:"index"`
+	Gid         uint   `json:"uid"`
+	Username    string `json:"username"`
+	Domain      string `json:"domain"`
+	OtherDomain string `json:"other_domain"`
+	Home        string `json:"home"`
 }
 
 type ZapDataBase struct {
@@ -56,6 +59,7 @@ type ZapApps struct {
 	Name        string    `json:"name"`
 	Title       string    `json:"title"`
 	Version     string    `json:"version" gorm:"default:0.0.0"`
+	AppType     string    `json:"app_type"` // webserver , application , database
 	Description string    `json:"description"`
 	Status      string    `json:"status" gorm:"index;"`
 	InstallBy   string    `json:"install_by"`
