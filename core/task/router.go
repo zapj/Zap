@@ -2,10 +2,12 @@ package task
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/zapj/zap/core/api/commons"
 	"github.com/zapj/zap/core/base"
 	"github.com/zapj/zap/core/global"
 	"github.com/zapj/zap/core/models"
@@ -44,6 +46,7 @@ func RegisterRouter(r *gin.RouterGroup) {
 			AppStoreId:  appStore.Id,
 			Name:        appStore.Name,
 			Status:      global.APP_STATUS_INSTALL,
+			AppType:     appStore.Category,
 			InstallBy:   "admin",
 			InstallDate: time.Now(),
 			Title:       appStore.Title,
@@ -60,12 +63,12 @@ func RegisterRouter(r *gin.RouterGroup) {
 			Title:       fmt.Sprintf("安装 %s", appStore.Title),
 			Status:      STATUS_WAIT,
 			LogFile:     pathutil.GetPath(fmt.Sprintf("data/logs/install_%d.log", app.Id)),
-			TargetDir:   pathutil.GetPath(fmt.Sprintf("data/build/%s_%s", app.Name, app.Version)),
+			TargetDir:   pathutil.GetPath(fmt.Sprintf("data/build/%s-%s", app.Name, app.Version)),
 			ExtendsAttr: fmt.Sprint(appStore.Id),
 		})
 
 		LoadTask()
-		c.JSON(200, gin.H{"code": 0, "msg": "提交成功，系统将自动安装App"})
+		c.JSON(200, gin.H{"code": 0, "msg": "提交成功,系统将自动安装App"})
 	})
 	r.POST("/task/cancel", func(c *gin.Context) {
 		id := c.PostForm("id")
@@ -76,5 +79,21 @@ func RegisterRouter(r *gin.RouterGroup) {
 	r.POST("/task/refresh", func(c *gin.Context) {
 		LoadTask()
 		c.JSON(200, gin.H{"code": 0, "msg": "刷新成功"})
+	})
+	r.POST("/app/uninstall", func(c *gin.Context) {
+		id := c.PostForm("id")
+		app := models.ZapApps{}
+		if err := global.DB.First(&app, id).Error; err != nil {
+			c.JSON(200, commons.Error(1, "应用不存在", nil))
+			return
+		}
+		if app.Status != global.APP_STATUS_UNINSTALL {
+			c.JSON(200, commons.Error(1, "应用无法卸载", nil))
+			return
+		}
+
+		//stop service
+		os.RemoveAll(pathutil.GetPath(fmt.Sprintf("/usr/local/apps/%s-%s", app.Name, app.Version)))
+
 	})
 }

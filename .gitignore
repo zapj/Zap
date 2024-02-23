@@ -29,11 +29,15 @@ web/node_modules
 /data/pkg
 /data/backup
 /data/tmp
+/data/build
+/data/builds
+/data/logs
 /data/task
 /data/*.db
 /data/*.crt
 /data/*.key
 /custombuilds
+/scripts/*_test.sh
 
 /.idea/
 

@@ -5,6 +5,7 @@
 </template>
 <script setup>
 
+import { FitAddon } from 'xterm-addon-fit';
 import { createTerminal,createWebSocket } from '../../zap/terminal/terminal';
 
 
@@ -36,6 +37,7 @@ onMounted(() => {
     socket.onopen = () => {
         terminal._initialized = true
         terminal.focus()
+        // terminal.loadAddons(FitAddon)
         // terminal.writeln("Connected to server\n")
     }
 })

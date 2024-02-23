@@ -41,8 +41,27 @@ func ListInstalledApp(c *gin.Context) {
 
 func UninstallApp(c *gin.Context) {
 	id := c.PostForm("id")
-	global.DB.Delete(&models.ZapApps{}, id)
-	c.JSON(200, commons.Success("删除成功"))
+	app := models.ZapApps{}
+	global.DB.First(&app, id)
+	if app.Status == global.APP_STATUS_UNINSTALL {
+		c.JSON(200, commons.Error(1, "应用正在卸载", nil))
+		return
+	}
+	app.Status = global.APP_STATUS_UNINSTALL
+	global.DB.Save(&app)
+	resp, err := task.Post("/app/uninstall", &fetch.Config{
+		Headers: map[string]string{
+			"Content-Type": "application/x-www-form-urlencoded",
+		},
+		Body: map[string]string{
+			"id": id,
+		}})
+
+	if err != nil {
+		c.JSON(200, commons.Error(1, "应用卸载失败", err.Error()))
+		return
+	}
+	c.Data(200, gin.MIMEJSON, resp.Body)
 }
 
 func AppInstall(c *gin.Context) {

@@ -14,5 +14,3 @@ author: zap
 organization_name : zap
 actions:
   build: 编译安装
-  bin: 安装
-options:

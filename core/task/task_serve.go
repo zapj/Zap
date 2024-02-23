@@ -45,7 +45,7 @@ func StartTaskScheduler() {
 		srv.ServeTLS(unixListener, crtFile, keyFile)
 	}()
 	go func() {
-		StartServer()
+		StartServer(ctx)
 	}()
 	StartTaskQueue()
 	<-ctx.Done()

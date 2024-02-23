@@ -125,8 +125,16 @@ func (z *ZapJob) Execute() {
 				return
 
 			} else if z.TaskType == TASK_TYPE_EMAIL {
+				emailJob := &EmailJob{
+					Ctx: z.TaskCtx,
+				}
+				emailJob.Execute()
 				z.Exit(STATUS_COMPLETE, nil)
 			} else if z.TaskType == TASK_TYPE_HTTP {
+				httpJob := &HttpJob{
+					Ctx: z.TaskCtx,
+				}
+				httpJob.Execute()
 				z.Exit(STATUS_COMPLETE, nil)
 			}
 		}

@@ -113,13 +113,28 @@ func (b *AppStoreJob) Execute() (err error) {
 		"APP_NAME=" + app.Name,
 		"APP_VERSION=" + version,
 		"APP_TITLE=" + app.Title,
+		"CPU_NUM=" + fmt.Sprint(runtime.NumCPU()),
 	}
 	// var errBuffer bytes.Buffer
 	// errMixed := io.MultiWriter(logFile, &errBuffer)
 	cmd.Env = append(os.Environ(), envs...)
+	// cmdOutput, err := cmd.StdoutPipe()
+	// cmdStderr, err := cmd.StderrPipe()
 	cmd.Stderr = logFile
 	cmd.Stdout = logFile
-	if err := cmd.Run(); err != nil {
+	// writer := bufio.NewWriter(logFile)
+	// defer writer.Flush()
+
+	if err := cmd.Start(); err != nil {
+		// logFile.Write(errBuffer.Bytes())
+		// return errors.Join(err, errors.New(errBuffer.String()))
+		return err
+	}
+
+	// go io.Copy(writer, io.MultiReader(cmdOutput, cmdStderr))
+
+	err = cmd.Wait()
+	if err != nil {
 		// logFile.Write(errBuffer.Bytes())
 		// return errors.Join(err, errors.New(errBuffer.String()))
 		return err

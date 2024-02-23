@@ -63,7 +63,7 @@ func LogViewerHandler(c *gin.Context) {
 				slog.Error("Unable to read log file", "err", err, "line", line)
 				if errors.Is(err, io.EOF) {
 					if string(line) != "" {
-						conn.WriteMessage(websocket.TextMessage, bytes.TrimRight(line, "\n"))
+						conn.WriteMessage(websocket.BinaryMessage, line)
 					}
 					time.Sleep(2 * time.Second)
 					continue
@@ -72,8 +72,7 @@ func LogViewerHandler(c *gin.Context) {
 					return
 				}
 			}
-
-			err = conn.WriteMessage(websocket.TextMessage, bytes.TrimRight(line, "\n"))
+			err = conn.WriteMessage(websocket.BinaryMessage, bytes.TrimRight(line, "\n"))
 			if err != nil {
 				slog.Error("Unable to write message", slog.Any("err", err))
 				return

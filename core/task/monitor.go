@@ -1,6 +1,7 @@
 package task
 
 import (
+	"context"
 	"log/slog"
 	"os"
 	"os/exec"
@@ -9,13 +10,13 @@ import (
 	"github.com/zapj/zap/core/global"
 )
 
-func StartServer() {
+func StartServer(ctx context.Context) {
 	retry := time.Second * 30
 	for {
-		serverCmd := exec.Command(os.Args[0], "server")
+		serverCmd := exec.CommandContext(ctx, os.Args[0], "server")
 		// serverCmd.SysProcAttr = &syscall.SysProcAttr{GidMappingsEnableSetgroups: true}
 		// serverCmd.SysProcAttr.Credential = &syscall.Credential{Uid: 65534, Gid: 65534}
-		err := serverCmd.Run()
+		err := serverCmd.Start()
 		if err != nil {
 			slog.Error("start server", "err", err)
 			time.Sleep(retry)

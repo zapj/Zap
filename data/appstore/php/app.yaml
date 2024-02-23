@@ -7,3 +7,5 @@ icon: php.png
 tags: [php]
 dependencies:
   - nginx 
+actions:
+  build: 编译安装

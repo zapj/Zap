@@ -20,6 +20,12 @@ export const createTerminal = function (container, socket) {
     terminal.loadAddon(new WebLinksAddon())
     terminal.loadAddon(new AttachAddon(socket))
     terminal.open(document.getElementById(container))
+    terminal.onResize(function (evt) {
+        socket.send(
+          new TextEncoder().encode('\x01' + JSON.stringify({ cols: evt.cols, rows: evt.rows }))
+        )
+        terminal.fit()
+      })
     return terminal
 }
 

@@ -54,19 +54,23 @@ type ZapAccessLog struct {
 }
 
 type ZapApps struct {
-	Id          uint      `json:"id" gorm:"primarykey;autoIncrement"`
-	AppStoreId  uint      `json:"app_store_id" gorm:"index;"`
-	Name        string    `json:"name"`
-	Title       string    `json:"title"`
-	Version     string    `json:"version" gorm:"default:0.0.0"`
-	AppType     string    `json:"app_type"` // webserver , application , database
+	Id         uint   `json:"id" gorm:"primarykey;autoIncrement"`
+	AppStoreId uint   `json:"app_store_id" gorm:"index;"`
+	Name       string `json:"name"`
+	Title      string `json:"title"`
+	Version    string `json:"version" gorm:"default:0.0.0"`
+	AppType    string `json:"app_type"` // webserver , application , database
+
 	Description string    `json:"description"`
-	Status      string    `json:"status" gorm:"index;"`
+	Status      string    `json:"status" gorm:"index;"` // install : 安装中  active : 已安装
+	AppStatus   string    `json:"app_status"`           // running : 运行中  stop : 停止中
 	InstallBy   string    `json:"install_by"`
+	Instance    string    `json:"instance"`    // default
 	InstallDir  string    `json:"install_dir"` //安装目录
-	ConfigDirs  string    `json:"config_dirs"` //配置目录
-	OtherFiles  string    `json:"other_files"` // json (file/dir list)
-	Expose      string    `json:"expose"`      //暴露端口 json存储
+	Settings    string    `json:"settings"`    // properties
+	ConfigFile  string    `json:"config_file"` //配置文件
+	PidFile     string    `json:"pid_file"`
+	Error       string    `json:"error"` //错误信息
 	InstallDate time.Time `json:"install_date" gorm:"autoCreateTime"`
 	UpdateDate  time.Time `json:"update_date" gorm:"autoUpdateTime"`
 }

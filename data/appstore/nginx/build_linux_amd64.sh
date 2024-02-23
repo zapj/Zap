@@ -1,7 +1,4 @@
 #!/bin/bash
-set -e
-set -o errexit
-set -o pipefail
 
 ZLIB_VERSION="1.3.1"
 ZLIB_PKG_URL=https://www.zlib.net/zlib-${ZLIB_VERSION}.tar.gz
@@ -27,6 +24,11 @@ echo "Nginx File already exists, skipping download"
 else
 echo "Downloading nginx"
 wget -nv -P ${PKG_PATH} -O ${NGINX_PKG_NAME} ${NGINX_PKG_URL}
+if [ "$?" != "0" ];then
+echo "Error download nginx"
+exit 1
+fi
+
 fi
 
 if [ -f "${PKG_PATH}/${ZLIB_PKG_NAME}" ];then
@@ -76,8 +78,11 @@ exit 1
 fi
 
 echo "Setting up nginx symlink"
+INSTENCE_NAME=${NGINX_DIRNAME}
 if [ ! -d "${APPS_DIR}/nginx" ];then
     ln -s ${INSTALL_PATH} ${APPS_DIR}/nginx
+    INSTENCE_NAME=nginx
+    echo "nginx symlink created"
 fi
 
 echo "Setting up nginx service"
@@ -86,11 +91,8 @@ if [ ! -f "/etc/systemd/system/nginx.service" ];then
 fi
 
 
-echo "Setting up nginx config"
-CHANGE_APPS_CONFIG='{
-    "install_dir": "${INSTALL_PATH}"
-}'
-${ZAPCTL} update apps -d ${CHANGE_APPS_CONFIG} -w "id=${APP_ID}"
+
+
 
 echo "nginx installed to ${INSTALL_PATH}"
 
@@ -98,3 +100,22 @@ echo "Enabling nginx service"
 systemd enable nginx.service
 echo "Starting nginx service"
 systemd start nginx.service
+sleep 1
+nginx_status=$(systemctl is-active nginx.service)
+
+echo "Setting up nginx config"
+
+CHANGE_APPS_CONFIG="install_dir=/usr/local/apps/nginx-${APP_VERSION}\
+&expose=\"http=80\&https=443\"\
+&status=active\
+&app_status=${nginx_status}\
+&instance=${INSTENCE_NAME}\
+&pid_file=${INSTALL_PATH}/logs/nginx.pid\
+&config_file=${INSTALL_PATH}/conf/nginx.conf"
+
+${ZAPCTL} update apps -k ${CHANGE_APPS_CONFIG} -w "id=${APP_ID}"
+echo "nginx config updated"
+if [ "$nginx_status" != "active" ];then
+echo "Error start nginx.service faild"
+fi
+echo "nginx install successful"

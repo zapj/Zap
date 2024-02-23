@@ -72,10 +72,7 @@ apiRequest.interceptors.response.use(
     const responseCode = error.response.status
     switch (responseCode) {
       case 400:
-        ElMessage({
-          type: 'error',
-          message: '无效的Token,请重新登录'
-        })
+        ElMessage({type: 'error',message: '无效的Token,请重新登录'})
         router.replace({
           path: '/login',
           query: {
