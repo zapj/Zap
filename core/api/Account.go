@@ -8,7 +8,7 @@ import (
 	"github.com/zapj/zap/core/auth/jwtauth"
 	"github.com/zapj/zap/core/global"
 	"github.com/zapj/zap/core/models"
-	"github.com/zapj/zap/core/utils/zcrypt"
+	"github.com/zapj/zap/core/utils/zaputil"
 	"gorm.io/gorm"
 )
 
@@ -34,7 +34,7 @@ func LoginAuthHandler(c *gin.Context) {
 		c.JSON(200, gin.H{"code": 1, "msg": "用户名或密码不正确"})
 		return
 	}
-	if !zcrypt.CheckPasswordHash(userForm.Passowrd, user.Password) {
+	if !zaputil.CheckPasswordHash(userForm.Passowrd, user.Password) {
 		c.JSON(200, gin.H{"code": 1, "msg": "用户名或密码不正确"})
 		return
 	}

@@ -16,6 +16,7 @@ type ZapTask struct {
 	RetryCount  int       `json:"retry_count"`
 	Priority    int       `json:"priority" gorm:"default:100;"` //优先级 优先被执行，值越小优先级越高 默认100
 	ExtendsAttr string    `json:"extends_attr"`
+	Config      string    `json:"config"`     //properties config (自定义编译配置)
 	StartTime   int64     `json:"start_time"` //启动时间
 	EndTime     int64     `json:"end_time"`   //结束时间
 	CreateBy    string    `json:"create_by"`  //创建用户

@@ -5,10 +5,11 @@
     <el-table-column prop="title" label="Title" width="180" />
     <el-table-column prop="version" label="版本" />
     <el-table-column prop="status" label="状态" />
+    <el-table-column prop="app_status" label="运行状态" />
     <el-table-column prop="install_date" label="安装时间" />
     <el-table-column fixed="right" label="操作" width="120">
       <template #default="scope">
-        <el-button link type="primary" size="small" @click="uninstallApp(scope.row)">卸载</el-button>
+        <el-button link type="primary" size="small" @click="confirmUninstall(scope.row)">卸载</el-button>
       </template>
     </el-table-column>
   </el-table>
@@ -16,12 +17,25 @@
 <script setup>
 import { onMounted } from 'vue';
 import apiRequest from '../../httpclient/client';
-import { ElMessage } from 'element-plus';
+import { ElMessage, ElMessageBox } from 'element-plus';
 const appListRef = ref([]) 
 
 onMounted(()=>{
   getAppList()
 })
+
+const confirmUninstall = (row)=>{
+  ElMessageBox.confirm('确定要卸载'+row.name+'吗？','warning',{
+    confirmButtonText:'确定',
+    cancelButtonText:'取消',
+    type: 'warning',
+    callback: (action)=>{
+      if (action === 'confirm'){
+        uninstallApp(row)
+      }
+    }
+  })
+}
 
 const uninstallApp = (row)=>{
   apiRequest({
@@ -32,7 +46,10 @@ const uninstallApp = (row)=>{
     },
     dataType:'form'
   }).then((resp)=>{
-    ElMessage.success('卸载成功')
+    ElMessage({
+      type:resp.code === 0 ? 'success' : 'error',
+      message:resp.msg
+    })
     getAppList()
   })
 }
@@ -41,6 +58,13 @@ const getAppList = ()=>{
   apiRequest({
     url:'/v1/app/appstore/already_install'
   }).then((resp)=>{
+    if (resp.code !== 0){
+      ElMessage({
+        type:'error',
+        message:resp.msg
+      })
+      return
+    }
     appListRef.value = resp.data
   })
 }

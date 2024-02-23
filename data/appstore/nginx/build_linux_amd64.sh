@@ -105,15 +105,15 @@ nginx_status=$(systemctl is-active nginx.service)
 
 echo "Setting up nginx config"
 
-CHANGE_APPS_CONFIG="install_dir=/usr/local/apps/nginx-${APP_VERSION}\
-&expose=\"http=80\&https=443\"\
-&status=active\
-&app_status=${nginx_status}\
-&instance=${INSTENCE_NAME}\
-&pid_file=${INSTALL_PATH}/logs/nginx.pid\
-&config_file=${INSTALL_PATH}/conf/nginx.conf"
+CHANGE_APPS_CONFIG="install_dir=/usr/local/apps/nginx-${APP_VERSION},\
+expose=\"http=80\&https=443\",\
+status=active,\
+app_status=${nginx_status},\
+instance=${INSTENCE_NAME},\
+pid_file=${INSTALL_PATH}/logs/nginx.pid,\
+config_file=${INSTALL_PATH}/conf/nginx.conf"
 
-${ZAPCTL} update apps -k ${CHANGE_APPS_CONFIG} -w "id=${APP_ID}"
+${ZAPCTL} table apps -d ${CHANGE_APPS_CONFIG} -w "id=${APP_ID}"
 echo "nginx config updated"
 if [ "$nginx_status" != "active" ];then
 echo "Error start nginx.service faild"

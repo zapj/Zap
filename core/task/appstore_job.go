@@ -10,6 +10,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/shirou/gopsutil/v3/host"
 	"github.com/zapj/goutils/fileutils"
 	"github.com/zapj/zap/core/global"
 	"github.com/zapj/zap/core/models"
@@ -85,7 +86,7 @@ func (b *AppStoreJob) Execute() (err error) {
 	if !fileutils.IsDir(pathutil.GetPath("data/pkg")) {
 		os.MkdirAll(pathutil.GetPath("data/pkg"), 0755)
 	}
-	os.MkdirAll(b.TaskData.TargetDir, 0755)
+	// os.MkdirAll(b.TaskData.TargetDir, 0755)
 	logFile, err := os.Create(b.TaskData.LogFile)
 	if err != nil {
 		return err
@@ -93,15 +94,31 @@ func (b *AppStoreJob) Execute() (err error) {
 	defer logFile.Close()
 
 	cmd := exec.CommandContext(b.Ctx, "bash", scriptFile)
+	appVers := strings.Split(version, ".")
+	majorVersion, minorVersion, revisionVersion := "0", "0", "0"
+	if len(appVers) > 0 {
+		majorVersion = appVers[0]
+	}
+	if len(appVers) > 1 {
+		minorVersion = appVers[1]
+	}
+	if len(appVers) > 2 {
+		revisionVersion = appVers[2]
+	}
+	platform, family, os_version, _ := host.PlatformInformation()
 	envs := []string{
 		"ZAPCTL=" + pathutil.GetPath("zapctl"),
 		"ZAP_OS=" + runtime.GOOS,
 		"ZAP_PATH=" + global.ZAP_BASE_DIR,
-		"ZAP_ARCH=" + runtime.GOARCH,
+		"OS_ARCH=" + runtime.GOARCH,
+		"OS_PLATFORM=" + platform,
+		"OS_FAMILY=" + family,
+		"OS_VERSION=" + os_version,
+
 		// "ZAP_BASE_DIR=" + global.ZAP_BASE_DIR,
 		"ZAP_DATA_PATH=" + pathutil.GetPath("data"),
 		"APPSTORE_PATH=" + appPath,
-		"APP_PATH=" + fmt.Sprintf("%s/%s_%s", global.APPS_DIR, app.Name, version),
+		"APP_PATH=" + fmt.Sprintf("%s/%s-%s.%s", global.APPS_DIR, app.Name, majorVersion, minorVersion),
 		"SCRIPT_PATH=" + scriptFile,
 		"APPS_DIR=" + global.APPS_DIR,
 		"PKG_PATH=" + pathutil.GetPath("data/pkg"),
@@ -112,6 +129,9 @@ func (b *AppStoreJob) Execute() (err error) {
 		"APP_ID=" + fmt.Sprint(app.Id),
 		"APP_NAME=" + app.Name,
 		"APP_VERSION=" + version,
+		"MAJOR_VERSION=" + majorVersion,
+		"MINOR_VERSION=" + minorVersion,
+		"REVISION_VERSION=" + revisionVersion,
 		"APP_TITLE=" + app.Title,
 		"CPU_NUM=" + fmt.Sprint(runtime.NumCPU()),
 	}

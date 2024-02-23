@@ -9,7 +9,7 @@ import (
 	"github.com/zapj/zap/core/global"
 	"github.com/zapj/zap/core/models"
 	"github.com/zapj/zap/core/utils/pathutil"
-	"github.com/zapj/zap/core/utils/zcrypt"
+	"github.com/zapj/zap/core/utils/zaputil"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
@@ -56,7 +56,7 @@ func DbInit() {
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		user.ID = 1
 		user.Username = "admin"
-		passwd, _ := zcrypt.HashPassword("zapzap")
+		passwd, _ := zaputil.HashPassword("zapzap")
 		user.Password = passwd
 		user.Home = "/home/" + user.Username
 		user.Gid = 1000

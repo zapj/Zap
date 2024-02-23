@@ -200,6 +200,8 @@ github.com/yusufpapurcu/wmi v1.2.3 h1:E1ctvB7uKFMOJw3fdOW32DwGE9I7t++CRUEMKvFoFi
 github.com/yusufpapurcu/wmi v1.2.3/go.mod h1:SBZ9tNy3G9/m5Oi98Zks0QjeHVDvuK0qfxQmPyzfmi0=
 github.com/yusufpapurcu/wmi v1.2.4 h1:zFUKzehAFReQwLys1b/iSMl+JQGSCSjtVqQn9bBrPo0=
 github.com/yusufpapurcu/wmi v1.2.4/go.mod h1:SBZ9tNy3G9/m5Oi98Zks0QjeHVDvuK0qfxQmPyzfmi0=
+github.com/zapj/go-properties v0.0.0-20240223035915-1ed521940d79 h1:zRLIqOpRkHd8rwiAJNzTR4JrwAEs8vnyx7Vmf+T+1/8=
+github.com/zapj/go-properties v0.0.0-20240223035915-1ed521940d79/go.mod h1:dJ1/CKrkXkw8JYdma2/rFpsr3RP/4KbpSHQS7yaNzUg=
 github.com/zapj/goutils v0.0.0-20240109034127-b947d54cc8db h1:tRZGuobheSVKrtU/zJurhV/SuYlYhdfKyXrCC1qcb7U=
 github.com/zapj/goutils v0.0.0-20240109034127-b947d54cc8db/go.mod h1:q09+0waqWZR38xz0XLoHdWzjl5TlU0mqbKaOUYRu9Yc=
 golang.org/x/arch v0.0.0-20210923205945-b76863e36670/go.mod h1:5om86z9Hs0C8fWVUuoMHwpExlXzs5Tkyp9hOrfG7pp8=

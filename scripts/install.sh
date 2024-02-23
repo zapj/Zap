@@ -1,5 +1,12 @@
 #!/bin/bash
 
+
+if [ id -u -ne 0 ]
+then
+  echo "Must be root to run this script."
+  exit 1
+fi  
+
 # Linux
 OS=`uname`
 
@@ -70,3 +77,5 @@ else
     systemctl status zapd.service  
 fi
 
+
+echo "zap install complete"

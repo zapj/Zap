@@ -1,6 +1,6 @@
 <template>
   <div>
-    Term
+    Terminal
     <div id="terminal"></div>
   </div>
 </template>

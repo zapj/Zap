@@ -7,6 +7,13 @@ OS_MACHINE="$(uname -s)"
 # echo $VERSION_ID
 
 
+if [ id -u "www" > /dev/null 2>&1 ]; then
+  echo "www user already exists"
+else
+  useradd -M -s /bin/false www
+  echo "www user created"
+fi
+
 
 preInstallation() {
   if [ ! -d "$ZAP_DATA_PATH/tmp" ]; then
@@ -25,14 +32,14 @@ preInstallation() {
     apt-get update
     apt-get install -y wget
     apt install -y build-essential autoconf libtool bison re2c pkg-config libxml2 libxml2-dev libssl-dev libsqlite3-dev libcurl4 libcurl4-openssl-dev libpcre3-dev libbz2-dev
-    apt install -y libpq-dev
+    apt install -y libpq-dev libpq5
     apt install -y libbz2-dev
     apt install -y libzip-dev
     apt install -y libonig-dev
     apt install -y libpng3 libpng-dev libpng12-0 libpng12-dev libpng libpng-dev
     apt install -y libjpeg-turbo libjpeg-turbo-dev libjpeg libjpeg-dev 
     apt install -y libwebp libwebp-dev 
-    apt install -y libzip libzip-devel   libavif libavif-dev
+    apt install -y libzip libzip-devel  libavif libavif-dev
   elif [ "$OS_NAME" = "fedora" ];then
     dnf install -y git make gcc gcc-c++ binutils glibc-devel autoconf libtool bison re2c automake libxml2-devel  openssl-devel
   fi

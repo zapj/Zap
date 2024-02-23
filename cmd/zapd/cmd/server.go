@@ -155,19 +155,3 @@ func serveHTTPS(l net.Listener, router *gin.Engine) {
 		panic(err)
 	}
 }
-
-// type RedirectHttps struct {
-// }
-
-// func (r *RedirectHttps) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-// 	slog.Info("redirect", "url", req.URL.String())
-// 	http.Redirect(w, req, fmt.Sprintf("https://%s%s", req.Host, req.RequestURI), http.StatusMovedPermanently)
-// }
-
-// func redirect(w http.ResponseWriter, req *http.Request) {
-// 	slog.Info("req.URL.RawPath", "raw", req.URL.RawPath, "port", req.URL.Port())
-// 	slog.Info(fmt.Sprintf("https://%s:%s%s", req.Host, req.URL.Port(), req.URL.RawPath))
-// 	http.Redirect(w, req,
-// 		fmt.Sprintf("https://%s:%s%s", req.Host, req.URL.Port(), req.URL.RawPath),
-// 		http.StatusMovedPermanently)
-// }

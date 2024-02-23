@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/zapj/zap/core/global"
 	"github.com/zapj/zap/core/models"
-	"github.com/zapj/zap/core/utils/zcrypt"
+	"github.com/zapj/zap/core/utils/zaputil"
 	"gorm.io/gorm"
 )
 
@@ -64,7 +64,7 @@ func changePassword(username, password string) {
 		fmt.Printf("%s 用户不存在\n", username)
 		return
 	}
-	passwd, _ := zcrypt.HashPassword(password)
+	passwd, _ := zaputil.HashPassword(password)
 	user.Password = passwd
 	global.DB.Save(&user)
 	fmt.Printf("%s 密码修改成功\n", username)
@@ -77,7 +77,7 @@ func checkPassword(username, password string) {
 		fmt.Printf("%s 用户不存在\n", username)
 		return
 	}
-	if zcrypt.CheckPasswordHash(password, user.Password) {
+	if zaputil.CheckPasswordHash(password, user.Password) {
 		fmt.Println("密码正确")
 	} else {
 		fmt.Println("密码错误")

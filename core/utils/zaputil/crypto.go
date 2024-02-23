@@ -1,4 +1,4 @@
-package zcrypt
+package zaputil
 
 import "golang.org/x/crypto/bcrypt"
 

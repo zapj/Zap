@@ -3,12 +3,13 @@
 source $ZAP_PATH/scripts/zap/bash_utils.sh
 
 PHP_VERSION="${APP_VERSION}"
+PHP_SHORT_VERSION="${MAJOR_VERSION}.${MINOR_VERSION}"
 PHP_DOWNLOAD_URL="https://cn2.php.net/distributions/php-${PHP_VERSION}.tar.gz"
 PHP_DOWNLOAD_NAME="php-${PHP_VERSION}.tar.gz"
 PHP_DIRNAME="php-${APP_VERSION}"
 
 
-PHP_INSTALL_PATH=${APPS_DIR}/php-${APP_VERSION}
+PHP_INSTALL_PATH="${APPS_DIR}/php-${MAJOR_VERSION}.${MINOR_VERSION}"
 cd $PKG_PATH
 if [ -f "${PKG_PATH}/${PHP_DOWNLOAD_NAME}" ];then
 echo "PHP File already exists, skipping download"
@@ -41,6 +42,8 @@ cd php-${APP_VERSION}
 --enable-sysvshm \
 --enable-pcntl \
 --enable-fpm \
+--with-fpm-user=www \
+--with-fpm-group=www \
 --with-openssl \
 --with-zlib \
 --with-zip \
@@ -56,26 +59,82 @@ cd php-${APP_VERSION}
 --with-pdo-pgsql \
 --with-pgsql \
 --enable-mbstring \
---enable-intl
+--enable-intl \
+--with-pear
 
 
 echo "make install"
-make -j `grep 'processor' /proc/cpuinfo | wc -l` && make install
+make -j ${CPU_NUM} && make install
+
+if [ ! -d "${PHP_INSTALL_PATH}" ];then
+    echo "PHP ${APP_VERSION} Install failed"
+    exit 1
+fi
 
 if [ ! -d "${PHP_INSTALL_PATH}/etc" ];then
     mkdir -p ${PHP_INSTALL_PATH}/etc
 fi
 
+
+
+
+PHP_FPM_SOCK="/var/run/php-fpm/php-fpm-${PHP_SHORT_VERSION}.sock"
+PHP_FPM_BIN="${PHP_INSTALL_PATH}/sbin/php-fpm"
+PHP_FPM_PID="/var/run/php-fpm/php-fpm-${PHP_SHORT_VERSION}.pid"
+PHP_FPM_CONF=${PHP_INSTALL_PATH}/etc/php-fpm.conf
+PHP_FPM_ERROR_LOG="/var/log/php/php-${PHP_SHORT_VERSION}.log"
+
+if [ ! -d "/var/run/php-fpm" ];then
+    mkdir -p /var/run/php-fpm
+fi
+
+if [ ! -d "/var/log/php" ];then
+    mkdir -p /var/log/php
+fi
+
 cp ${ZAP_DATA_PATH}/build/${PHP_DIRNAME}/php.ini-production ${PHP_INSTALL_PATH}/etc/php.ini
-cp ${PHP_INSTALL_PATH}/etc/php-fpm.conf.default ${PHP_INSTALL_PATH}/etc/php-fpm.conf
-cp ${PHP_INSTALL_PATH}/etc/php-fpm.d/www.conf.default ${PHP_INSTALL_PATH}/etc/php-fpm.d/www.conf
+cp ${ZAP_DATA_PATH}/build/${PHP_DIRNAME}/sapi/fpm/php-fpm.conf ${PHP_INSTALL_PATH}/etc/php-fpm.conf
+cp ${ZAP_DATA_PATH}/build/${PHP_DIRNAME}/sapi/fpm/www.conf ${PHP_INSTALL_PATH}/etc/php-fpm.d/www.conf
 # update config
 
-sed -i "s/;daemonize = yes/daemonize = yes/g" ${PHP_INSTALL_PATH}/etc/php-fpm.conf
-sed -i "s/;pid =/pid =/g" ${PHP_INSTALL_PATH}/etc/php-fpm.conf
-sed -i "s/listen = 127.0.0.1:9000/listen = /var/run/php-fpm/php-fpm-${PHP_VERSION}.sock/g" ${PHP_INSTALL_PATH}/etc/php-fpm.d/www.conf
+sed -i "s#;pid = run/php-fpm.pid#pid = ${PHP_FPM_PID}#g" ${PHP_INSTALL_PATH}/etc/php-fpm.conf
+sed -i "s#;error_log = log/php-fpm.log#error_log = ${PHP_FPM_ERROR_LOG}#g" ${PHP_INSTALL_PATH}/etc/php-fpm.conf
+sed -i "s#listen = 127.0.0.1:9000#listen = ${PHP_FPM_SOCK}#g" ${PHP_INSTALL_PATH}/etc/php-fpm.d/www.conf
+
+#install systemd
+
+if command -v systemctl > /dev/null;then
+    cp ${ZAP_DATA_PATH}/build/${PHP_DIRNAME}/sapi/fpm/php-fpm.service /etc/systemd/system/php-fpm-${PHP_SHORT_VERSION}.service
+fi
+if command -v chkconfig > /dev/null;then
+    cp ${ZAP_DATA_PATH}/build/${PHP_DIRNAME}/sapi/fpm/init.d.php-fpm /etc/init.d/php-fpm-${PHP_SHORT_VERSION}
+fi
 
 
+
+
+COLS_DATA="install_dir=${PHP_INSTALL_PATH},\
+expose=unix_socket:${PHP_FPM_SOCK},\
+status=active,\
+app_status=stoped,\
+instance=php${PHP_VERSION},\
+pid_file=${PHP_FPM_PID},\
+config_file=${PHP_INSTALL_PATH}/etc/php.ini"
+
+${ZAPCTL} table apps -d "${COLS_DATA}" -w "id=${APP_ID}"
+
+if command -v systemctl > /dev/null;then
+    systemctl enable php-fpm-${PHP_SHORT_VERSION}.service
+    systemctl start php-fpm-${PHP_SHORT_VERSION}.service
+    systemctl status php-fpm-${PHP_SHORT_VERSION}.service
+fi
+
+if command -v chkconfig > /dev/null;then
+    chkconfig --add php-fpm-${PHP_SHORT_VERSION}
+    chkconfig php-fpm-${PHP_SHORT_VERSION} on
+    service php-fpm-${PHP_SHORT_VERSION} start
+    service php-fpm-${PHP_SHORT_VERSION} status
+fi
 
 echo "PHP ${APP_VERSION} installing successful"
 

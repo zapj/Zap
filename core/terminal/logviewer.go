@@ -60,10 +60,9 @@ func LogViewerHandler(c *gin.Context) {
 		for {
 			line, err := logScan.ReadBytes('\n')
 			if err != nil {
-				slog.Error("Unable to read log file", "err", err, "line", line)
 				if errors.Is(err, io.EOF) {
 					if string(line) != "" {
-						conn.WriteMessage(websocket.BinaryMessage, line)
+						conn.WriteMessage(websocket.BinaryMessage, bytes.TrimRight(line, "\n"))
 					}
 					time.Sleep(2 * time.Second)
 					continue
