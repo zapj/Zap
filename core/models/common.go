@@ -8,12 +8,14 @@ import (
 
 type ZapWebSite struct {
 	gorm.Model
-	Uid         uint   `gorm:"index"`
-	Gid         uint   `json:"uid"`
-	Username    string `json:"username"`
+	Uid         uint   `json:"uid" gorm:"index"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
 	Domain      string `json:"domain"`
 	OtherDomain string `json:"other_domain"`
 	Home        string `json:"home"`
+	Settings    string `json:"settings"`
+	Status      string `json:"status" gorm:"index;"` // 状态 active
 }
 
 type ZapDataBase struct {

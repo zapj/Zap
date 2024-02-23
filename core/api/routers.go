@@ -13,6 +13,7 @@ import (
 	"github.com/zapj/zap/core/api/filemanager"
 	"github.com/zapj/zap/core/api/server"
 	"github.com/zapj/zap/core/api/users"
+	"github.com/zapj/zap/core/api/websites"
 	"github.com/zapj/zap/core/auth/jwtauth"
 	"github.com/zapj/zap/core/terminal"
 )
@@ -33,6 +34,11 @@ func RegisterAPIV1Router(c *gin.RouterGroup) {
 	c.GET("/local/ws", terminal.HandlerLocalWS)
 	c.GET("/statistics/dashboard", dashboard.DashBoardStats)
 	c.GET("/sync/user/settings", users.SyncUserSettings)
+
+	// websites
+
+	c.GET("/website/list", websites.ListWebsite)
+	c.POST("/website/create", websites.CreateWebsite)
 
 	// filemanager
 	c.POST("/filemanager/list", filemanager.FileManager_List)
