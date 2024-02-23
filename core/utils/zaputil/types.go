@@ -9,3 +9,11 @@ func MustConvertStringToInt(s string) int {
 	}
 	return r
 }
+
+func MustConvertStringToUint(s string) uint {
+	r, err := strconv.Atoi(s)
+	if err != nil {
+		return 0
+	}
+	return uint(r)
+}
