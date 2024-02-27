@@ -2,12 +2,16 @@ package str
 
 import (
 	"math/rand"
+	"regexp"
+	"strings"
 	"time"
 )
 
 const uCharactersPool = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 var charactersPool = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+"
+var matchFirstCap = regexp.MustCompile("(.)([A-Z][a-z]+)")
+var matchAllCap = regexp.MustCompile("([a-z0-9])([A-Z])")
 
 // 生成无符号字符串
 func RandUString(length int) string {
@@ -28,4 +32,10 @@ func RandString(length int) string {
 		b[i] = charactersPool[r.Intn(len(charactersPool))]
 	}
 	return string(b)
+}
+
+func ToSnakeCase(str string) string {
+	snake := matchFirstCap.ReplaceAllString(str, "${1}_${2}")
+	snake = matchAllCap.ReplaceAllString(snake, "${1}_${2}")
+	return strings.ToLower(snake)
 }

@@ -46,7 +46,7 @@ var taskCmd = &cobra.Command{
 			os.WriteFile(pathutil.GetPath("zap_master.pid"), []byte(strconv.Itoa(pid)), 0644)
 		}
 		conf.InitEnv()
-		conf.LogInit()
+		conf.LogInit("zapm")
 		conf.DbInit()
 		task.StartTaskScheduler()
 	},

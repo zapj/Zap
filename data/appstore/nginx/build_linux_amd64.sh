@@ -1,5 +1,7 @@
 #!/bin/bash
 
+unalias -a
+
 ZLIB_VERSION="1.3.1"
 ZLIB_PKG_URL=https://www.zlib.net/zlib-${ZLIB_VERSION}.tar.gz
 ZLIB_PKG_NAME=zlib-${ZLIB_VERSION}.tar.gz
@@ -49,11 +51,9 @@ fi
 
 echo "unpacking PKGs"
 cd ${PKG_PATH}
-tar -xvf ${ZLIB_PKG_NAME}
-tar -xvf ${NGINX_PKG_NAME}
-tar -xvf ${PCRE2_PKG_NAME}
+tar -xvf ${ZLIB_PKG_NAME} && tar -xvf ${NGINX_PKG_NAME} && tar -xvf ${PCRE2_PKG_NAME}
 if [ "$?" != "0" ];then
-echo "Error unpacking pcre2"
+echo "Error unpacking PKGs"
 exit 1
 fi
 
@@ -62,20 +62,35 @@ echo "building nginx"
 
 cd $NGINX_DIRNAME
 ./configure \
+--user=www \
+--group=www \
 --prefix=${INSTALL_PATH} \
 --with-http_ssl_module \
 --with-http_v2_module \
+--with-http_auth_request_module \
+--with-http_auth_basic_module \
+--with-stream \
+--with-stream_ssl_module \
+--with-stream_ssl_preread_module \
 --with-pcre=${PKG_PATH}/${PCRE2_DIRNAME} \
 --with-zlib=${PKG_PATH}/${ZLIB_DIRNAME}
 
-make
-echo "nginx build success"
-make install
-
+make && make install
 if [ "$?" != "0" ];then
-echo "Error building nginx"
-exit 1
+    echo "Error building nginx"
+    exit 1
 fi
+
+echo "nginx build success"
+
+echo "Generating dhparam"
+openssl dhparam -out ${INSTALL_PATH}/conf/dhparam.pem 2048
+
+mkdir -p ${INSTALL_PATH}/conf/conf.d
+mkdir -p ${INSTALL_PATH}/conf/site-enabled
+
+echo "Setting up nginx config"
+cp -rf ${ZAP_PATH}/scripts/zap/conf/nginx.conf ${INSTALL_PATH}/conf/nginx.conf
 
 echo "Setting up nginx symlink"
 INSTENCE_NAME=${NGINX_DIRNAME}
@@ -112,6 +127,10 @@ app_status=${nginx_status},\
 instance=${INSTENCE_NAME},\
 pid_file=${INSTALL_PATH}/logs/nginx.pid,\
 config_file=${INSTALL_PATH}/conf/nginx.conf"
+
+if [ ! -d "/var/log/nginx" ];then
+    mkdir -p /var/log/nginx
+fi
 
 ${ZAPCTL} table apps -d ${CHANGE_APPS_CONFIG} -w "id=${APP_ID}"
 echo "nginx config updated"

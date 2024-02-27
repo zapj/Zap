@@ -42,18 +42,14 @@
       <el-table-column type="selection" width="30" />
       <el-table-column prop="name" label="文件名" min-width="250" show-overflow-tooltip>
         <template #default="{ row, $index }">
-          <el-button link @click.prevent="openFile($index)">
-            <template #icon>
-              <span v-if="row.is_file">
-                <Icon icon="ic:round-insert-drive-file" width="28" height="28"
+          <el-link :underline="false" @click.prevent="openFile($index)">
+            <span v-if="row.is_file">
+                <Icon icon="ic:round-insert-drive-file" width="24" height="24" :inline="true"
               /></span>
               <span v-else>
-                <Icon icon="ic:baseline-folder" width="28" height="28" :inline="true"
-              /></span>
-            </template>
-
-            {{ row.name }}
-          </el-button>
+                <Icon icon="ic:baseline-folder" :inline="true" width="24" height="24"
+              /></span>  {{ row.name }}
+          </el-link>
           <template v-if="row.is_symlink === true">
             <el-text class="mx-1 color-zinc-200" type="info" size="small">
               > {{ row.symlink_to }}</el-text

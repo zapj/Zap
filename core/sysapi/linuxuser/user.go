@@ -8,25 +8,7 @@ import (
 	"log/slog"
 	"os"
 	"strings"
-
-	"github.com/zapj/goutils/fileutils"
 )
-
-func CreateUser(user UserEntry) error {
-	users, err := ReadSystemUsers()
-	if err != nil {
-		slog.Error("读取passwd失败")
-		return err
-	}
-	if _, ok := users[user.Username]; ok {
-		return fmt.Errorf("%s 用户已存在", user.Username)
-	}
-	users[user.Username] = user
-	if err = SaveToPasswd(users); err != nil {
-		return err
-	}
-	return nil
-}
 
 func CheckUserExists(username string) bool {
 	users, err := ReadSystemUsers()
@@ -38,23 +20,6 @@ func CheckUserExists(username string) bool {
 		return true
 	}
 	return false
-}
-
-func SaveToPasswd(users map[string]UserEntry) error {
-	filename := "/etc/passwd"
-	f, err := os.Create(filename)
-	if err != nil {
-		return err
-	}
-	syncFile := fileutils.NewSyncFile(f)
-	defer syncFile.Close()
-	for _, v := range users {
-		_, err = syncFile.WriteString(v.ToString())
-		if err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 type UserEntry struct {

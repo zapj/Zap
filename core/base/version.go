@@ -1,4 +1,4 @@
-package core
+package base
 
 type ZapInfo struct {
 	Version        string

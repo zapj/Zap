@@ -62,7 +62,7 @@ var serverCmd = &cobra.Command{
 		//初始化缓存
 		global.CACHE = cache.New(5*time.Minute, 10*time.Minute)
 		conf.InitEnv()
-		conf.LogInit()
+		conf.LogInit("zaps")
 		conf.DbInit()
 		conf.ServerStart_INIT()
 		conf.InitCrons()

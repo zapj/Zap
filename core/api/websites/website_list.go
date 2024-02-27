@@ -20,8 +20,9 @@ func ListWebsite(c *gin.Context) {
 	if err != nil || pagesize < 1 {
 		pagesize = 50
 	}
-
-	total := 2
+	var totalCount int64
+	global.DB.Model(&models.ZapWebSite{}).Where("uid = ?", c.GetString("JWT_ID")).Count(&totalCount)
+	total := int(totalCount)
 	totalpage := total % pagesize
 	if totalpage == 0 {
 		totalpage = total / pagesize

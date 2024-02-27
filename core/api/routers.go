@@ -8,11 +8,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/zapj/zap/core/api/account"
 	"github.com/zapj/zap/core/api/appstore"
 	"github.com/zapj/zap/core/api/dashboard"
 	"github.com/zapj/zap/core/api/filemanager"
 	"github.com/zapj/zap/core/api/server"
-	"github.com/zapj/zap/core/api/users"
 	"github.com/zapj/zap/core/api/websites"
 	"github.com/zapj/zap/core/auth/jwtauth"
 	"github.com/zapj/zap/core/terminal"
@@ -20,8 +20,8 @@ import (
 
 // 无需授权的路由
 func RegisterRouter(router *gin.Engine) {
-	router.POST("/api/login", LoginAuthHandler)
-	router.POST("/api/logout", LogoutAuthHandler)
+	router.POST("/api/login", account.LoginAuthHandler)
+	router.POST("/api/logout", account.LogoutAuthHandler)
 
 	// router.POST("/api/refresh_token", LoginAuthHandler)
 
@@ -33,12 +33,14 @@ func RegisterAPIV1Router(c *gin.RouterGroup) {
 	//websocket
 	c.GET("/local/ws", terminal.HandlerLocalWS)
 	c.GET("/statistics/dashboard", dashboard.DashBoardStats)
-	c.GET("/sync/user/settings", users.SyncUserSettings)
+	c.GET("/sync/user/settings", account.SyncUserSettings)
 
 	// websites
 
 	c.GET("/website/list", websites.ListWebsite)
 	c.POST("/website/create", websites.CreateWebsite)
+	c.POST("/website/delete", websites.DeleteWebsite)
+	c.GET("/website/config", websites.CreateWebSiteConfig)
 
 	// filemanager
 	c.POST("/filemanager/list", filemanager.FileManager_List)

@@ -32,6 +32,9 @@ func StartTaskScheduler() {
 
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
+	if global.ZAP_MODE == "DEV" {
+		gin.SetMode(gin.DebugMode)
+	}
 	RegisterRouter(&r.RouterGroup)
 	srv := &http.Server{
 		Handler: r,

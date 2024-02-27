@@ -6,7 +6,6 @@ import (
 	"github.com/shirou/gopsutil/v3/cpu"
 	"github.com/shirou/gopsutil/v3/net"
 	"github.com/zapj/go-properties"
-	"github.com/zapj/zap/core"
 	"github.com/zapj/zap/core/base"
 	"gorm.io/gorm"
 )
@@ -24,7 +23,7 @@ var CpuTimesStat cpu.TimesStat
 var CACHE *cache.Cache
 
 var NET_IO_COUNTERS []net.IOCountersStat
-var ZAP_INFO *core.ZapInfo
+var ZAP_INFO *base.ZapInfo
 var SERVER_CONF *base.ServerConf
 
 var APPS_DIR string = "/usr/local/apps"

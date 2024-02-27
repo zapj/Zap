@@ -3,7 +3,7 @@ import axios from 'axios'
 import serverConfig from './config'
 import router from '../router'
 import { ElLoading, ElMessage } from 'element-plus'
-
+let tokenHasExpired = false
 const apiRequest = axios.create({
   baseURL: serverConfig.baseURL, 
   timeout: 200000, //请求超时设置，单位ms
@@ -53,7 +53,9 @@ apiRequest.interceptors.response.use(
       loading.close()
     }
     const dataAxios = response.data
-
+    if (dataAxios.code === 0){
+      tokenHasExpired = false
+    }
     // if (dataAxios.code) {
     //   ElMessage({
     //     type: 'error',
@@ -68,10 +70,13 @@ apiRequest.interceptors.response.use(
     if (loading) {
       loading.close()
     }
-
+    if (tokenHasExpired===true){
+      return Promise.reject(error)
+    }
     const responseCode = error.response.status
     switch (responseCode) {
       case 400:
+        tokenHasExpired = true
         ElMessage({type: 'error',message: '无效的Token,请重新登录'})
         router.replace({
           path: '/login',
@@ -81,6 +86,7 @@ apiRequest.interceptors.response.use(
         })
         break
       case 401:
+        tokenHasExpired = true
         ElMessage({
           type: 'error',
           message: error.response.data.msg
@@ -94,6 +100,7 @@ apiRequest.interceptors.response.use(
         break
       // 403: token过期
       case 403:
+        tokenHasExpired = true
         ElMessage({
           type: 'error',
           message: '登录信息过期，请重新登录'
