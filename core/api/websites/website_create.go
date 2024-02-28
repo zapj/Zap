@@ -1,42 +1,41 @@
 package websites
 
 import (
-	"log/slog"
-
 	"github.com/gin-gonic/gin"
 	"github.com/zapj/zap/core/api/commons"
-	"github.com/zapj/zap/core/global"
-	"github.com/zapj/zap/core/models"
-	"github.com/zapj/zap/core/utils/zaputil"
 )
 
-type WebSiteForm struct {
-	Domain string `json:"domain"`
+type webSiteRequest struct {
+	Domain       string `json:"domain"`
+	Title        string `json:"title"`
+	Description  string `json:"description"`
+	DomainNames  string `json:"domain_names"`
+	WwwRoot      string `json:"www_root"` //只包含目录名 Userhome + wwwroot
+	RunDirectory string `json:"run_directory"`
+	AccessLog    string `json:"access_log"`
+	ErrorLog     string `json:"error_log"`
+	applicationRequest
+}
+
+type applicationRequest struct {
+	Application int    `json:"application"`
+	ExposePort  string `json:"expose_port"`
+	ExposeProto string `json:"expose_proto"`
 }
 
 func CreateWebsite(c *gin.Context) {
-	var website models.ZapWebSite
-	if err := c.ShouldBind(&website); err != nil {
+	service := NewWebSiteService(c)
+
+	var websiteReq webSiteRequest
+
+	if err := c.ShouldBind(&websiteReq); err != nil {
 		c.JSON(200, commons.Error(1, err.Error(), nil))
 		return
 	}
-	website.Uid = zaputil.MustConvertStringToUint(c.GetString("JWT_ID"))
-	website.Status = "active"
-
-	mgr := NewWebSiteMgr(c.GetString("JWT_USERNAME"), website.Domain)
-	err := mgr.CreateWebsite()
-	slog.Info("创建网站成功", "err", website)
-	if err != nil {
+	if err := service.CreateWebsite(websiteReq); err != nil {
 		c.JSON(200, commons.Error(1, err.Error(), nil))
 		return
 	}
-	website.WwwRoot = mgr.WwwRoot
-
-	if website.Title == "" {
-		website.Title = website.Domain
-	}
-
-	global.DB.Save(&website)
 
 	c.JSON(200, commons.SuccessMsg("网站添加成功"))
 }

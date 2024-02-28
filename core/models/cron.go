@@ -26,7 +26,3 @@ type ZapCrontab struct {
 	//任务状态
 	Status int
 }
-
-func Get_AllCrontab() {
-
-}

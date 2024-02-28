@@ -1,11 +1,15 @@
 <template>
   <el-backtop :right="100" :bottom="100" />
 
-  <el-footer class="text-gray  border-1" style="font-size:12px">
+  <el-footer class="text-gray border-1" style="font-size: 12px">
     <el-row justify="space-between">
       <!-- <el-col :span="12"></el-col> -->
       <el-col :span="24" class="text-right">
-        @ Copyright zap.cn <span  > 当前版本 {{ globalStore.settings.version }}({{ globalStore.settings.build_date }}) <el-link  underline style="font-size:12px"  @click="upgrade">更新</el-link> </span>
+        @ Copyright zap.cn
+        <span>
+          当前版本 {{ globalStore.settings.version }}({{ globalStore.settings.build_date }})
+          <el-link underline style="font-size: 12px" @click="upgrade">更新</el-link>
+        </span>
       </el-col>
     </el-row>
   </el-footer>
@@ -13,13 +17,13 @@
 <script setup>
 import { ElMessage } from 'element-plus'
 import apiRequest from '../httpclient/client'
-import { useGlobalStore } from '../stores/global';
+import { useGlobalStore } from '../stores/global'
 const globalStore = useGlobalStore()
-function upgrade(){
+function upgrade() {
   apiRequest({
-    url:"/v1/upgrade/check"
-  }).then((resp)=>{
-    ElMessage({message:"提交成功"})
+    url: '/v1/upgrade/check'
+  }).then((resp) => {
+    ElMessage({ message: '提交成功' })
   })
 }
 </script>

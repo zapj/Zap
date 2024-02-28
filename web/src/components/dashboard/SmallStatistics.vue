@@ -139,15 +139,16 @@
             </tr>
             <tr>
               <td>ZAP 版本</td>
-              <td class="color-zinc-400">{{ globalStore.settings.version }}({{ globalStore.settings.build_date }})</td>
+              <td class="color-zinc-400">
+                {{ globalStore.settings.version }}({{ globalStore.settings.build_date }})
+              </td>
             </tr>
-            
           </table>
         </div>
       </el-card>
     </el-col>
     <el-col :md="14" :sm="24">
-      <el-card class="box-card" style="width:100%">
+      <el-card class="box-card" style="width: 100%">
         <div class="card-header font-size-4 mb-2">
           监控
           <!-- <el-radio-group v-model="switchTrafficDisk">
@@ -161,7 +162,7 @@
           <el-tag class="ml-2" type="success">{{ monitorTags.tag3 }}</el-tag>
           <el-tag class="ml-2" type="success">{{ monitorTags.tag4 }}</el-tag>
         </div>
-        <div id="zapcharts" style="height: 300px;width:100%"></div>
+        <div id="zapcharts" style="height: 300px; width: 100%"></div>
       </el-card>
     </el-col>
   </el-row>
@@ -192,7 +193,7 @@ echarts.use([
   UniversalTransition,
   LegendComponent
 ])
-import {useGlobalStore} from '../../stores/global'
+import { useGlobalStore } from '../../stores/global'
 import { formatBytes, fmtBytes } from '@/commons/commons'
 import { computed, onMounted, onUnmounted, reactive } from 'vue'
 import { Icon } from '@iconify/vue'
@@ -280,21 +281,20 @@ function refreshData() {
       var option = window.myChart.getOption()
       option.tooltip = {
         trigger: 'axis',
-        formatter: function(params) {   
-            let relVal = params[0].axisValueLabel;
-            for (let i = 0; i < params.length; i++) {
-              relVal +="<br/>" +params[i].marker +params[i].seriesName +":  " +params[i].data;
-                    
-              if(params[i].seriesName == "下行") {
-                relVal += `${recvUnit}`
-              }else{
-                relVal += `${sendUnit}`
-              }
-                
+        formatter: function (params) {
+          let relVal = params[0].axisValueLabel
+          for (let i = 0; i < params.length; i++) {
+            relVal += '<br/>' + params[i].marker + params[i].seriesName + ':  ' + params[i].data
+
+            if (params[i].seriesName == '下行') {
+              relVal += `${recvUnit}`
+            } else {
+              relVal += `${sendUnit}`
             }
-            return relVal;
+          }
+          return relVal
         }
-      } 
+      }
       option.yAxis = [
         {
           boundaryGap: [0, '100%'],

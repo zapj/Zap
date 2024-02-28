@@ -5,7 +5,7 @@ import router from '../router'
 import { ElLoading, ElMessage } from 'element-plus'
 let tokenHasExpired = false
 const apiRequest = axios.create({
-  baseURL: serverConfig.baseURL, 
+  baseURL: serverConfig.baseURL,
   timeout: 200000, //请求超时设置，单位ms
   withCredentials: true, // 异步请求携带cookie
   loading: true,
@@ -53,7 +53,7 @@ apiRequest.interceptors.response.use(
       loading.close()
     }
     const dataAxios = response.data
-    if (dataAxios.code === 0){
+    if (dataAxios.code === 0) {
       tokenHasExpired = false
     }
     // if (dataAxios.code) {
@@ -70,14 +70,14 @@ apiRequest.interceptors.response.use(
     if (loading) {
       loading.close()
     }
-    if (tokenHasExpired===true){
+    if (tokenHasExpired === true) {
       return Promise.reject(error)
     }
     const responseCode = error.response.status
     switch (responseCode) {
       case 400:
         tokenHasExpired = true
-        ElMessage({type: 'error',message: '无效的Token,请重新登录'})
+        ElMessage({ type: 'error', message: '无效的Token,请重新登录' })
         router.replace({
           path: '/login',
           query: {

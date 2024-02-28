@@ -14,11 +14,16 @@ import (
 	"github.com/shirou/gopsutil/v3/mem"
 	"github.com/shirou/gopsutil/v3/net"
 	"github.com/zapj/zap/core/api/commons"
+	"github.com/zapj/zap/core/api/crons"
+	"github.com/zapj/zap/core/api/database"
+	"github.com/zapj/zap/core/api/websites"
 	"github.com/zapj/zap/core/global"
 	"github.com/zapj/zap/core/utils/datahuman"
+	"github.com/zapj/zap/core/utils/zaputil"
 )
 
 func DashBoardStats(c *gin.Context) {
+	uid := zaputil.MustConvertStringToInt(c.GetString("JWT_ID"))
 	memory, err := mem.VirtualMemory()
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, commons.JSONError(1, "read memory error"))
@@ -95,9 +100,9 @@ func DashBoardStats(c *gin.Context) {
 		"msg":  "",
 		"user": "",
 		"user_stats": gin.H{
-			"websiteCount":  1,
-			"databaseCount": 2,
-			"cronjobCount":  2,
+			"websiteCount":  websites.CountWebsite(uid),
+			"databaseCount": database.CountDataBase(uid),
+			"cronjobCount":  crons.CountCrons(uid),
 		},
 		"memory": gin.H{
 			"total":        humanize.IBytes(memory.Total),

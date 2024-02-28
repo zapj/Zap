@@ -1,5 +1,5 @@
 <template>
-  <el-card class="box-card filemanager" >
+  <el-card class="box-card filemanager">
     <template #header>
       <div class="card-header">
         <el-row :gutter="20">
@@ -37,18 +37,19 @@
       style="width: 100%"
       :height="tableHeight"
       v-loading="pageState.tbLoading"
-      fit 
+      fit
     >
       <el-table-column type="selection" width="30" />
       <el-table-column prop="name" label="文件名" min-width="250" show-overflow-tooltip>
         <template #default="{ row, $index }">
           <el-link :underline="false" @click.prevent="openFile($index)">
             <span v-if="row.is_file">
-                <Icon icon="ic:round-insert-drive-file" width="24" height="24" :inline="true"
-              /></span>
-              <span v-else>
-                <Icon icon="ic:baseline-folder" :inline="true" width="24" height="24"
-              /></span>  {{ row.name }}
+              <Icon icon="ic:round-insert-drive-file" width="24" height="24" :inline="true"
+            /></span>
+            <span v-else>
+              <Icon icon="ic:baseline-folder" :inline="true" width="24" height="24"
+            /></span>
+            {{ row.name }}
           </el-link>
           <template v-if="row.is_symlink === true">
             <el-text class="mx-1 color-zinc-200" type="info" size="small">
@@ -109,7 +110,6 @@
     </template>
   </el-card>
 
-
   <CodeDialog v-model="dialogVisible" ref="zapDialog"></CodeDialog>
 </template>
 <script setup>
@@ -127,7 +127,7 @@ const globalStore = useGlobalStore()
 const tableData = ref([])
 const tableHeight = ref(300)
 //Dialog状态
-const dialogVisible  = ref(false)
+const dialogVisible = ref(false)
 const inputFileDynPath = ref('')
 const zapDialog = ref(null)
 const pageState = reactive({
@@ -138,7 +138,7 @@ const pageState = reactive({
   currentpage: 1,
   tbLoading: false
 })
-provide("dialogVisible",dialogVisible)
+provide('dialogVisible', dialogVisible)
 
 const handlePaginration = (currentPage, pageSize) => {
   pageState.currentpage = currentPage
@@ -169,10 +169,10 @@ onMounted(() => {
     pagesize: pageState.pagesize
   })
 
-  window.addEventListener('resize',resizeTable)
+  window.addEventListener('resize', resizeTable)
 })
-onUnmounted(()=>{
-  window.removeEventListener('resize',resizeTable)
+onUnmounted(() => {
+  window.removeEventListener('resize', resizeTable)
 })
 
 const openFile = (index) => {
@@ -184,9 +184,9 @@ const openFile = (index) => {
     getFiles({ path: globalStore.lastFilePath + '/' + row.name })
   } else {
     // ElMessage({message: 'open file'})
-    zapDialog.value.openFile(globalStore.lastFilePath + '/' + row.name,row.name)
+    zapDialog.value.openFile(globalStore.lastFilePath + '/' + row.name, row.name)
     dialogVisible.value = true
-// console.log(dialogVisible.value);
+    // console.log(dialogVisible.value);
   }
 }
 
@@ -206,7 +206,7 @@ const refreshData = () => {
 }
 
 const upLevelDirectory = () => {
-  changePath(pageState.breadcrumbPaths.length-2 ? pageState.breadcrumbPaths.length-2 : 0)
+  changePath(pageState.breadcrumbPaths.length - 2 ? pageState.breadcrumbPaths.length - 2 : 0)
 }
 //更新Path
 function updateBreadCrumb(path) {
@@ -281,7 +281,7 @@ function getFiles(options) {
     .finally(() => (pageState.tbLoading = false))
 }
 </script>
-<style >
+<style>
 .fm-breadcrumb {
   position: absolute;
   top: 8px;
@@ -297,8 +297,8 @@ function getFiles(options) {
   padding: 0 !important;
 }
 
-@media screen and (max-width:768px) {
-  .mb-top{
+@media screen and (max-width: 768px) {
+  .mb-top {
     margin-top: 0.5rem;
   }
 }

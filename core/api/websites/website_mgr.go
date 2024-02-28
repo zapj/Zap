@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 
@@ -14,14 +15,15 @@ import (
 )
 
 type WebsiteMgr struct {
-	UserHomeDir string // user home
-	Username    string
-	WwwRoot     string
-	WwwUser     string
-	WwwGroup    string
-	WwwUserId   int
-	WwwGroupId  int
-	ServerName  string
+	UserHomeDir   string // user home
+	Username      string
+	WwwRoot       string
+	WwwUser       string
+	WwwGroup      string
+	WwwUserId     int
+	WwwGroupId    int
+	ServerName    string
+	SiteDirectory string //网站目录
 }
 
 func NewWebSiteMgr(username, serverName string) *WebsiteMgr {
@@ -37,7 +39,10 @@ func NewWebSiteMgr(username, serverName string) *WebsiteMgr {
 	}
 }
 
-func (w *WebsiteMgr) CreateWebsite() error {
+func (w *WebsiteMgr) CreateWebsite(req webSiteRequest) error {
+	if w.ServerName != req.WwwRoot {
+		w.WwwRoot = filepath.Join(global.SERVER_CONF.GetUserHomeDir(w.Username), strings.ToLower(req.WwwRoot))
+	}
 	if err := w.preCreateDirs(); err != nil {
 		return err
 	}
@@ -46,7 +51,7 @@ func (w *WebsiteMgr) CreateWebsite() error {
 		return err
 	}
 	defer indexFile.Close()
-	indexData, err := os.ReadFile(pathutil.GetPath("scripts", "zap", "html", "index.html"))
+	indexData, err := os.ReadFile(pathutil.GetPath("scripts/zap/html/index.html"))
 	if err != nil {
 		return err
 	}
@@ -65,6 +70,9 @@ func (w *WebsiteMgr) CreateWebsite() error {
 	}
 	defer ngConfFile.Close()
 	ngxServConf := ngx.NewNgxConfServer(w.ServerName)
+	ngxServConf.RunDirectory = req.RunDirectory
+	ngxServConf.Root = w.WwwRoot
+
 	if conf, err := ngxServConf.GenerateToServer(); err == nil {
 		ngConfFile.WriteString(conf)
 	} else {
@@ -101,6 +109,7 @@ func (w *WebsiteMgr) preCreateDirs() error {
 
 func (w *WebsiteMgr) RemoveWebsite() error {
 	if w.ServerName != "" && fileutils.IsDir(w.WwwRoot) && strings.HasPrefix(w.WwwRoot, w.UserHomeDir) {
+		slog.Info("remove website", "wwwRoot", w.WwwRoot)
 		if err := os.RemoveAll(w.WwwRoot); err != nil {
 			return err
 		}
@@ -110,6 +119,7 @@ func (w *WebsiteMgr) RemoveWebsite() error {
 
 	//删除nginx配置文件
 	srvConfFile := w.GetNgxConfig(w.ServerName + ".conf")
+	slog.Info("srvConfFile", "file", srvConfFile)
 	if fileutils.IsFile(srvConfFile) {
 		if err := os.Remove(srvConfFile); err != nil {
 			return err
@@ -121,7 +131,7 @@ func (w *WebsiteMgr) RemoveWebsite() error {
 
 func (w *WebsiteMgr) GetUserConfig(conf ...string) string {
 	if len(conf) > 0 {
-		return pathutil.GetPath("data/users", w.Username, conf[0])
+		return pathutil.GetPath("data/users", w.Username, path.Join(conf...))
 	}
 	return pathutil.GetPath("data/users", w.Username)
 }

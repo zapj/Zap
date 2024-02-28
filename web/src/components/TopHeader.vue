@@ -7,11 +7,11 @@
     </el-link>
     <div class="right-buttons">
       <el-link :underline="false" @click="dialogVisible = true">
-        <Icon icon="material-symbols-light:terminal" :width="24"  />
+        <Icon icon="material-symbols-light:terminal" :width="24" />
       </el-link>
       <!-- <el-link :underline="false" class="hidden-xs-only">Without Underline</el-link> -->
       <el-link :underline="false">
-        <Icon icon="tdesign:notification" :width="20"  />
+        <Icon icon="tdesign:notification" :width="20" />
       </el-link>
       <el-dropdown>
         <el-link :underline="false">
@@ -36,7 +36,16 @@
       </el-dropdown>
     </div>
   </el-header>
-  <el-dialog modal-class="zeditor" v-model="dialogVisible" title="Tips" draggable :modal="false" :append-to-body="true" :close-on-click-modal="false"   class="te-window" >
+  <el-dialog
+    modal-class="zeditor"
+    v-model="dialogVisible"
+    title="Tips"
+    draggable
+    :modal="false"
+    :append-to-body="true"
+    :close-on-click-modal="false"
+    class="te-window"
+  >
     <span>It's a draggable Dialog</span>
     <EditVue></EditVue>
     <template #footer>
@@ -51,10 +60,10 @@
 <script setup>
 import { ArrowDown, Expand, Notification, SwitchButton, UserFilled } from '@element-plus/icons-vue'
 import { ref, onMounted, defineAsyncComponent } from 'vue'
-import { Icon } from '@iconify/vue';
+import { Icon } from '@iconify/vue'
 import router from '../router'
 // const leftMenuStore = useLeftMenuStore()
-const EditVue = defineAsyncComponent(()=>import('../components/editor/CodeEditor.vue'))
+const EditVue = defineAsyncComponent(() => import('../components/editor/CodeEditor.vue'))
 const dialogVisible = ref(false)
 onMounted(function () {
   const overlay = document.querySelector('.zap-overlay')
@@ -108,12 +117,10 @@ function logout() {
 </script>
 <style scoped>
 .fixed-header {
-  width:calc(100% - 200px);
+  width: calc(100% - 200px);
   position: fixed;
-    top: 0;
-    right: 0;
-    z-index: 9;
+  top: 0;
+  right: 0;
+  z-index: 9;
 }
-
-
 </style>

@@ -116,9 +116,13 @@ func (n *NgxConfServer) GenerateToServer() (string, error) {
 	//access log
 	if n.AccessLog != "" {
 		fmt.Fprintf(&serverConf, "\n\taccess_log %s;", n.AccessLog)
+	} else {
+		fmt.Fprintln(&serverConf, "\n\taccess_log off;")
 	}
 	if n.ErrorLog != "" {
 		fmt.Fprintf(&serverConf, "\n\terror_log %s;", n.ErrorLog)
+	} else {
+		fmt.Fprintln(&serverConf, "\n\terror_log off;")
 	}
 	//root
 	if n.RunDirectory != "" && n.Root != "" {

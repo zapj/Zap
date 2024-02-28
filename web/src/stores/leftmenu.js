@@ -6,7 +6,7 @@ export const useLeftMenuStore = defineStore(
   () => {
     const marginLeft = ref('200')
     const ExpandStatus = ref('showAside')
-    return { marginLeft,ExpandStatus }
+    return { marginLeft, ExpandStatus }
   },
   {
     persist: true

@@ -63,7 +63,6 @@ body {
   border-right: solid 1px #363636 !important;
 }
 
-
 .zap-content-scroll {
   overflow: hidden;
   height: calc(100vh - 60px) !important;
@@ -97,7 +96,6 @@ body {
   }
 }
 
-
 .zeditor {
   .el-dialog__header,
   .el-dialog__body,
@@ -108,5 +106,3 @@ body {
 .zeditor:has(> .el-overlay-dialog .te-window) {
   pointer-events: auto !important;
 }
-
-
