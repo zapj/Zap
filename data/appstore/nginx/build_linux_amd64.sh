@@ -2,6 +2,9 @@
 
 unalias -a
 
+source $ZAP_PATH/scripts/zap/bash_utils.sh
+
+
 ZLIB_VERSION="1.3.1"
 ZLIB_PKG_URL=https://www.zlib.net/zlib-${ZLIB_VERSION}.tar.gz
 ZLIB_PKG_NAME=zlib-${ZLIB_VERSION}.tar.gz
@@ -18,14 +21,14 @@ PCRE2_PKG_URL=https://sourceforge.net/projects/pcre/files/pcre2/${PCRE2_VERSION}
 PCRE2_PKG_NAME=pcre2-${PCRE2_VERSION}.tar.gz
 PCRE2_DIRNAME=pcre2-${PCRE2_VERSION}
 
-echo $PKG_PATH
+cd $PKG_PATH
 
 INSTALL_PATH=${APPS_DIR}/nginx-${APP_VERSION}
 if [ -f "${PKG_PATH}/${NGINX_PKG_NAME}" ];then
 echo "Nginx File already exists, skipping download"
 else
 echo "Downloading nginx"
-wget -nv -P ${PKG_PATH} -O ${NGINX_PKG_NAME} ${NGINX_PKG_URL}
+wget -O ${NGINX_PKG_NAME} ${NGINX_PKG_URL}
 if [ "$?" != "0" ];then
 echo "Error download nginx"
 exit 1
@@ -37,21 +40,20 @@ if [ -f "${PKG_PATH}/${ZLIB_PKG_NAME}" ];then
 echo "zlib File already exists, skipping download"
 else
 echo "Downloading zlib"
-wget -nv -P ${PKG_PATH} -O ${ZLIB_PKG_NAME} ${ZLIB_PKG_URL}
+wget -O ${ZLIB_PKG_NAME} ${ZLIB_PKG_URL}
 fi
 
 if [ -f "${PKG_PATH}/${PCRE2_PKG_NAME}" ];then
 echo "pcre2 File already exists, skipping download"
 else
 echo "Downloading pcre2"
-wget -nv -P ${PKG_PATH} -O ${PCRE2_PKG_NAME} ${PCRE2_PKG_URL}
+wget -O ${PCRE2_PKG_NAME} ${PCRE2_PKG_URL}
 fi
 
 
 
 echo "unpacking PKGs"
-cd ${PKG_PATH}
-tar -xvf ${ZLIB_PKG_NAME} && tar -xvf ${NGINX_PKG_NAME} && tar -xvf ${PCRE2_PKG_NAME}
+tar -xvf ${ZLIB_PKG_NAME} -C ${BUILD_PATH} && tar -xvf ${NGINX_PKG_NAME} -C ${BUILD_PATH} && tar -xvf ${PCRE2_PKG_NAME} -C ${BUILD_PATH}
 if [ "$?" != "0" ];then
 echo "Error unpacking PKGs"
 exit 1
@@ -59,6 +61,7 @@ fi
 
 
 echo "building nginx"
+cd $BUILD_PATH
 
 cd $NGINX_DIRNAME
 ./configure \
@@ -68,14 +71,13 @@ cd $NGINX_DIRNAME
 --with-http_ssl_module \
 --with-http_v2_module \
 --with-http_auth_request_module \
---with-http_auth_basic_module \
 --with-stream \
 --with-stream_ssl_module \
 --with-stream_ssl_preread_module \
---with-pcre=${PKG_PATH}/${PCRE2_DIRNAME} \
---with-zlib=${PKG_PATH}/${ZLIB_DIRNAME}
+--with-pcre=${BUILD_PATH}/${PCRE2_DIRNAME} \
+--with-zlib=${BUILD_PATH}/${ZLIB_DIRNAME}
 
-make && make install
+make -j ${CPU_NUM} && make install
 if [ "$?" != "0" ];then
     echo "Error building nginx"
     exit 1
@@ -91,6 +93,7 @@ mkdir -p ${INSTALL_PATH}/conf/site-enabled
 
 echo "Setting up nginx config"
 cp -rf ${ZAP_PATH}/scripts/zap/conf/nginx.conf ${INSTALL_PATH}/conf/nginx.conf
+cp -rf ${ZAP_PATH}/scripts/zap/conf/default.conf ${INSTALL_PATH}/conf/conf.d/default.conf
 
 echo "Setting up nginx symlink"
 INSTENCE_NAME=${NGINX_DIRNAME}
@@ -121,11 +124,11 @@ nginx_status=$(systemctl is-active nginx.service)
 echo "Setting up nginx config"
 
 CHANGE_APPS_CONFIG="install_dir=/usr/local/apps/nginx-${APP_VERSION},\
-expose=\"http=80\&https=443\",\
+expose=http=80\nhttps=443,\
 status=active,\
 app_status=${nginx_status},\
 instance=${INSTENCE_NAME},\
-pid_file=${INSTALL_PATH}/logs/nginx.pid,\
+pid_file=/var/run/nginx.pid,\
 config_file=${INSTALL_PATH}/conf/nginx.conf"
 
 if [ ! -d "/var/log/nginx" ];then

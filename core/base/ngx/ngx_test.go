@@ -14,5 +14,5 @@ func TestNgxConfServer(t *testing.T) {
 	ngx.RunDirectory = "public"
 	ngx.Listen = []string{"*:80"}
 
-	t.Log(ngx.GenerateToServer())
+	t.Log(ngx.GenerateToString())
 }

@@ -19,6 +19,8 @@ type AppInfo struct {
 	// Icon is the icon associated with the model.
 	Icon string `json:"icon"`
 
+	AllowMultipleInstances string `json:"allow_multiple_instances"`
+
 	// Tags is a list of tags associated with the model.
 	Tags []string `json:"tags"`
 	// Actions is a map of actions and their associated values.

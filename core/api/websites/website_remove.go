@@ -17,13 +17,16 @@ func DeleteWebsite(c *gin.Context) {
 	}
 
 	//删除目录
-	mgr := NewWebSiteMgr(c.GetString("JWT_USERNAME"), website.Domain)
+	mgr := NewWebSiteMgrWithWebSiteId(c.GetString("JWT_USERNAME"), website.Domain, int(website.ID))
 	if err := mgr.RemoveWebsite(); err != nil {
 		c.JSON(200, commons.Error(1, err.Error(), nil))
 		return
 	}
 
-	global.DB.Delete(&website)
+	if err := global.DB.Delete(&website).Error; err != nil {
+		c.JSON(200, commons.Error(1, "删除网站失败"+err.Error(), nil))
+		return
+	}
 
 	c.JSON(200, commons.SuccessMsg("网站删除成功"))
 }

@@ -10,6 +10,7 @@ import (
 	"runtime"
 	"strings"
 
+	cp "github.com/otiai10/copy"
 	"github.com/shirou/gopsutil/v3/host"
 	"github.com/zapj/goutils/fileutils"
 	"github.com/zapj/zap/core/global"
@@ -59,33 +60,45 @@ func (b *AppStoreJob) Execute() (err error) {
 		return fmt.Errorf("AppStore_ID : %d 不存在 ", appstore.Id)
 	}
 
+	if !fileutils.IsDir(pathutil.GetPath("data/pkg")) {
+		os.MkdirAll(pathutil.GetPath("data/pkg"), 0755)
+	}
+	if !fileutils.IsDir(pathutil.GetPath("data/build")) {
+		os.MkdirAll(pathutil.GetPath("data/build"), 0755)
+	}
+
 	// options := jsonutil.DecodeToZapMap(appstore.Options)
 	// actionOptions := options.GetZapMap(action)
 
 	// appstore script path
-	appPath := path.Join(pathutil.GetPath("data/appstore"), appstore.Name)
+	appStoreScriptPath := path.Join(pathutil.GetPath("data/appstore"), appstore.Name)
 	osArch := fmt.Sprintf("%s_%s", runtime.GOOS, runtime.GOARCH)
 	// 默认使用action
 	scriptName := fmt.Sprintf("%s.sh", action)
 	var scriptFile string
+	appInstallScriptDir := pathutil.GetPath("data/build", fmt.Sprintf("build-%s", appstore.Name))
+	if !fileutils.IsDir(appInstallScriptDir) {
+		if err := cp.Copy(appStoreScriptPath, appInstallScriptDir); err != nil {
+			return err
+		}
+	}
 	// build.sh
-	if fileutils.IsFile(path.Join(appPath, scriptName)) {
-		scriptFile = path.Join(appPath, scriptName)
-	} else if fileutils.IsFile(path.Join(appPath, fmt.Sprintf("%s_%s.sh", action, osArch))) { // build_linux_amd64.sh
-		scriptFile = path.Join(appPath, fmt.Sprintf("%s_%s.sh", action, osArch))
+	if fileutils.IsFile(path.Join(appInstallScriptDir, scriptName)) {
+		scriptFile = path.Join(appInstallScriptDir, scriptName)
+	} else if fileutils.IsFile(path.Join(appInstallScriptDir, fmt.Sprintf("%s_%s.sh", action, osArch))) { // build_linux_amd64.sh
+		scriptFile = path.Join(appInstallScriptDir, fmt.Sprintf("%s_%s.sh", action, osArch))
 	} else {
 		return fmt.Errorf("scriptFile not found %s", scriptName)
 	}
-	if !strings.HasPrefix(b.TaskData.TargetDir, global.ZAP_BASE_DIR) {
-		return fmt.Errorf("target dir is not allowed %s", b.TaskData.TargetDir)
-	}
 
-	if fileutils.IsDir(b.TaskData.TargetDir) {
-		os.RemoveAll(b.TaskData.TargetDir)
-	}
-	if !fileutils.IsDir(pathutil.GetPath("data/pkg")) {
-		os.MkdirAll(pathutil.GetPath("data/pkg"), 0755)
-	}
+	// if !strings.HasPrefix(b.TaskData.TargetDir, global.ZAP_BASE_DIR) {
+	// 	return fmt.Errorf("target dir is not allowed %s", b.TaskData.TargetDir)
+	// }
+
+	// if fileutils.IsDir(b.TaskData.TargetDir) {
+	// 	os.RemoveAll(b.TaskData.TargetDir)
+	// }
+
 	// os.MkdirAll(b.TaskData.TargetDir, 0755)
 	logFile, err := os.Create(b.TaskData.LogFile)
 	if err != nil {
@@ -117,14 +130,15 @@ func (b *AppStoreJob) Execute() (err error) {
 
 		// "ZAP_BASE_DIR=" + global.ZAP_BASE_DIR,
 		"ZAP_DATA_PATH=" + pathutil.GetPath("data"),
-		"APPSTORE_PATH=" + appPath,
+		"APPSTORE_PATH=" + appStoreScriptPath,
+		"USERSCRIPT_PATH=" + appStoreScriptPath,
 		"APP_PATH=" + fmt.Sprintf("%s/%s-%s.%s", global.APPS_DIR, app.Name, majorVersion, minorVersion),
 		"SCRIPT_PATH=" + scriptFile,
 		"APPS_DIR=" + global.APPS_DIR,
 		"PKG_PATH=" + pathutil.GetPath("data/pkg"),
 		// "APP_STORE_ID=" + fmt.Sprint(app.AppStoreId),
 		// "APP_STORE_NAME=" + appstore.Name,
-		"BUILD_PATH=" + b.TaskData.TargetDir,
+		"BUILD_PATH=" + pathutil.GetPath("data/build"),
 		"LOG_FILE=" + b.TaskData.LogFile,
 		"APP_ID=" + fmt.Sprint(app.Id),
 		"APP_NAME=" + app.Name,

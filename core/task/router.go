@@ -53,7 +53,7 @@ func RegisterRouter(r *gin.RouterGroup) {
 			Status:      global.APP_STATUS_INSTALL,
 			AppType:     appStore.Category,
 			InstallBy:   "admin",
-			InstallDate: time.Now(),
+			InstallDate: base.LocalTime(time.Now()),
 			Title:       appStore.Title,
 			Description: appStore.Description,
 			Version:     version,

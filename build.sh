@@ -29,6 +29,7 @@ create_pkg(){
     # cp -Rf data dist/zap/
     mkdir dist/zap/data
     mkdir dist/zap/data/logs
+    cp -Rf data/appstore dist/zap/data/appstore
     cd dist/
     tar czvf "zap-v${VERSION}-${OS}-${ARCH}.tar.gz" zap/
 }
@@ -43,6 +44,10 @@ upload_pkg(){
     zapfile put zap/dist/latest.txt $VERSION
     echo -n "release file : zap-v${VERSION}-${OS}-${ARCH}.tar.gz > "
     zapfile upload zap/dist/ "zap-v${VERSION}-${OS}-${ARCH}.tar.gz"
+    if [ $? -ne 0 ];then
+        echo "v${VERSION} 发布失败"
+        exit 1
+    fi
     echo "v${VERSION} 发布成功"
 }
 

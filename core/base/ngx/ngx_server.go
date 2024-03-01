@@ -87,7 +87,11 @@ func NewNgxConfServer(servername ...string) *NgxConfServer {
 	}
 }
 
-func (n *NgxConfServer) GenerateToServer() (string, error) {
+func (n *NgxConfServer) AddServerName(servername ...string) {
+	n.ServerName = append(n.ServerName, servername...)
+}
+
+func (n *NgxConfServer) GenerateToString() (string, error) {
 	var serverConf bytes.Buffer
 	var http2, ssl bool = false, false
 
@@ -106,7 +110,7 @@ func (n *NgxConfServer) GenerateToServer() (string, error) {
 		}
 
 	} else {
-		serverConf.WriteString("\n\tlisten 80")
+		serverConf.WriteString("\n\tlisten 80;")
 	}
 
 	//http2

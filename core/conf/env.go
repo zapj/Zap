@@ -11,7 +11,6 @@ import (
 	"github.com/zapj/goutils/fileutils"
 	"github.com/zapj/zap/core/base"
 	"github.com/zapj/zap/core/global"
-	"github.com/zapj/zap/core/utils/cmdutil"
 	"github.com/zapj/zap/core/utils/pathutil"
 	"github.com/zapj/zap/core/utils/str"
 	"github.com/zapj/zap/core/utils/zaputil"
@@ -61,12 +60,14 @@ func InitEnv() {
 	// check user
 	wwwUserInfo, err := user.Lookup(global.SERVER_CONF.WwwUser)
 	if err != nil {
-		_, err = cmdutil.ExecCmd("adduser", "-M", "-s", "/bin/false", global.SERVER_CONF.WwwUser)
-		if err != nil {
-			slog.Error("adduser www", "err", err)
-			os.Exit(1)
-		}
-		wwwUserInfo, _ = user.Lookup(global.SERVER_CONF.WwwUser)
+		// _, err = cmdutil.ExecCmd("adduser", "-M", "-s", "/bin/false", global.SERVER_CONF.WwwUser)
+		// if err != nil {
+		// 	slog.Error("adduser www", "err", err)
+		// 	os.Exit(1)
+		// }
+		// wwwUserInfo, _ = user.Lookup(global.SERVER_CONF.WwwUser)
+		slog.Error("www user not found", "err", err)
+		os.Exit(1)
 	}
 	global.SERVER_CONF.WwwUserId = zaputil.MustConvertStringToInt(wwwUserInfo.Uid)
 	global.SERVER_CONF.WwwGroupId = zaputil.MustConvertStringToInt(wwwUserInfo.Gid)

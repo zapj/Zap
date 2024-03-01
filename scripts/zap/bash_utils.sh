@@ -7,15 +7,26 @@ OS_MACHINE="$(uname -s)"
 # echo $VERSION_ID
 
 
-if [ id -u "www" > /dev/null 2>&1 ]; then
-  echo "www user already exists"
-else
-  useradd -M -s /bin/false www
-  echo "www user created"
-fi
+
 
 
 preInstallation() {
+
+  if [ id -u "www" > /dev/null 2>&1 ]; then
+    echo "www user already exists"
+  else
+    useradd --no-create-home --shell /bin/false www
+    echo "www user created"
+  fi
+
+  if [ ! -d "$PKG_PATH" ]; then
+    mkdir -p "$PKG_PATH"
+  fi
+
+  if [ ! -d "$BUILD_PATH" ]; then
+    mkdir -p "$BUILD_PATH"
+  fi
+
   if [ ! -d "$ZAP_DATA_PATH/tmp" ]; then
     mkdir -p "$ZAP_DATA_PATH/tmp"
   fi

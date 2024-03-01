@@ -1,6 +1,10 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"errors"
+
+	"gorm.io/gorm"
+)
 
 type ZapUsers struct {
 	gorm.Model
@@ -45,4 +49,11 @@ type ZapUsers struct {
 	DiskSpaceSize int `json:"disk_space_size"`
 	DataBaseCount int `json:"database_count"`
 	DataBaseSize  int `json:"database_size"`
+}
+
+func (u *ZapUsers) BeforeDelete(tx *gorm.DB) (err error) {
+	if u.ID == 1 {
+		return errors.New("admin user not allowed to delete")
+	}
+	return
 }

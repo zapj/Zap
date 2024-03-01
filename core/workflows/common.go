@@ -33,6 +33,7 @@ func ReadAppstoreList() []*AppInfo {
 	slog.Info("Read appstore", "totalApp", totalApp)
 	if len(scriptFiles) != int(totalApp) {
 		global.DB.Where("1 = 1").Delete(&models.ZapAppStore{})
+		global.DB.Exec("DELETE FROM SQLITE_SEQUENCE WHERE name='zap_app_store'")
 		saveAppFlag = true
 	}
 	global.DB.Where("1 = 1").Delete(&models.ZapAppStore{})
@@ -48,19 +49,20 @@ func ReadAppstoreList() []*AppInfo {
 		if saveAppFlag {
 
 			global.DB.Save(&models.ZapAppStore{
-				AppId:            appInfo.Id,
-				Name:             appInfo.Name,
-				Icon:             appInfo.Icon,
-				Title:            appInfo.Title,
-				Category:         appInfo.Category,
-				ConfigName:       appInfo.ConfigName,
-				Version:          strings.Join(appInfo.Version, ","),
-				Tags:             strings.Join(appInfo.Tags, ","),
-				Description:      appInfo.Description,
-				Author:           appInfo.Author,
-				OrganizationName: appInfo.OrganizationName,
-				Actions:          jsonutil.EncodeToString(appInfo.Actions),
-				Options:          jsonutil.EncodeToString(appInfo.Options),
+				AppId:                  appInfo.Id,
+				Name:                   appInfo.Name,
+				Icon:                   appInfo.Icon,
+				Title:                  appInfo.Title,
+				Category:               appInfo.Category,
+				ConfigName:             appInfo.ConfigName,
+				AllowMultipleInstances: appInfo.AllowMultipleInstances,
+				Version:                strings.Join(appInfo.Version, ","),
+				Tags:                   strings.Join(appInfo.Tags, ","),
+				Description:            appInfo.Description,
+				Author:                 appInfo.Author,
+				OrganizationName:       appInfo.OrganizationName,
+				Actions:                jsonutil.EncodeToString(appInfo.Actions),
+				Options:                jsonutil.EncodeToString(appInfo.Options),
 			})
 		}
 	}

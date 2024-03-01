@@ -45,8 +45,19 @@ func (a *AccountService) GetWebsiteConfig() base.ZapMap {
 // 获取所有可用中间件服务
 func getAllAppList() []base.ZapMap {
 	appList := []models.ZapApps{}
-	result := make([]base.ZapMap, 0)
 	global.DB.Model(&models.ZapApps{}).Where("status = ?", "active").Where("app_type = ?", "application").Find(&appList)
+	var result []base.ZapMap
+
+	//static website
+	result = append(result, base.ZapMap{
+		"id":           0,
+		"name":         "static",
+		"title":        "静态网站",
+		"app_status":   "running",
+		"expose_proto": "http",
+		"expose_port":  "",
+	})
+
 	for _, v := range appList {
 		if v.Expose == "" {
 			continue

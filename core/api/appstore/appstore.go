@@ -2,12 +2,14 @@ package appstore
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-zoox/fetch"
 	"github.com/zapj/zap/core/api/commons"
 	"github.com/zapj/zap/core/global"
 	"github.com/zapj/zap/core/models"
+	"github.com/zapj/zap/core/sysapi/process"
 	"github.com/zapj/zap/core/task"
 	"github.com/zapj/zap/core/utils/str"
 	"github.com/zapj/zap/core/workflows"
@@ -35,7 +37,30 @@ func ListApp(c *gin.Context) {
 
 func ListInstalledApp(c *gin.Context) {
 	installedApps := []models.ZapApps{}
-	global.DB.Find(&installedApps)
+	err := global.DB.Find(&installedApps).Error
+	if err != nil {
+		c.JSON(200, commons.Error(1, "查询应用失败"+err.Error(), installedApps))
+		return
+	}
+
+	for i, app := range installedApps {
+		if app.PidFile == "" {
+			app.AppStatus = "stop"
+		}
+		pid := process.GetPidFile(app.PidFile)
+		if pid == 0 {
+			app.AppStatus = "stop"
+		} else {
+			_, err := os.FindProcess(pid)
+			if err == nil {
+				app.AppStatus = "running"
+			}
+		}
+
+		installedApps[i].AppStatus = app.AppStatus
+		global.DB.Save(app)
+	}
+
 	c.JSON(200, commons.Success(installedApps))
 }
 

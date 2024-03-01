@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-if [ id -u -ne 0 ]
+if [ $(id -u) -ne 0 ]
 then
   echo "Must be root to run this script."
   exit 1
@@ -55,6 +55,24 @@ fi
 # if [ ! -f "$ZAP_FILENAME" ];then
 #     echo 
 # fi
+id www > /dev/null 2>&1
+if [ $? -ne 0 ];then
+    echo "创建用户www"
+    adduser --shell /bin/false --no-create-home --disabled-password --disabled-login --group www
+fi
+id zapadm > /dev/null 2>&1
+if [ $? -ne 0 ];then
+    echo "创建用户zapadm"
+    adduser --system --shell /bin/false --no-create-home --disabled-password --disabled-login --group  zapadm
+fi
+
+
+if [ ! -d "$TARGET/zap" ];then
+    echo "installing zap"
+    mkdir -p "$TARGET/zap"
+    cp -Rf zap/zapctl "$TARGET/zap/"   
+    cp -Rf zap/zapd "$TARGET/zap/"   ]
+
 
 tar zxf "$ZAP_FILENAME"
 

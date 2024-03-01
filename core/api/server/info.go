@@ -194,9 +194,10 @@ func UpgradeCheck(c *gin.Context) {
 	if global.ZAP_MODE == "DEV" {
 		c.JSON(200, gin.H{"code": 0, "msg": "开发环境不能执行更新操作"})
 	}
-	_, err := task.Get("/upgrade")
+	resp, err := task.Get("/upgrade")
 	if err != nil {
 		c.JSON(200, gin.H{"code": 1, "msg": "任务执行失败"})
 	}
-	c.JSON(200, gin.H{"code": 0, "msg": "请求已处理，升级成功后自动重启zap"})
+
+	c.Data(200, gin.MIMEJSON, resp.Body)
 }

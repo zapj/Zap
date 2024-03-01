@@ -21,14 +21,14 @@ fi
 #>> ${LOG_FILE} 2>&1 
 
 echo "unpacking PKGs"
-tar -xvf ${PHP_DOWNLOAD_NAME} -C ${ZAP_DATA_PATH}/build
+tar -xvf ${PHP_DOWNLOAD_NAME} -C ${BUILD_PATH}
 if [ "$?" != "0" ];then
 echo "Error unpacking PHP"
 exit 1
 fi
 
 
-cd ${ZAP_DATA_PATH}/build
+cd ${BUILD_PATH}
 echo "building PHP ${APP_VERSION}" 
 
 cd php-${APP_VERSION}
@@ -110,6 +110,20 @@ if command -v chkconfig > /dev/null;then
     cp ${ZAP_DATA_PATH}/build/${PHP_DIRNAME}/sapi/fpm/init.d.php-fpm /etc/init.d/php-fpm-${PHP_SHORT_VERSION}
 fi
 
+
+ln -rf /usr/bin/php${PHP_SHORT_VERSION} ${PHP_INSTALL_PATH}/bin/php
+ln -rf /usr/bin/php-cgi${PHP_SHORT_VERSION} ${PHP_INSTALL_PATH}/bin/php-cgi
+ln -rf /usr/bin/pear${PHP_SHORT_VERSION} ${PHP_INSTALL_PATH}/bin/pear
+ln -rf /usr/bin/pecl${PHP_SHORT_VERSION} ${PHP_INSTALL_PATH}/bin/pecl
+
+
+if ! command -v php > /dev/null 2>&1;then
+    echo "php not found, set default php"
+    ln -rf /usr/bin/php ${PHP_INSTALL_PATH}/bin/php
+    ln -rf /usr/bin/php-cgi ${PHP_INSTALL_PATH}/bin/php-cgi
+    ln -rf /usr/bin/pear ${PHP_INSTALL_PATH}/bin/pear
+    ln -rf /usr/bin/pecl ${PHP_INSTALL_PATH}/bin/pecl
+fi
 
 
 

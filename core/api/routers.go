@@ -36,11 +36,13 @@ func RegisterAPIV1Router(c *gin.RouterGroup) {
 	c.GET("/sync/user/settings", account.SyncUserSettings)
 
 	// websites
-
 	c.GET("/website/list", websites.ListWebsite)
 	c.POST("/website/create", websites.CreateWebsite)
+	c.POST("/website/update", websites.UpdateWebsite)
 	c.POST("/website/delete", websites.DeleteWebsite)
 	c.GET("/website/config", websites.CreateWebSiteConfig)
+	c.GET("/website/settings", websites.WebSiteSettings)
+	c.POST("/website/check_domain", websites.CheckDomainIsExists)
 
 	// filemanager
 	c.POST("/filemanager/list", filemanager.FileManager_List)
