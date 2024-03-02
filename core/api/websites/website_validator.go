@@ -4,6 +4,7 @@ import "github.com/gin-gonic/gin"
 
 func CheckDomainIsExists(c *gin.Context) {
 	domain := c.PostForm("domain")
+	websiteId := c.PostForm("website_id")
 	if domain == "" {
 		c.JSON(200, gin.H{
 			"code": 1,
@@ -12,10 +13,10 @@ func CheckDomainIsExists(c *gin.Context) {
 		return
 	}
 
-	if err := CheckDomain(domain); err != nil {
+	if !CheckDomain(domain, websiteId, c.GetString("JWT_ID")) {
 		c.JSON(200, gin.H{
 			"code": 1,
-			"msg":  err.Error(),
+			"msg":  "域名已存在",
 		})
 		return
 	}

@@ -4,7 +4,7 @@
       <div class="card-header font-size-3">
         网站管理
 
-        <el-button type="success" :icon="Plus" @click="openCreateWebSite" />
+        <el-button type="success" :icon="Plus" @click="openCreateWebSite(websiteFormDrawerRef)" />
       </div>
     </template>
 
@@ -78,7 +78,6 @@
     direction="rtl"
     :size="websiteFormDrawerWidth"
     :show-close="false"
-   
   >
     <template #header="{ close, titleId, titleClass }">
       <h4 :id="titleId" :class="titleClass">{{ drawerTitle }}</h4>
@@ -110,8 +109,8 @@
             v-model="websiteForm.application"
             class="m-2"
             placeholder="中间件服务器"
-            style="width: 240px" >
-
+            style="width: 240px"
+          >
             <el-option
               v-for="(item, i) in website.config.applications"
               :key="item.id"
@@ -120,7 +119,8 @@
             >
               <span style="float: left">{{ item.title }}</span>
               <span style="float: right; color: var(--el-text-color-secondary)">
-                {{ item.expose_port }}</span>
+                {{ item.expose_port }}</span
+              >
             </el-option>
           </el-select>
         </el-form-item>
@@ -182,60 +182,59 @@ const pageState = reactive({
 
 const rules = {
   domain: [
-    { 
-      required: true, trigger: 'blur' , 
+    {
+      required: true,
+      trigger: 'blur',
       validator: (rule, value, callback) => {
-						if (value == "" && value === undefined) {
-              callback(new Error("域名不能为空"))
-						}
-						apiRequest({
-                url: 'v1/website/check_domain',
-                dataType: 'form',
-                data: { domain: value }, method: 'POST'
-              }).then((res)=>{
-                if (res.code === 0) {
-                  callback()
-                } else {
-                  callback(new Error(res.msg))
-                }
-              }).catch((error)=>{
-                callback(new Error("域名验证失败"))
-              })
-					}
-         },
+        if (value == '' && value === undefined) {
+          callback(new Error('域名不能为空'))
+        }
+        apiRequest({
+          url: 'v1/website/check_domain',
+          dataType: 'form',
+          data: { domain: value,website_id:websiteForm.website_id },
+          method: 'POST',
+          loading:false
+        })
+          .then((res) => {
+            if (res.code === 0) {
+              callback()
+            } else {
+              callback(new Error(res.msg))
+            }
+          })
+          .catch((error) => {
+            callback(new Error('域名验证失败'))
+          })
+      }
+    },
     { min: 3, max: 20, message: '长度在 3 到 20 个字符', trigger: 'blur' }
   ],
   title: [{ required: true, message: '请输入网站名称', trigger: 'blur' }],
-  www_root:[{ required: true, message: '请输入站点目录', trigger: 'blur' }],
-  application: [
-    { required: true, message: '请选择应用类型', trigger: 'change' }
-  ]
+  www_root: [{ required: true, message: '请输入站点目录', trigger: 'blur' }],
+  application: [{ required: true, message: '请选择应用类型', trigger: 'change' }]
 }
 
 const updateWwwRoot = () => {
-  if (websiteForm.www_root === ""){
+  if (websiteForm.www_root === '') {
     websiteForm.www_root = websiteForm.domain.replaceAll('*.', '')
   }
-  if (websiteForm.title === ""){
+  if (websiteForm.title === '') {
     websiteForm.title = websiteForm.domain.replaceAll('www.', '')
   }
 }
 const syncWebsiteConfig = () => {
-  apiRequest({
+  return apiRequest({
     url: '/v1/website/config',
     method: 'get'
   }).then((res) => {
     if (res.code === 0) {
-     
       website.config = res.data
-      
-    
     } else {
       ElMessage.error(res.msg)
       websiteFormDrawer.value = false
       return
     }
-
   })
 }
 
@@ -252,12 +251,11 @@ const stopSite = () => {
   })
 }
 
-
 const websiteSettings = (website_id) => {
   wOp = true
   websiteFormDrawer.value = true
   drawerTitle.value = '网站设置'
-
+  websiteForm.website_id = website_id
   apiRequest({
     url: '/v1/website/settings',
     method: 'get',
@@ -273,12 +271,12 @@ const websiteSettings = (website_id) => {
       websiteForm.title = res.data.website.title
       websiteForm.description = res.data.website.description
       websiteForm.website_id = res.data.website.ID
-      if (websiteForm.www_root === ""){
+      if (websiteForm.www_root === '') {
         websiteForm.www_root = websiteForm.domain.replaceAll('*.', '')
-      }else{
+      } else {
         websiteForm.www_root = res.data.website.www_root.replace(website.config.home_dir + '/', '')
       }
-      if (websiteForm.title === ""){
+      if (websiteForm.title === '') {
         websiteForm.title = websiteForm.domain.replaceAll('www.', '')
       }
     } else {
@@ -289,7 +287,6 @@ const websiteSettings = (website_id) => {
   })
 }
 
-
 //reset fields
 const cancel = (formRef) => {
   if (!formRef) return
@@ -298,10 +295,16 @@ const cancel = (formRef) => {
 }
 
 // open drawer
-const openCreateWebSite = () => {
+const openCreateWebSite = (formRef) => {
+  syncWebsiteConfig().finally(() => {
+    websiteFormDrawer.value = true
+  })
   wOp = false //创建网站
-  websiteFormDrawer.value = true
-  syncWebsiteConfig()
+  // websiteFormDrawer.value = true
+  websiteForm.website_id = 0
+  if (!formRef) return
+  formRef.resetFields()
+ 
 }
 
 // save website
@@ -313,7 +316,7 @@ const saveWebsite = (formRef) => {
       return false
     }
   })
- 
+
   let wform = Object.assign({}, websiteForm)
   if (website.config.applications.length === 0) {
     ElMessage.error('请先添加应用')
@@ -339,21 +342,23 @@ const saveWebsite = (formRef) => {
   // return
 
   apiRequest({
-    url: wOp  ? '/v1/website/update' : '/v1/website/create',
+    url: wOp ? '/v1/website/update' : '/v1/website/create',
     method: 'post',
     data: wform
-  }).then((res) => {
-    if (res.code === 0) {
-      ElMessage.success('添加成功')
-      websiteFormDrawer.value = false
-      getWebSites({
-        page: 1,
-        pagesize: pageState.pagesize
-      })
-    }
-  }).finally(() => {
-    formRef.resetFields()
   })
+    .then((res) => {
+      if (res.code === 0) {
+        ElMessage.success('添加成功')
+        websiteFormDrawer.value = false
+        getWebSites({
+          page: 1,
+          pagesize: pageState.pagesize
+        })
+      }
+    })
+    .finally(() => {
+      formRef.resetFields()
+    })
 }
 
 const openWebSite = (index) => {

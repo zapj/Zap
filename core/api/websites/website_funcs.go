@@ -1,7 +1,7 @@
 package websites
 
 import (
-	"errors"
+	"fmt"
 
 	"github.com/zapj/zap/core/global"
 	"github.com/zapj/zap/core/models"
@@ -20,11 +20,13 @@ func GetWebsiteById(websiteId int) (*models.ZapWebSite, error) {
 	return &website, err
 }
 
-func CheckDomain(domain string) error {
-	var count int64
-	global.DB.Model(&models.ZapWebSite{}).Where("status = ?", "active").Or("domain = ?", domain).Or("domain_names LIKE ?", "%"+domain+"%").Count(&count)
-	if count > 0 {
-		return errors.New("域名已存在")
+func CheckDomain(domain, websiteId, uid string) bool {
+	website := models.ZapWebSite{}
+	global.DB.Model(&models.ZapWebSite{}).Where("status = ?", "active").Or("domain = ?", domain).Or("domain_names LIKE ?", "%"+domain+"%").First(&website)
+	if (websiteId == "" || websiteId == "0") && website.ID != 0 {
+		return false
+	} else if (websiteId != "0") && websiteId != fmt.Sprint(website.ID) && fmt.Sprint(website.Uid) != uid {
+		return false
 	}
-	return nil
+	return true
 }
