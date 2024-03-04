@@ -3,6 +3,7 @@ package websites
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/zapj/zap/core/api/commons"
+	"github.com/zapj/zap/core/utils/zaputil"
 )
 
 type webSiteRequest struct {
@@ -25,7 +26,7 @@ type applicationRequest struct {
 }
 
 func CreateWebsite(c *gin.Context) {
-	service := NewWebSiteService(c)
+	service := NewWebSiteService(c.GetString("JWT_USERNAME"), zaputil.MustConvertStringToUint(c.GetString("JWT_ID")))
 
 	var websiteReq webSiteRequest
 
@@ -42,7 +43,7 @@ func CreateWebsite(c *gin.Context) {
 }
 
 func UpdateWebsite(c *gin.Context) {
-	service := NewWebSiteService(c)
+	service := NewWebSiteService(c.GetString("JWT_USERNAME"), zaputil.MustConvertStringToUint(c.GetString("JWT_ID")))
 
 	var websiteReq webSiteRequest
 

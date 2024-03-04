@@ -19,7 +19,7 @@
       <el-table-column type="selection" width="30" />
       <el-table-column prop="domain" label="域名" show-overflow-tooltip>
         <template #default="{ row, $index }">
-          <el-button link @click.prevent="openWebSite($index)">
+          <el-button link @click.prevent="openWebSite(row.ID)">
             <template #icon>
               <Icon icon="dashicons:admin-site" />
             </template>
@@ -215,6 +215,19 @@ const rules = {
   application: [{ required: true, message: '请选择应用类型', trigger: 'change' }]
 }
 
+
+onMounted(() => {
+  getWebSites({
+    page: 1,
+    pagesize: pageState.pagesize
+  })
+
+  window.addEventListener('resize', resize)
+})
+onUnmounted(() => {
+  window.removeEventListener('resize', resize)
+})
+
 const updateWwwRoot = () => {
   if (websiteForm.www_root === '') {
     websiteForm.www_root = websiteForm.domain.replaceAll('*.', '')
@@ -361,8 +374,8 @@ const saveWebsite = (formRef) => {
     })
 }
 
-const openWebSite = (index) => {
-  ElMessage.success('打开网站')
+const openWebSite = (website_id) => {
+  websiteSettings(website_id)
 }
 
 const refreshData = () => {
@@ -400,17 +413,7 @@ const resize = () => {
   }
 }
 
-onMounted(() => {
-  getWebSites({
-    page: 1,
-    pagesize: pageState.pagesize
-  })
 
-  window.addEventListener('resize', resize)
-})
-onUnmounted(() => {
-  window.removeEventListener('resize', resize)
-})
 
 function getWebSites(options) {
   const defaultOptions = {

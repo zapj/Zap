@@ -3,30 +3,26 @@ package websites
 import (
 	"log/slog"
 
-	"github.com/gin-gonic/gin"
 	"github.com/zapj/zap/core/global"
 	"github.com/zapj/zap/core/models"
 	"github.com/zapj/zap/core/services"
-	"github.com/zapj/zap/core/utils/zaputil"
 )
 
 type WebSiteService struct {
-	c        *gin.Context
 	Uid      uint
 	Username string
 }
 
-func NewWebSiteService(c *gin.Context) *WebSiteService {
+func NewWebSiteService(username string, id uint) *WebSiteService {
 	return &WebSiteService{
-		c:        c,
-		Username: c.GetString("JWT_USERNAME"),
-		Uid:      zaputil.MustConvertStringToUint(c.GetString("JWT_ID")),
+		Username: username,
+		Uid:      id,
 	}
 }
 
 func (w *WebSiteService) CreateWebsite(req webSiteRequest) error {
 
-	mgr := NewWebSiteMgr(w.c.GetString("JWT_USERNAME"), req.Domain)
+	mgr := NewWebSiteMgr(w.Username, req.Domain)
 	err := mgr.CreateWebsite(req)
 	slog.Info("创建网站成功", "err", err, "mgr", mgr)
 
@@ -76,42 +72,49 @@ func (w *WebSiteService) CheckDomain(domain string) error {
 }
 
 func (w *WebSiteService) UpdateWebsite(req webSiteRequest) error {
-	mgr := NewWebSiteMgrWithWebSiteId(w.c.GetString("JWT_USERNAME"), req.Domain, req.WebsiteId)
-	err := mgr.UpdateWebsite(req)
-	slog.Info("创建修改完成", "err", err, "mgr", mgr)
 
+	website, err := GetWebsiteById(req.WebsiteId)
 	if err != nil {
-		// w.c.JSON(200, commons.Error(1, err.Error(), nil))
 		return err
 	}
 
-	website := models.ZapWebSite{
-		Uid:               w.Uid,
-		Domain:            req.Domain,
-		Title:             req.Title,
-		Description:       req.Description,
-		DomainNames:       req.DomainNames,
-		WwwRoot:           req.WwwRoot,
-		RunDirectory:      req.RunDirectory,
-		ApplicationId:     req.Application,
-		ApplicationExpose: req.ExposePort,
+	mgr := NewWebSiteMgr(w.Username, req.Domain)
+	//删除旧网站
+	if website.Domain != req.Domain {
+		mgr.RemoveWebsiteConfig(website.Domain)
 	}
-	appService := services.NewAppsService()
-	appInfo := appService.GetAppListById(website.ApplicationId)
-	if p, err := appInfo.ParseExpose(); err == nil {
-		if p.MustGetString("socket") != website.ApplicationExpose {
-			website.ApplicationExpose = p.MustGetString("socket")
-		}
+	website.Domain = req.Domain
+	website.DomainNames = req.DomainNames
+	website.ApplicationId = req.Application
+	if req.Title != "" {
+		website.Title = req.Title
 	}
-	slog.Info("appInfo", "info", appInfo)
-	website.Application = appInfo.Name
-	website.ApplicationVersion = appInfo.Version
-	// global.DB.Model(&models.ZapWebSite{}).Create(&website)
-	website.WwwRoot = mgr.WwwRoot
-
 	if website.Title == "" {
 		website.Title = website.Domain
 	}
+	if website.WwwRoot != mgr.WwwRoot {
+		website.WwwRoot = mgr.WwwRoot
+		mgr.RenameWwwRoot(website.WwwRoot, mgr.WwwRoot)
+	}
+
+	appService := services.NewAppsService()
+	appInfo := appService.GetAppListById(website.ApplicationId)
+	if appInfo.Id != 0 {
+		website.Application = appInfo.Name
+		website.ApplicationVersion = appInfo.Version
+		if p, err := appInfo.ParseExpose(); err == nil {
+			if p.MustGetString("socket") != website.ApplicationExpose {
+				website.ApplicationExpose = p.MustGetString("socket")
+			}
+		}
+	}
+	slog.Info("appInfo", "info", appInfo)
 	slog.Info("website", "data", website)
-	return global.DB.Save(&website).Error
+	if err := global.DB.Save(&website).Error; err != nil {
+		return err
+	}
+	//修改配置文件
+	err = mgr.UpdateWebsite(website)
+	slog.Info("网站配置修改完成", "err", err)
+	return err
 }

@@ -26,6 +26,7 @@ web/node_modules
 *.pid
 /dist
 # /web/static
+/data/users/*
 /data/pkg
 /data/backup
 /data/tmp

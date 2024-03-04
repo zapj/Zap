@@ -5,32 +5,28 @@
         <Expand />
       </el-icon>
     </el-link>
-    <div class="right-buttons">
-      <el-link :underline="false" @click="dialogVisible = true">
+    <div class="right-buttons mr-3">
+      <!-- <el-link :underline="false" @click="dialogVisible = true">
         <Icon icon="material-symbols-light:terminal" :width="24" />
       </el-link>
-      <!-- <el-link :underline="false" class="hidden-xs-only">Without Underline</el-link> -->
       <el-link :underline="false">
         <Icon icon="tdesign:notification" :width="20" />
-      </el-link>
+      </el-link> -->
       <el-dropdown>
         <el-link :underline="false">
-          <!-- <el-avatar src="assets/img/avatar.png" fit="cover" /> -->
-          <el-avatar :icon="UserFilled" />
-          <span class="hidden-xs-only">Account</span>
+          
+          <span class="hidden-xs-only">{{ globalStore.settings.lname }}</span>
           <el-icon class="el-icon--right"><arrow-down /></el-icon>
         </el-link>
         <template #dropdown>
           <el-dropdown-menu>
-            <el-dropdown-item>Account Settings</el-dropdown-item>
-            <el-dropdown-item
-              ><el-icon><UserFilled /></el-icon>个人资料</el-dropdown-item
-            >
-            <el-dropdown-item>修改密码</el-dropdown-item>
-            <el-dropdown-item disabled>Action 4</el-dropdown-item>
-            <el-dropdown-item divided @click="logout"
-              ><el-icon><SwitchButton /></el-icon>退出系统</el-dropdown-item
-            >
+            <el-dropdown-item>
+              <el-icon><UserFilled /></el-icon>个人资料
+              </el-dropdown-item>
+            <el-dropdown-item><Edit/>修改密码</el-dropdown-item>
+            <el-dropdown-item divided @click="logout">
+              <el-icon><SwitchButton /></el-icon>退出系统
+            </el-dropdown-item>
           </el-dropdown-menu>
         </template>
       </el-dropdown>
@@ -58,11 +54,14 @@
 </template>
 
 <script setup>
-import { ArrowDown, Expand, Notification, SwitchButton, UserFilled } from '@element-plus/icons-vue'
+import { ArrowDown, Expand, Notification, Edit, SwitchButton, UserFilled } from '@element-plus/icons-vue'
 import { ref, onMounted, defineAsyncComponent } from 'vue'
 import { Icon } from '@iconify/vue'
 import router from '../router'
+import {useGlobalStore} from '../stores/global'
 // const leftMenuStore = useLeftMenuStore()
+const globalStore = useGlobalStore()
+
 const EditVue = defineAsyncComponent(() => import('../components/editor/CodeEditor.vue'))
 const dialogVisible = ref(false)
 onMounted(function () {

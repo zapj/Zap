@@ -23,7 +23,7 @@ function upgrade() {
   apiRequest({
     url: '/v1/upgrade/check'
   }).then((resp) => {
-    ElMessage({ message: '提交成功' })
+    ElMessage({ message: resp.msg, type: resp.code ===0 ? 'success' : 'error' })
   })
 }
 </script>

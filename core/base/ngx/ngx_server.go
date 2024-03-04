@@ -3,7 +3,12 @@ package ngx
 import (
 	"bytes"
 	"fmt"
+	"os"
+	"path"
 	"strings"
+
+	"github.com/zapj/goutils/fileutils"
+	"github.com/zapj/zap/core/utils/pathutil"
 )
 
 type NgxConfLocation struct {
@@ -72,6 +77,10 @@ type NgxConfServer struct {
 	If []string
 
 	ForceHttps bool
+
+	confPath     string // data/users/admin/nginx_conf.d
+	confName     string // domain.com.conf
+	userDataPath string
 }
 
 func NewNgxConfServer(servername ...string) *NgxConfServer {
@@ -85,6 +94,16 @@ func NewNgxConfServer(servername ...string) *NgxConfServer {
 		SslStaplingVerify:      "on",
 		Resolver:               "1.1.1.1 8.8.8.8",
 	}
+}
+
+func (n *NgxConfServer) SetUserDataPath(ud_path string) {
+	n.userDataPath = ud_path
+	n.confPath = path.Join(ud_path, "nginx_conf.d")
+	n.confName = path.Join(ud_path, "nginx_conf.d", n.ServerName[0])
+}
+
+func (n *NgxConfServer) SetConfigName(config_name string) {
+	n.confName = config_name
 }
 
 func (n *NgxConfServer) AddServerName(servername ...string) {
@@ -183,4 +202,31 @@ func (n *NgxConfServer) GenerateToString() (string, error) {
 	// end server
 	serverConf.WriteString("\n}\n")
 	return serverConf.String(), nil
+}
+
+func (n *NgxConfServer) WriteToFile(filename string) error {
+	confBytesBuf, err := n.GenerateToString()
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(filename, []byte(confBytesBuf), 0644)
+}
+
+func (n *NgxConfServer) GetConfFileName() string {
+	return path.Join(n.confPath, n.confName)
+}
+
+func (n *NgxConfServer) Update() {
+
+}
+
+func CreateWebsiteIncludeFile(username string) error {
+	user_conf := path.Join("/usr/local/apps/nginx/conf/sites-enabled", username+".conf")
+	includePath := pathutil.GetPath("data/users/" + username + "/nginx_conf.d/*")
+	if !fileutils.IsFile(user_conf) {
+		data := fmt.Sprintf("include %s;", includePath)
+		return os.WriteFile(path.Join("/usr/local/apps/nginx/conf/sites-enabled", username+".conf"), []byte(data), 0755)
+	}
+
+	return nil
 }

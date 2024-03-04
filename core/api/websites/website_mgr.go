@@ -12,6 +12,7 @@ import (
 	"github.com/zapj/zap/core/base"
 	"github.com/zapj/zap/core/base/ngx"
 	"github.com/zapj/zap/core/global"
+	"github.com/zapj/zap/core/models"
 	"github.com/zapj/zap/core/utils/pathutil"
 )
 
@@ -26,32 +27,35 @@ type WebsiteMgr struct {
 	ServerName    string
 	SiteDirectory string //网站目录
 	WebSiteId     int    // models website id
+	WebServerType string // nginx / openresty
 }
 
 func NewWebSiteMgr(username, serverName string) *WebsiteMgr {
 	return &WebsiteMgr{
-		UserHomeDir: global.SERVER_CONF.GetUserHomeDir(username),
-		Username:    strings.ToLower(username),
-		WwwRoot:     filepath.Join(global.SERVER_CONF.GetUserHomeDir(username), strings.ToLower(serverName)),
-		WwwUser:     global.SERVER_CONF.WwwUser,
-		WwwGroup:    global.SERVER_CONF.WwwGroup,
-		WwwUserId:   global.SERVER_CONF.WwwUserId,
-		WwwGroupId:  global.SERVER_CONF.WwwGroupId,
-		ServerName:  strings.ToLower(serverName),
+		UserHomeDir:   global.SERVER_CONF.GetUserHomeDir(username),
+		Username:      strings.ToLower(username),
+		WwwRoot:       filepath.Join(global.SERVER_CONF.GetUserHomeDir(username), strings.ToLower(serverName)),
+		WwwUser:       global.SERVER_CONF.WwwUser,
+		WwwGroup:      global.SERVER_CONF.WwwGroup,
+		WwwUserId:     global.SERVER_CONF.WwwUserId,
+		WwwGroupId:    global.SERVER_CONF.WwwGroupId,
+		ServerName:    strings.ToLower(serverName),
+		WebServerType: "nginx",
 	}
 }
 
 func NewWebSiteMgrWithWebSiteId(username, serverName string, websiteId int) *WebsiteMgr {
 	return &WebsiteMgr{
-		UserHomeDir: global.SERVER_CONF.GetUserHomeDir(username),
-		Username:    strings.ToLower(username),
-		WwwRoot:     filepath.Join(global.SERVER_CONF.GetUserHomeDir(username), strings.ToLower(serverName)),
-		WwwUser:     global.SERVER_CONF.WwwUser,
-		WwwGroup:    global.SERVER_CONF.WwwGroup,
-		WwwUserId:   global.SERVER_CONF.WwwUserId,
-		WwwGroupId:  global.SERVER_CONF.WwwGroupId,
-		ServerName:  strings.ToLower(serverName),
-		WebSiteId:   websiteId,
+		UserHomeDir:   global.SERVER_CONF.GetUserHomeDir(username),
+		Username:      strings.ToLower(username),
+		WwwRoot:       filepath.Join(global.SERVER_CONF.GetUserHomeDir(username), strings.ToLower(serverName)),
+		WwwUser:       global.SERVER_CONF.WwwUser,
+		WwwGroup:      global.SERVER_CONF.WwwGroup,
+		WwwUserId:     global.SERVER_CONF.WwwUserId,
+		WwwGroupId:    global.SERVER_CONF.WwwGroupId,
+		ServerName:    strings.ToLower(serverName),
+		WebSiteId:     websiteId,
+		WebServerType: "nginx",
 	}
 }
 
@@ -108,6 +112,16 @@ func (w *WebsiteMgr) preCreateDirs() error {
 	return nil
 }
 
+func (w *WebsiteMgr) RemoveWebsiteConfig(servername string) error {
+	confFile := path.Join(w.GetUserWebserverConfDir(), strings.ToLower(servername)+".conf")
+	if fileutils.IsFile(confFile) {
+		if err := os.Remove(confFile); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (w *WebsiteMgr) RemoveWebsite() error {
 	if w.ServerName != "" && fileutils.IsDir(w.WwwRoot) && strings.HasPrefix(w.WwwRoot, w.UserHomeDir) {
 		slog.Info("remove website", "wwwRoot", w.WwwRoot)
@@ -146,28 +160,15 @@ func (w *WebsiteMgr) GetNgxConfig(filename string) string {
 	return w.GetUserConfig("nginx_conf.d", filename)
 }
 
+func (w *WebsiteMgr) RenameWwwRoot(oldpath, newpath string) error {
+	if _, err := os.Stat(newpath); err != nil {
+		return os.Rename(oldpath, newpath)
+	}
+	return fmt.Errorf("%s is exist", newpath)
+}
+
 // 更新网站
-func (w *WebsiteMgr) UpdateWebsite(req webSiteRequest) error {
-	website, err := GetWebsiteById(w.WebSiteId)
-	if err != nil {
-		return err
-	}
-	// if website.Domain != req.Domain {
-
-	// }
-
-	website.Domain = req.Domain
-	website.DomainNames = req.DomainNames
-	website.Description = req.Description
-	website.Title = req.Title
-	website.ApplicationId = req.Application
-	if w.ServerName != req.WwwRoot {
-		w.WwwRoot = filepath.Join(global.SERVER_CONF.GetUserHomeDir(w.Username), strings.ToLower(req.WwwRoot))
-		if !fileutils.IsDir(w.WwwRoot) {
-			os.Rename(website.WwwRoot, w.WwwRoot)
-		}
-		website.WwwRoot = w.WwwRoot
-	}
+func (w *WebsiteMgr) UpdateWebsite(website *models.ZapWebSite) error {
 	if err := w.preCreateDirs(); err != nil {
 		return err
 	}
@@ -175,16 +176,27 @@ func (w *WebsiteMgr) UpdateWebsite(req webSiteRequest) error {
 	//write nginx conf
 	userNgxPath := w.GetUserNginxConfDir()
 	base.TryMkdir(userNgxPath)
-	ngxServConf := ngx.NewNgxConfServer(w.ServerName)
-	ngxServConf.RunDirectory = req.RunDirectory
-	ngxServConf.Root = w.WwwRoot
+	ngxServConf := ngx.NewNgxConfServer(website.Domain)
+	// ngxServConf.AddServerName()
+	ngxServConf.SetUserDataPath(global.SERVER_CONF.GetUserHomeDir(w.Username))
+	ngxServConf.RunDirectory = website.RunDirectory
+	ngxServConf.Root = website.WwwRoot
 
-	if ngServer, err := ngxServConf.GenerateToString(); err == nil {
-		writeNgxConfFile(filepath.Join(userNgxPath, w.ServerName+".conf"), ngServer)
-	} else {
+	err := ngxServConf.WriteToFile(filepath.Join(userNgxPath, website.Domain+".conf"))
+	if err != nil {
 		return err
 	}
-	return nil
+	return ngx.CreateWebsiteIncludeFile(w.Username)
+}
+
+func (w *WebsiteMgr) GetUserWebserverConfDir() string {
+	if w.WebServerType == "openresty" {
+		return pathutil.GetPath("data/users", w.Username, "openresty_conf.d")
+	} else if w.WebServerType == "httpd" {
+		return pathutil.GetPath("data/users", w.Username, "httpd_conf.d")
+	}
+
+	return pathutil.GetPath("data/users", w.Username, "nginx_conf.d")
 }
 
 func (w *WebsiteMgr) GetUserNginxConfDir() string {
@@ -192,6 +204,11 @@ func (w *WebsiteMgr) GetUserNginxConfDir() string {
 }
 
 func (w *WebsiteMgr) GetWebsiteConfFileName() string {
+	if w.WebServerType == "openresty" {
+		return pathutil.GetPath("data/users", w.Username, "openresty_conf.d", w.ServerName+".conf")
+	} else if w.WebServerType == "httpd" {
+		return pathutil.GetPath("data/users", w.Username, "httpd_conf.d", w.ServerName+".conf")
+	}
 
 	return pathutil.GetPath("data/users", w.Username, "nginx_conf.d", w.ServerName+".conf")
 }

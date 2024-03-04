@@ -35,11 +35,17 @@
           <span>服务器</span>
         </template>
         <el-menu-item index="/server/tools">系统工具</el-menu-item>
-        <el-menu-item index="/server/appstore">应用商店</el-menu-item>
-        <el-menu-item index="/server/configuration">服务器配置</el-menu-item>
-        <el-menu-item index="/server/security_center">安全中心</el-menu-item>
+        <!-- <el-menu-item index="/server/configuration">服务器配置</el-menu-item>
+        <el-menu-item index="/server/security_center">安全中心</el-menu-item> -->
       </el-sub-menu>
-
+      <el-menu-item index="/appstore">
+        <Icon icon="mdi:apps" style="font-size: 24px" class="mr-1" :inline="true" />
+        <template #title>应用商店</template>
+      </el-menu-item>
+      <el-menu-item index="/settings">
+        <Icon icon="mdi:settings" style="font-size: 24px" class="mr-1" :inline="true" />
+        <template #title>面板设置</template>
+      </el-menu-item>
       <el-menu-item @click="logout">
         <Icon icon="fe:logout" style="font-size: 24px" />
         <template #title>退出系统</template>

@@ -1,5 +1,5 @@
 const formatBytes = function (bytes, decimals) {
-  if (bytes == 0) return '0 Bytes'
+  if (bytes === 0) return '0 Bytes'
   var k = 1024,
     dm = decimals || 2,
     sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
@@ -8,7 +8,7 @@ const formatBytes = function (bytes, decimals) {
 }
 
 const fmtBytes = function (bytes, decimals) {
-  if (bytes == 0) return '0 Bytes'
+  if (bytes === 0) return '0 Bytes'
   var k = 1024,
     dm = decimals || 2,
     sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
@@ -18,7 +18,7 @@ const fmtBytes = function (bytes, decimals) {
 const formatDate = (row, column) => {
   // 获取单元格数据
   let data = row[column.property]
-  if (data == null || data == 0) {
+  if (data === null || data === 0) {
     return ''
   }
   let dt = new Date(data * 1000)

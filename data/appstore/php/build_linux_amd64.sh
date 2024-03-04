@@ -78,10 +78,10 @@ fi
 
 
 
-PHP_FPM_SOCK="/var/run/php-fpm/php-fpm-${PHP_SHORT_VERSION}.sock"
-PHP_FPM_BIN="${PHP_INSTALL_PATH}/sbin/php-fpm"
-PHP_FPM_PID="/var/run/php-fpm/php-fpm-${PHP_SHORT_VERSION}.pid"
-PHP_FPM_CONF=${PHP_INSTALL_PATH}/etc/php-fpm.conf
+PHP_FPM_SOCK="/var/run/php-fpm-${PHP_SHORT_VERSION}.sock"
+# PHP_FPM_BIN="${PHP_INSTALL_PATH}/sbin/php-fpm"
+PHP_FPM_PID="/var/run/php-fpm-${PHP_SHORT_VERSION}.pid"
+# PHP_FPM_CONF=${PHP_INSTALL_PATH}/etc/php-fpm.conf
 PHP_FPM_ERROR_LOG="/var/log/php/php-${PHP_SHORT_VERSION}.log"
 
 if [ ! -d "/var/run/php-fpm" ];then
@@ -97,8 +97,8 @@ cp ${ZAP_DATA_PATH}/build/${PHP_DIRNAME}/sapi/fpm/php-fpm.conf ${PHP_INSTALL_PAT
 cp ${ZAP_DATA_PATH}/build/${PHP_DIRNAME}/sapi/fpm/www.conf ${PHP_INSTALL_PATH}/etc/php-fpm.d/www.conf
 # update config
 
-sed -i "s#;pid = run/php-fpm.pid#pid = ${PHP_FPM_PID}#g" ${PHP_INSTALL_PATH}/etc/php-fpm.conf
-sed -i "s#;error_log = log/php-fpm.log#error_log = ${PHP_FPM_ERROR_LOG}#g" ${PHP_INSTALL_PATH}/etc/php-fpm.conf
+# sed -i "s#;pid = run/php-fpm.pid#pid = ${PHP_FPM_PID}#g" ${PHP_INSTALL_PATH}/etc/php-fpm.conf
+# sed -i "s#;error_log = log/php-fpm.log#error_log = ${PHP_FPM_ERROR_LOG}#g" ${PHP_INSTALL_PATH}/etc/php-fpm.conf
 sed -i "s#listen = 127.0.0.1:9000#listen = ${PHP_FPM_SOCK}#g" ${PHP_INSTALL_PATH}/etc/php-fpm.d/www.conf
 
 #install systemd

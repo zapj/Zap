@@ -9,7 +9,7 @@ func TryMkdir(path string) bool {
 		return false
 	}
 
-	if fi, err := os.Stat(path); err == nil && fi.IsDir() {
+	if _, err := os.Stat(path); err != nil {
 		os.MkdirAll(path, 0755)
 	}
 	return false

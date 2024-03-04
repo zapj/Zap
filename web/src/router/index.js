@@ -60,9 +60,14 @@ const router = createRouter({
           component: () => import('../views/server/ToolsView.vue')
         },
         {
-          path: '/server/appstore',
+          path: '/appstore',
           name: 'server_appstore',
           component: () => import('../views/server/AppStoreView.vue')
+        },
+        {
+          path: '/settings',
+          name: 'panel_settings',
+          component: () => import('../views/zap/PanelSettingsView.vue')
         }
       ]
     }
