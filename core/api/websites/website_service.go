@@ -38,6 +38,7 @@ func (w *WebSiteService) CreateWebsite(req webSiteRequest) error {
 		RunDirectory:      req.RunDirectory,
 		ApplicationId:     req.Application,
 		ApplicationExpose: req.ExposePort,
+		IndexFiles:        req.IndexFiles,
 	}
 	appService := services.NewAppsService()
 	appInfo := appService.GetAppListById(website.ApplicationId)

@@ -7,8 +7,8 @@ import (
 )
 
 type webSiteRequest struct {
-	Domain       string `json:"domain"`
-	Title        string `json:"title"`
+	Domain       string `json:"domain" validate:"required"`
+	Title        string `json:"title" validate:"required"`
 	Description  string `json:"description"`
 	DomainNames  string `json:"domain_names"`
 	WwwRoot      string `json:"www_root"` //只包含目录名 Userhome + wwwroot
@@ -16,6 +16,7 @@ type webSiteRequest struct {
 	AccessLog    string `json:"access_log"`
 	ErrorLog     string `json:"error_log"`
 	WebsiteId    int    `json:"website_id"` // models website id
+	IndexFiles   string `json:"index_files"`
 	applicationRequest
 }
 

@@ -15,6 +15,7 @@ type ZapWebSite struct {
 	ApplicationVersion    string `json:"application_version"`     // app version
 	ApplicationExpose     string `json:"application_expose"`      // app expose
 	ApplicationExposeName string `json:"application_expose_name"` // app expose name  (unix | http | https )
+	IndexFiles            string `json:"index_files"`
 	RunDirectory          string `json:"run_directory"`
 	SslCertificate        string `json:"ssl_certificate"`
 	SslCertificateKey     string `json:"ssl_certificate_key"`

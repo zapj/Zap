@@ -18,6 +18,11 @@ import (
 )
 
 func InitEnv() {
+	defer func() {
+		if err := recover(); err != nil {
+			slog.Info("panic", "err", err)
+		}
+	}()
 	global.ZAP_MODE = "PROD"
 
 	var err error
@@ -31,11 +36,15 @@ func InitEnv() {
 	}
 
 	if !fileutils.IsDir(pathutil.GetPath("data")) {
-		err = os.MkdirAll(pathutil.GetPath("data/logs"), 0755)
-		if err != nil {
-			slog.Error("mkdir data/logs", "err", err)
-			os.Exit(1)
-		}
+		os.Mkdir(pathutil.GetPath("data"), 0755)
+	}
+	slog.Info("data log: ", "logs", pathutil.GetPath("data/logs"))
+	if !fileutils.IsDir(pathutil.GetPath("data/logs")) {
+		s, _ := os.Stat(pathutil.GetPath("data/logs"))
+		slog.Info("mkdir data", "isdir", s)
+		err = os.Mkdir(pathutil.GetPath("data/logs"), 0755)
+		slog.Info("mkdir data/logs", "err", err.Error())
+		// os.Exit(1)
 	}
 	global.CONFIG, err = properties.LoadFile(pathutil.GetPath("conf/zap.conf"), properties.UTF8)
 	if err != nil {

@@ -1,16 +1,15 @@
 <template>
-  <el-card class="box-card filemanager">
+  <el-card class="box-card filemanager" body-style="padding:0">
     <template #header>
       <div class="card-header font-size-3">
         网站管理
-
         <el-button type="success" :icon="Plus" @click="openCreateWebSite(websiteFormDrawerRef)" />
       </div>
     </template>
 
     <el-table
       :data="tableData"
-      min-height="200"
+      min-height="300"
       style="width: 100%"
       :height="tableHeight"
       v-loading="pageState.tbLoading"
@@ -104,6 +103,10 @@
           </el-input>
         </el-form-item>
 
+        <el-form-item label="默认主页" :label-width="formLabelWidth" prop="index_files">
+          <el-input v-model="websiteForm.index_files" autocomplete="off" />
+        </el-form-item>
+
         <el-form-item label="应用类型" :label-width="formLabelWidth" prop="application">
           <el-select
             v-model="websiteForm.application"
@@ -166,7 +169,8 @@ const websiteForm = reactive({
   www_root: '',
   run_directory: '',
   application: 0,
-  website_id: 0
+  website_id: 0,
+  index_files: 'index.html index.htm index.php'
 })
 
 const website = reactive({
@@ -362,14 +366,16 @@ const saveWebsite = (formRef) => {
     .then((res) => {
       if (res.code === 0) {
         ElMessage.success('添加成功')
-        websiteFormDrawer.value = false
         getWebSites({
           page: 1,
           pagesize: pageState.pagesize
         })
+      }else{
+        ElMessage.error(res.msg)
       }
     })
     .finally(() => {
+      websiteFormDrawer.value = false
       formRef.resetFields()
     })
 }

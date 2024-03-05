@@ -21,7 +21,7 @@ func DbInit() {
 	})
 
 	if err != nil {
-		slog.Error("DB init error")
+		slog.Error("DB init error", "err", err)
 		os.Exit(1)
 	}
 	global.StatisticsDB, err = gorm.Open(sqlite.Open(pathutil.GetPath("data/statistics.db")), &gorm.Config{

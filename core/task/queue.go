@@ -3,7 +3,6 @@ package task
 import (
 	"context"
 	"errors"
-	"log/slog"
 	"sync"
 	"time"
 
@@ -199,7 +198,6 @@ func LoadTask(status ...string) {
 }
 
 func StartTaskQueue() {
-	slog.Info("StartTaskQueue")
 	LoadTask()
 	go taskQueue()
 }

@@ -9,8 +9,10 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"os/user"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/gin-contrib/gzip"
@@ -23,6 +25,7 @@ import (
 	"github.com/zapj/zap/core/conf"
 	"github.com/zapj/zap/core/global"
 	"github.com/zapj/zap/core/utils/pathutil"
+	"github.com/zapj/zap/core/utils/zaputil"
 	"github.com/zapj/zap/core/utils/zlog"
 	"github.com/zapj/zap/web"
 )
@@ -61,10 +64,27 @@ var serverCmd = &cobra.Command{
 			pid := os.Getpid()
 			os.WriteFile(pathutil.GetPath("zapd.pid"), []byte(strconv.Itoa(pid)), 0644)
 		}
+
 		//初始化缓存
 		global.CACHE = cache.New(5*time.Minute, 10*time.Minute)
 		conf.InitEnv()
+
+		// {Uid: 104, Gid: 116}
+
+		if global.ZAP_MODE == "PRO" {
+			u, err := user.Lookup("zapadm")
+			if err != nil {
+				slog.Info("zapadm user not found ")
+			}
+			if syscall.Getegid() == 0 {
+				syscall.Setgid(zaputil.MustConvertStringToInt(u.Gid))
+			}
+			if syscall.Geteuid() == 0 {
+				syscall.Setuid(zaputil.MustConvertStringToInt(u.Uid))
+			}
+		}
 		conf.LogInit("zaps")
+
 		conf.DbInit()
 		conf.ServerStart_INIT()
 		conf.InitCrons()
@@ -72,7 +92,6 @@ var serverCmd = &cobra.Command{
 		if global.ZAP_MODE == "DEV" {
 			gin.SetMode(gin.DebugMode)
 		}
-		slog.Info("zap_mode", "mode", global.ZAP_MODE)
 		router := gin.Default()
 		router.Use(gzip.Gzip(gzip.DefaultCompression, gzip.WithExcludedPaths([]string{"/api/"})))
 		assetsFS, _ := fs.Sub(web.ASSETS_FS, "static/assets")
@@ -117,8 +136,7 @@ var serverCmd = &cobra.Command{
 
 		go serveHTTP(httpl)
 		go serveHTTPS(tlsl, router)
-		// syscall.Setegid(65534)
-		// syscall.Seteuid(65534)
+
 		if err := m.Serve(); !strings.Contains(err.Error(), "use of closed network connection") {
 			zlog.Fatal("start server err", "err", err)
 		}
