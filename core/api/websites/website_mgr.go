@@ -59,10 +59,11 @@ func NewWebSiteMgrWithWebSiteId(username, serverName string, websiteId int) *Web
 	}
 }
 
-func (w *WebsiteMgr) CreateWebsite(req webSiteRequest) error {
-	if w.ServerName != req.WwwRoot {
-		w.WwwRoot = filepath.Join(global.SERVER_CONF.GetUserHomeDir(w.Username), strings.ToLower(req.WwwRoot))
-	}
+func (w *WebsiteMgr) SetWwwRoot(www_root string) {
+	w.WwwRoot = filepath.Join(global.SERVER_CONF.GetUserHomeDir(w.Username), strings.ToLower(www_root))
+}
+
+func (w *WebsiteMgr) CreateWebsite(website *models.ZapWebSite) error {
 	if err := w.preCreateDirs(); err != nil {
 		return err
 	}
@@ -71,19 +72,18 @@ func (w *WebsiteMgr) CreateWebsite(req webSiteRequest) error {
 	createWebsiteDefaultPages(w.WwwRoot)
 
 	//write nginx conf
-	userDataPath := w.GetUserNginxConfDir()
-	base.TryMkdir(userDataPath)
+	userConfPath := w.GetUserWebserverConfDir()
+	base.TryMkdir(userConfPath)
 
 	ngxServConf := ngx.NewNgxConfServer(w.ServerName)
-	ngxServConf.RunDirectory = req.RunDirectory
+	ngxServConf.RunDirectory = website.RunDirectory
 	ngxServConf.Root = w.WwwRoot
 
-	if conf, err := ngxServConf.GenerateToString(); err == nil {
-		writeNgxConfFile(filepath.Join(userDataPath, w.ServerName+".conf"), conf)
-	} else {
+	err := ngxServConf.WriteToFile(filepath.Join(userConfPath, website.Domain+".conf"))
+	if err != nil {
 		return err
 	}
-	return nil
+	return ngx.CreateWebsiteIncludeFile(w.Username)
 }
 
 func (w *WebsiteMgr) preCreateDirs() error {
@@ -174,15 +174,19 @@ func (w *WebsiteMgr) UpdateWebsite(website *models.ZapWebSite) error {
 	}
 
 	//write nginx conf
-	userNgxPath := w.GetUserNginxConfDir()
-	base.TryMkdir(userNgxPath)
+	userConfPath := w.GetUserWebserverConfDir()
+	base.TryMkdir(userConfPath)
 	ngxServConf := ngx.NewNgxConfServer(website.Domain)
-	// ngxServConf.AddServerName()
+	ngxServConf.AddServerName(strings.Fields(website.DomainNames)...)
 	ngxServConf.SetUserDataPath(global.SERVER_CONF.GetUserHomeDir(w.Username))
 	ngxServConf.RunDirectory = website.RunDirectory
 	ngxServConf.Root = website.WwwRoot
 
-	err := ngxServConf.WriteToFile(filepath.Join(userNgxPath, website.Domain+".conf"))
+	ngxServConf.AppName = website.Application
+	ngxServConf.AppExposeName = website.ApplicationExposeName
+	ngxServConf.AppExpose = website.ApplicationExpose
+
+	err := ngxServConf.WriteToFile(filepath.Join(userConfPath, website.Domain+".conf"))
 	if err != nil {
 		return err
 	}

@@ -48,6 +48,7 @@ func RegisterAPIV1Router(c *gin.RouterGroup) {
 	c.POST("/filemanager/list", filemanager.FileManager_List)
 	c.POST("/filemanager/fetch", filemanager.FileManager_Fetch)
 	c.POST("/filemanager/putfile", filemanager.FileManager_PutFile)
+	c.POST("/filemanager/delete", filemanager.FileManager_RemoveFile)
 
 	// server
 	c.GET("/server/info", server.ServerInfo)

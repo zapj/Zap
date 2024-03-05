@@ -14,6 +14,7 @@ import (
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/gin-gonic/gin"
 	"github.com/zapj/zap/core/protect"
+	"github.com/zapj/zap/core/utils/pathutil"
 	"github.com/zapj/zap/core/utils/zdate"
 )
 
@@ -120,5 +121,34 @@ func FileManager_PutFile(c *gin.Context) {
 		c.JSON(200, gin.H{"code": 1, "msg": filename + "无法写入文件内容" + err.Error()})
 		return
 	}
+	c.JSON(200, gin.H{"code": 0, "msg": "文件保存成功"})
+}
+
+func FileManager_RemoveFile(c *gin.Context) {
+	path := path.Clean(c.PostForm("path"))
+	if pathutil.InSecurePaths(path) {
+		c.JSON(200, gin.H{"code": 1, "msg": "该文件无法删除"})
+		return
+	}
+
+	finfo, err := os.Stat(path)
+	if err != nil {
+		c.JSON(200, gin.H{"code": 1, "msg": path + "无法删除文件" + err.Error()})
+		return
+	}
+	if finfo.IsDir() {
+		err = os.RemoveAll(path)
+		if err != nil {
+			c.JSON(200, gin.H{"code": 1, "msg": path + "无法删除文件" + err.Error()})
+			return
+		}
+	} else {
+		err = os.Remove(path)
+		if err != nil {
+			c.JSON(200, gin.H{"code": 1, "msg": path + "无法删除文件" + err.Error()})
+			return
+		}
+	}
+
 	c.JSON(200, gin.H{"code": 0, "msg": "文件保存成功"})
 }

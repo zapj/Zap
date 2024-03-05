@@ -78,6 +78,10 @@ type NgxConfServer struct {
 
 	ForceHttps bool
 
+	AppName       string
+	AppExposeName string
+	AppExpose     string
+
 	confPath     string // data/users/admin/nginx_conf.d
 	confName     string // domain.com.conf
 	userDataPath string
@@ -199,6 +203,23 @@ func (n *NgxConfServer) GenerateToString() (string, error) {
 		}
 	}
 
+	// middleware application
+	if n.AppName == "php" {
+		fmt.Fprintf(&serverConf, "\t# %s application\n", n.AppName)
+		fmt.Fprintf(&serverConf, "\tlocation ~ \\.php$ {\n")
+		fmt.Fprintf(&serverConf, "\t\tinclude fastcgi.conf;\n")
+		fmt.Fprintf(&serverConf, "\t\tfastcgi_index index.php;\n")
+		fmt.Fprintf(&serverConf, "\t\tfastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;\n")
+		if n.AppExposeName == "unix" {
+			fmt.Fprintf(&serverConf, "\t\tfastcgi_pass unix:%s;\n", n.AppExpose)
+		} else {
+			fmt.Fprintf(&serverConf, "\t\tfastcgi_pass %s;\n", n.AppExpose)
+		}
+		fmt.Fprintf(&serverConf, "\t}\n")
+
+	} else if n.AppName == "static" {
+		fmt.Fprintf(&serverConf, "\t# %s web\n", n.AppName)
+	}
 	// end server
 	serverConf.WriteString("\n}\n")
 	return serverConf.String(), nil

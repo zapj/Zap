@@ -7,7 +7,7 @@ import (
 )
 
 var ZAP_MIRROR_URL = "https://mirrors.zap.cn/zap"
-var TASK_SERV_SOCK = "data/task"
+var TASK_SERV_SOCK = "/var/run/zap_task"
 var GL sync.Map
 var globalTask sync.Map
 

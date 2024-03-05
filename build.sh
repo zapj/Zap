@@ -90,7 +90,7 @@ echo "Build Success"
 
 if [ "$1" = "run" ]
 then
-    sudo ./zapd master
+    sudo ZAP_MODE=DEV ./zapd master
 elif [ "$1" = "build" ]
 then
     create_pkg

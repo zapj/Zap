@@ -41,7 +41,7 @@ func StartTaskScheduler() {
 	}
 
 	go func() {
-		unixListener, err := net.Listen("unix", pathutil.GetPath(TASK_SERV_SOCK))
+		unixListener, err := net.Listen("unix", TASK_SERV_SOCK)
 		if err != nil {
 			panic(err)
 		}

@@ -117,7 +117,7 @@ import { Icon } from '@iconify/vue'
 import { onMounted, onUnmounted, provide, ref } from 'vue'
 import apiRequest from '../../httpclient/client'
 import { useGlobalStore } from '../../stores/global'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { Edit, ArrowUpBold } from '@element-plus/icons-vue'
 import { copyText } from 'vue3-clipboard'
 import CodeDialog from '../../components/editor/CodeDialog.vue'
@@ -227,7 +227,26 @@ function updateBreadCrumb(path) {
 }
 
 const deleteRow = (index) => {
-  console.log(tableData.value[index])
+  ElMessageBox.confirm(`确定要删除 ${globalStore.lastFilePath}/${tableData.value[index].name} 吗？`,'删除确认s',
+  {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(()=>{
+    apiRequest({
+      url: '/v1/filemanager/delete',
+      method: 'post',
+      data: {
+        path: globalStore.lastFilePath + '/' + tableData.value[index].name
+      },
+      dataType: 'form',
+      loading: false
+    }).then((data) => {
+        ElMessage({ message: '删除成功', type: 'success' })
+        getFiles()
+    })
+  })
+   
 }
 const editFile = (index) => {
   console.log(tableData.value[index])

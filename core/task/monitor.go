@@ -16,6 +16,7 @@ func StartServer(ctx context.Context) {
 		serverCmd := exec.CommandContext(ctx, os.Args[0], "server")
 		// serverCmd.SysProcAttr = &syscall.SysProcAttr{GidMappingsEnableSetgroups: true}
 		// serverCmd.SysProcAttr.Credential = &syscall.Credential{Uid: 104, Gid: 116}
+		slog.Info("start server", "zap_mode", global.ZAP_MODE)
 		if global.ZAP_MODE == "DEV" {
 			serverCmd.Env = append(os.Environ(), "ZAP_MODE=DEV")
 		}

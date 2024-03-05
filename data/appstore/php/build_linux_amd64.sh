@@ -100,6 +100,8 @@ cp ${ZAP_DATA_PATH}/build/${PHP_DIRNAME}/sapi/fpm/www.conf ${PHP_INSTALL_PATH}/e
 # sed -i "s#;pid = run/php-fpm.pid#pid = ${PHP_FPM_PID}#g" ${PHP_INSTALL_PATH}/etc/php-fpm.conf
 # sed -i "s#;error_log = log/php-fpm.log#error_log = ${PHP_FPM_ERROR_LOG}#g" ${PHP_INSTALL_PATH}/etc/php-fpm.conf
 sed -i "s#listen = 127.0.0.1:9000#listen = ${PHP_FPM_SOCK}#g" ${PHP_INSTALL_PATH}/etc/php-fpm.d/www.conf
+sed -i "s#;listen.mode = 0660#listen.mode = 0666#g" ${PHP_INSTALL_PATH}/etc/php-fpm.d/www.conf
+
 
 #install systemd
 

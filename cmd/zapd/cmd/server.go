@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"io/fs"
+	"log/slog"
 	"net"
 	"net/http"
 	"os"
@@ -21,6 +22,7 @@ import (
 	"github.com/zapj/zap/core/api"
 	"github.com/zapj/zap/core/conf"
 	"github.com/zapj/zap/core/global"
+	"github.com/zapj/zap/core/utils/pathutil"
 	"github.com/zapj/zap/core/utils/zlog"
 	"github.com/zapj/zap/web"
 )
@@ -57,7 +59,7 @@ var serverCmd = &cobra.Command{
 			defer cntxt.Release()
 		} else {
 			pid := os.Getpid()
-			os.WriteFile("zapd.pid", []byte(strconv.Itoa(pid)), 0644)
+			os.WriteFile(pathutil.GetPath("zapd.pid"), []byte(strconv.Itoa(pid)), 0644)
 		}
 		//初始化缓存
 		global.CACHE = cache.New(5*time.Minute, 10*time.Minute)
@@ -70,6 +72,7 @@ var serverCmd = &cobra.Command{
 		if global.ZAP_MODE == "DEV" {
 			gin.SetMode(gin.DebugMode)
 		}
+		slog.Info("zap_mode", "mode", global.ZAP_MODE)
 		router := gin.Default()
 		router.Use(gzip.Gzip(gzip.DefaultCompression, gzip.WithExcludedPaths([]string{"/api/"})))
 		assetsFS, _ := fs.Sub(web.ASSETS_FS, "static/assets")

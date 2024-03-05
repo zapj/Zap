@@ -2,10 +2,12 @@ package websites
 
 import (
 	"log/slog"
+	"strings"
 
 	"github.com/zapj/zap/core/global"
 	"github.com/zapj/zap/core/models"
 	"github.com/zapj/zap/core/services"
+	"github.com/zapj/zap/core/utils/domainutil"
 )
 
 type WebSiteService struct {
@@ -21,16 +23,11 @@ func NewWebSiteService(username string, id uint) *WebSiteService {
 }
 
 func (w *WebSiteService) CreateWebsite(req webSiteRequest) error {
-
+	domain, domainNames := domainutil.ParseHostingDomain(req.Domain, req.DomainNames)
+	req.Domain = domain
+	req.DomainNames = strings.Join(domainNames, " ")
 	mgr := NewWebSiteMgr(w.Username, req.Domain)
-	err := mgr.CreateWebsite(req)
-	slog.Info("创建网站成功", "err", err, "mgr", mgr)
-
-	if err != nil {
-		// w.c.JSON(200, commons.Error(1, err.Error(), nil))
-		return err
-	}
-
+	mgr.SetWwwRoot(req.WwwRoot)
 	website := models.ZapWebSite{
 		Uid:               w.Uid,
 		Domain:            req.Domain,
@@ -45,8 +42,12 @@ func (w *WebSiteService) CreateWebsite(req webSiteRequest) error {
 	appService := services.NewAppsService()
 	appInfo := appService.GetAppListById(website.ApplicationId)
 	if p, err := appInfo.ParseExpose(); err == nil {
-		if p.MustGetString("socket") != website.ApplicationExpose {
-			website.ApplicationExpose = p.MustGetString("socket")
+		for k, v := range p.Map() {
+			if v == website.ApplicationExpose {
+				website.ApplicationExpose = v
+				website.ApplicationExposeName = k
+				break
+			}
 		}
 	}
 	slog.Info("appInfo", "info", appInfo)
@@ -59,7 +60,14 @@ func (w *WebSiteService) CreateWebsite(req webSiteRequest) error {
 		website.Title = website.Domain
 	}
 	slog.Info("website", "data", website)
-	return global.DB.Save(&website).Error
+	if err := global.DB.Save(&website).Error; err != nil {
+		return err
+	}
+	err := mgr.CreateWebsite(&website)
+	if err != nil {
+		global.DB.Delete(&website)
+	}
+	return err
 }
 
 func (w *WebSiteService) CheckDomain(domain string) error {
@@ -72,13 +80,21 @@ func (w *WebSiteService) CheckDomain(domain string) error {
 }
 
 func (w *WebSiteService) UpdateWebsite(req webSiteRequest) error {
-
+	defer func() {
+		if err := recover(); err != nil {
+			slog.Error("panic", "err", err)
+		}
+	}()
 	website, err := GetWebsiteById(req.WebsiteId)
 	if err != nil {
 		return err
 	}
-
+	//parse domains
+	domain, domainNames := domainutil.ParseHostingDomain(req.Domain, req.DomainNames)
+	req.Domain = domain
+	req.DomainNames = strings.Join(domainNames, " ")
 	mgr := NewWebSiteMgr(w.Username, req.Domain)
+	mgr.SetWwwRoot(req.WwwRoot)
 	//删除旧网站
 	if website.Domain != req.Domain {
 		mgr.RemoveWebsiteConfig(website.Domain)
@@ -86,6 +102,8 @@ func (w *WebSiteService) UpdateWebsite(req webSiteRequest) error {
 	website.Domain = req.Domain
 	website.DomainNames = req.DomainNames
 	website.ApplicationId = req.Application
+	website.ApplicationExposeName = req.ExposeProto
+	website.ApplicationExpose = req.ExposePort
 	if req.Title != "" {
 		website.Title = req.Title
 	}
@@ -93,8 +111,8 @@ func (w *WebSiteService) UpdateWebsite(req webSiteRequest) error {
 		website.Title = website.Domain
 	}
 	if website.WwwRoot != mgr.WwwRoot {
-		website.WwwRoot = mgr.WwwRoot
 		mgr.RenameWwwRoot(website.WwwRoot, mgr.WwwRoot)
+		website.WwwRoot = mgr.WwwRoot
 	}
 
 	appService := services.NewAppsService()
@@ -103,13 +121,16 @@ func (w *WebSiteService) UpdateWebsite(req webSiteRequest) error {
 		website.Application = appInfo.Name
 		website.ApplicationVersion = appInfo.Version
 		if p, err := appInfo.ParseExpose(); err == nil {
-			if p.MustGetString("socket") != website.ApplicationExpose {
-				website.ApplicationExpose = p.MustGetString("socket")
+			for k, v := range p.Map() {
+				if v == website.ApplicationExpose {
+					website.ApplicationExpose = v
+					website.ApplicationExposeName = k
+					break
+				}
 			}
 		}
 	}
-	slog.Info("appInfo", "info", appInfo)
-	slog.Info("website", "data", website)
+
 	if err := global.DB.Save(&website).Error; err != nil {
 		return err
 	}
