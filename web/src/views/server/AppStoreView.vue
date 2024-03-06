@@ -1,8 +1,8 @@
 <template>
   <el-card class="box-card">
     <el-radio-group v-model="activeName" type="success" @change="handleSwitch">
-      <el-radio-button label="应用市场" />
       <el-radio-button label="已安装" />
+      <el-radio-button label="应用市场" />
       <el-radio-button label="任务列表" />
     </el-radio-group>
   </el-card>
@@ -16,8 +16,8 @@ const AppListView = defineAsyncComponent(() => import('../appstore/AppListView.v
 const AppInstalledView = defineAsyncComponent(() => import('../appstore/AppInstalledView.vue'))
 const TaskListView = defineAsyncComponent(() => import('../appstore/TaskListView.vue'))
 
-const activeName = ref('应用市场')
-const currentItem = shallowRef(AppListView)
+const activeName = ref('已安装')
+const currentItem = shallowRef(AppInstalledView)
 
 const handleSwitch = () => {
   if (activeName.value === '应用市场') {

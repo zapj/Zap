@@ -1,0 +1,9 @@
+name: mysql
+title: MySQL Community Server
+version: [8.2.0,5.7.44]
+category: databae
+description: MySQL is a relational database management system (RDBMS) developed by Oracle. 
+icon: mysql.png
+tags: [mysql,db]
+actions:
+  bin: 安装

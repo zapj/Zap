@@ -365,7 +365,7 @@ const saveWebsite = (formRef) => {
   })
     .then((res) => {
       if (res.code === 0) {
-        ElMessage.success('添加成功')
+        ElMessage.success(wOp ? '更新成功' : '添加成功')
         getWebSites({
           page: 1,
           pagesize: pageState.pagesize

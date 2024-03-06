@@ -83,6 +83,7 @@ if [ -d "$TARGET/zap" ];then
      cp -Rf zap/zapctl "$TARGET/zap/"   
      cp -Rf zap/zapd "$TARGET/zap/"   
      cp -Rf zap/scripts "$TARGET/zap/"
+     cp -Rf zap/data/appstore "$TARGET/zap/data/appstore"
 else
     cp -Rf zap "$TARGET/"
     chmod +x "$TARGET/zap/zapd"

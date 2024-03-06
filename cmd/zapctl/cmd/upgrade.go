@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/zapj/zap/core/task"
+	"github.com/zapj/zap/core/zapi"
 )
 
 func init() {
@@ -15,10 +15,16 @@ var upgradeCmd = &cobra.Command{
 	Use:   "upgrade",
 	Short: "upgrade zap",
 	Run: func(cmd *cobra.Command, args []string) {
-		_, err := task.Get("/upgrade")
-		if err != nil {
-			fmt.Println(err)
+		resp := zapi.Client.Upgrade()
+
+		if resp.HasError() {
+			fmt.Printf("Error Message : %s\n", resp.ErrorMessage())
+			return
 		}
-		fmt.Println("提交成功，系统更新后自动重启zapd")
+		if resp.Status == 200 {
+			r := resp.ZapMap()
+			fmt.Printf("code:%s , msg : %s\n", r.GetString("code"), r.GetString("msg"))
+		}
+
 	},
 }

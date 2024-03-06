@@ -18,6 +18,9 @@ func (z ZapMap) Get(key string) (any, bool) {
 }
 
 func (z ZapMap) GetString(key string) string {
+	if _, ok := z[key]; !ok {
+		return ""
+	}
 	switch z[key].(type) {
 	case string:
 		return z[key].(string)
@@ -34,6 +37,9 @@ func (z ZapMap) GetString(key string) string {
 }
 
 func (z ZapMap) GetInt(key string) int {
+	if _, ok := z[key]; !ok {
+		return 0
+	}
 	switch z[key].(type) {
 	case string:
 		v, err := strconv.Atoi(z[key].(string))
@@ -52,6 +58,9 @@ func (z ZapMap) GetInt(key string) int {
 }
 
 func (z ZapMap) GetInt64(key string) int64 {
+	if _, ok := z[key]; !ok {
+		return 0
+	}
 	switch z[key].(type) {
 	case string:
 		v, err := strconv.ParseInt(z[key].(string), 10, 64)
@@ -69,6 +78,9 @@ func (z ZapMap) GetInt64(key string) int64 {
 }
 
 func (z ZapMap) GetFloat64(key string) float64 {
+	if _, ok := z[key]; !ok {
+		return 0
+	}
 	switch z[key].(type) {
 	case string:
 		v, err := strconv.ParseFloat(z[key].(string), 64)
@@ -86,10 +98,16 @@ func (z ZapMap) GetFloat64(key string) float64 {
 }
 
 func (z ZapMap) GetBool(key string) bool {
+	if _, ok := z[key]; !ok {
+		return false
+	}
 	return z[key].(bool)
 }
 
 func (z ZapMap) GetZapMap(key string) ZapMap {
+	if _, ok := z[key]; !ok {
+		return make(ZapMap)
+	}
 	switch zmap := z[key].(type) {
 	case ZapMap:
 		return zmap

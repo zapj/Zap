@@ -1,8 +1,8 @@
 <template>
   <el-table :data="appListRef" stripe style="width: 100%">
-    <el-table-column prop="id" label="Id" width="180" />
-    <el-table-column prop="name" label="Name" width="180" />
-    <el-table-column prop="title" label="Title" width="180" />
+    <el-table-column prop="id" label="Id" />
+    <el-table-column prop="name" label="Name" />
+    <el-table-column prop="title" label="Title" />
     <el-table-column prop="version" label="版本" />
     <el-table-column prop="status" label="状态" />
     <el-table-column prop="app_status" label="运行状态" />

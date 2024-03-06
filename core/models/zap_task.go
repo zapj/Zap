@@ -5,12 +5,12 @@ import "time"
 type ZapTask struct {
 	Id uint `json:"id" gorm:"primarykey;autoIncrement"`
 
-	Title       string    `json:"title"`                             //任务名称
-	TaskType    string    `json:"task_type" gorm:"default:appstore"` // email | http | appstore
-	Cmd         string    `json:"cmd"`                               //命令
-	LogFile     string    `json:"log_file"`                          //日志文件
-	TargetDir   string    `json:"target_dir"`                        //临时文件目录
-	Request     string    `json:"request"`                           // json  {header:{},body:{}}
+	Title       string    `json:"title"`                                    //任务名称
+	TaskType    string    `json:"task_type" gorm:"default:appstore;index;"` // email | http | appstore
+	Cmd         string    `json:"cmd"`                                      //命令
+	LogFile     string    `json:"log_file"`                                 //日志文件
+	TargetDir   string    `json:"target_dir"`                               //临时文件目录
+	Request     string    `json:"request"`                                  // json  {header:{},body:{}}
 	Error       string    `json:"error"`
 	Retry       int       `json:"retry"` //重试次数
 	RetryCount  int       `json:"retry_count"`

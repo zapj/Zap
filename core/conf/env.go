@@ -38,12 +38,12 @@ func InitEnv() {
 	if !fileutils.IsDir(pathutil.GetPath("data")) {
 		os.Mkdir(pathutil.GetPath("data"), 0755)
 	}
-	slog.Info("data log: ", "logs", pathutil.GetPath("data/logs"))
+	slog.Debug("data log: ", "logs", pathutil.GetPath("data/logs"))
 	if !fileutils.IsDir(pathutil.GetPath("data/logs")) {
 		s, _ := os.Stat(pathutil.GetPath("data/logs"))
-		slog.Info("mkdir data", "isdir", s)
+		slog.Debug("mkdir data", "isdir", s)
 		err = os.Mkdir(pathutil.GetPath("data/logs"), 0755)
-		slog.Info("mkdir data/logs", "err", err.Error())
+		slog.Debug("mkdir data/logs", "err", err.Error())
 		// os.Exit(1)
 	}
 	global.CONFIG, err = properties.LoadFile(pathutil.GetPath("conf/zap.conf"), properties.UTF8)
@@ -63,18 +63,13 @@ func InitEnv() {
 		WwwUser:  global.CONFIG.GetString("www_user", "www"),
 		WwwGroup: global.CONFIG.GetString("www_group", "www"),
 
-		ZapMode: strings.ToUpper(global.CONFIG.GetString("zap_mode", "PROD")),
+		ZapMode:   strings.ToUpper(global.CONFIG.GetString("zap_mode", "PROD")),
+		WebServer: global.CONFIG.GetString("webserver", "nginx"),
 	}
-	global.ZAP_MODE = strings.ToUpper(global.CONFIG.GetString("zap_mode", "PROD"))
+	global.ZAP_MODE = global.SERVER_CONF.ZapMode
 	// check user
 	wwwUserInfo, err := user.Lookup(global.SERVER_CONF.WwwUser)
 	if err != nil {
-		// _, err = cmdutil.ExecCmd("adduser", "-M", "-s", "/bin/false", global.SERVER_CONF.WwwUser)
-		// if err != nil {
-		// 	slog.Error("adduser www", "err", err)
-		// 	os.Exit(1)
-		// }
-		// wwwUserInfo, _ = user.Lookup(global.SERVER_CONF.WwwUser)
 		slog.Error("www user not found", "err", err)
 		os.Exit(1)
 	}

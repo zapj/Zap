@@ -7,8 +7,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/zapj/zap/core/global"
 	"github.com/zapj/zap/core/models"
-	"github.com/zapj/zap/core/task"
 	"github.com/zapj/zap/core/utils/zdate"
+	"github.com/zapj/zap/core/zapi"
 )
 
 func init() {
@@ -55,19 +55,21 @@ func listTaskJob() {
 }
 
 func putTask() {
-	_, err := task.Post("/task/put")
-	if err != nil {
-		fmt.Println(err)
-	}
+	// _, err := task.Post("/task/put")
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
 
 }
 
 func refreshTask() {
-	resp, err := task.Post("/task/refresh")
-	if err != nil {
-		fmt.Println(err)
+	resp := zapi.NewZapi().RefreshTask()
+	if resp.HasError() {
+		fmt.Printf("Error Message : %s\n", resp.ErrorMessage())
+		return
 	}
-	result := map[string]interface{}{}
-	resp.UnmarshalJSON(&result)
-	fmt.Println("Result:", result["msg"], "Code:", result["code"])
+	if resp.Status == 200 {
+		r := resp.ZapMap()
+		fmt.Printf("code:%s , msg : %s\n", r.GetString("code"), r.GetString("msg"))
+	}
 }

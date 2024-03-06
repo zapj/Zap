@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/zapj/zap/core/global"
 	"github.com/zapj/zap/core/models"
-	"github.com/zapj/zap/core/utils/zdate"
+	"github.com/zapj/zap/core/utils/zaputil"
 )
 
 func Infof(format string, args ...any) {
@@ -40,10 +40,15 @@ func Fatal(msg string, args ...any) {
 
 func AccessLog(c *gin.Context) {
 	global.DB.Save(&models.ZapAccessLog{
-		Username:   c.GetString("JWT_USERNAME"),
-		LogDate:    time.Now().Format(zdate.DATE_TIME_FORMAT),
-		IpAddr:     c.ClientIP(),
+		Uid:        zaputil.MustConvertStringToInt(c.GetString("JWT_ID")),
+		RemoteAddr: c.ClientIP(),
 		UserAgent:  c.Request.UserAgent(),
 		RequestUri: c.Request.RequestURI,
+		Referer:    c.Request.Referer(),
+		Method:     c.Request.Method,
+		Host:       c.Request.Host,
+		TLS:        c.Request.TLS.NegotiatedProtocol,
+		Proto:      c.Request.Proto,
+		CreatedAt:  time.Now().UnixMicro(),
 	})
 }

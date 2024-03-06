@@ -13,7 +13,7 @@ var BuildDate = "0000-00-00_00:00:00"
 func main() {
 	global.ZAP_INFO = &base.ZapInfo{Version: Version, BuildDate: BuildDate, BuildShortDate: BuildDate[0:8]}
 	conf.InitEnv()
-	conf.LogInit("zapc.log")
+	// conf.LogInit("zapc.log")
 	conf.DbInit()
 	cmd.Execute()
 }

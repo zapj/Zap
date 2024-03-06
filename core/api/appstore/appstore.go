@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-zoox/fetch"
 	"github.com/zapj/zap/core/api/commons"
 	"github.com/zapj/zap/core/global"
 	"github.com/zapj/zap/core/models"
@@ -13,6 +12,7 @@ import (
 	"github.com/zapj/zap/core/task"
 	"github.com/zapj/zap/core/utils/str"
 	"github.com/zapj/zap/core/workflows"
+	"github.com/zapj/zap/core/zapi"
 )
 
 func ListApp(c *gin.Context) {
@@ -72,21 +72,17 @@ func UninstallApp(c *gin.Context) {
 		c.JSON(200, commons.Error(1, "应用正在卸载", nil))
 		return
 	}
-	app.Status = global.APP_STATUS_UNINSTALL
-	global.DB.Save(&app)
-	resp, err := task.Post("/app/uninstall", &fetch.Config{
-		Headers: map[string]string{
-			"Content-Type": "application/x-www-form-urlencoded",
-		},
-		Body: map[string]string{
-			"id": id,
-		}})
+	// app.Status = global.APP_STATUS_UNINSTALL
+	// global.DB.Save(&app)
+	resp := zapi.Client.UninstallApp(map[string]any{
+		"id": id,
+	})
 
-	if err != nil {
-		c.JSON(200, commons.Error(1, "应用卸载失败", err.Error()))
-		return
-	}
-	c.Data(200, gin.MIMEJSON, resp.Body)
+	// if err != nil {
+	// 	c.JSON(200, commons.Error(1, "应用卸载失败", err.Error()))
+	// 	return
+	// }
+	c.Data(resp.Status, gin.MIMEJSON, resp.Data)
 }
 
 func AppInstall(c *gin.Context) {
@@ -98,22 +94,17 @@ func AppInstall(c *gin.Context) {
 		c.JSON(200, commons.Error(1, "应用不存在", nil))
 		return
 	}
-	resp, err := task.Post("/task/install/app", &fetch.Config{
-		Headers: map[string]string{
-			"Content-Type": "application/x-www-form-urlencoded",
-		},
-		Body: map[string]string{
-			"id":      id,
-			"action":  action,
-			"version": version,
-		},
+	resp := zapi.Client.InstallApp(map[string]any{
+		"id":      id,
+		"action":  action,
+		"version": version,
 	})
 
-	if err != nil {
-		c.JSON(200, commons.Error(1, "error", err.Error()))
-		return
-	}
-	c.Data(200, gin.MIMEJSON, resp.Body)
+	// if err != nil {
+	// 	c.JSON(200, commons.Error(1, "error", err.Error()))
+	// 	return
+	// }
+	c.Data(resp.Status, gin.MIMEJSON, resp.Data)
 }
 
 // 应用安装任务列表
@@ -143,17 +134,12 @@ func GenTask(c *gin.Context) {
 
 func CancelTask(c *gin.Context) {
 	id := c.PostForm("id")
-	_, err := task.Post("/task/cancel", &fetch.Config{
-		Headers: map[string]string{
-			"Content-Type": "application/x-www-form-urlencoded",
-		},
-		Body: map[string]string{
-			"id": id,
-		},
+	resp := zapi.NewZapi().CancelTask(map[string]any{
+		"id": id,
 	})
-	if err != nil {
-		c.JSON(200, commons.Error(1, "error", err.Error()))
-		return
-	}
-	c.JSON(200, commons.Success("取消成功"))
+	// if err != nil {
+	// 	c.JSON(200, commons.Error(1, "error", err.Error()))
+	// 	return
+	// }
+	c.Data(resp.Status, gin.MIMEJSON, resp.Data)
 }

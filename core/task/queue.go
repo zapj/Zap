@@ -157,11 +157,11 @@ func AddJob(job ZapJobInterface) {
 }
 
 func LoadTask(status ...string) {
+	enqueueMux.Lock()
+	defer enqueueMux.Unlock()
 	if len(status) == 0 {
 		status = append(status, STATUS_WAIT, STATUS_READY)
 	}
-	enqueueMux.Lock()
-	defer enqueueMux.Unlock()
 
 	taskList := []models.ZapTask{}
 

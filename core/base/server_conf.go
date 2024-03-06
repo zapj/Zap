@@ -21,6 +21,8 @@ type ServerConf struct {
 	WwwGroupId int
 
 	ZapMode string
+
+	WebServer string
 }
 
 func (s *ServerConf) GetUserHomeDir(username string) string {

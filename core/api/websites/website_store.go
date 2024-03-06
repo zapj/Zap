@@ -3,7 +3,9 @@ package websites
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/zapj/zap/core/api/commons"
+	"github.com/zapj/zap/core/global"
 	"github.com/zapj/zap/core/utils/zaputil"
+	"github.com/zapj/zap/core/zapi"
 )
 
 type webSiteRequest struct {
@@ -39,7 +41,10 @@ func CreateWebsite(c *gin.Context) {
 		c.JSON(200, commons.Error(1, err.Error(), nil))
 		return
 	}
-
+	resp := zapi.Client.Systemctl("reload", global.SERVER_CONF.WebServer)
+	if resp.HasError() || resp.Code != 0 {
+		c.JSON(200, commons.Error(1, resp.ErrorMessage(), nil))
+	}
 	c.JSON(200, commons.SuccessMsg("网站添加成功"))
 }
 
@@ -55,6 +60,10 @@ func UpdateWebsite(c *gin.Context) {
 	if err := service.UpdateWebsite(websiteReq); err != nil {
 		c.JSON(200, commons.Error(1, err.Error(), nil))
 		return
+	}
+	resp := zapi.Client.Systemctl("reload", global.SERVER_CONF.WebServer)
+	if resp.HasError() || resp.Code != 0 {
+		c.JSON(200, commons.Error(1, resp.ErrorMessage(), nil))
 	}
 
 	c.JSON(200, commons.SuccessMsg("网站修改成功"))

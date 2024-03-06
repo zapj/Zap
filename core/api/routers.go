@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
@@ -15,7 +16,10 @@ import (
 	"github.com/zapj/zap/core/api/server"
 	"github.com/zapj/zap/core/api/websites"
 	"github.com/zapj/zap/core/auth/jwtauth"
+	"github.com/zapj/zap/core/global"
+	"github.com/zapj/zap/core/models"
 	"github.com/zapj/zap/core/terminal"
+	"github.com/zapj/zap/core/utils/zaputil"
 )
 
 // 无需授权的路由
@@ -30,6 +34,7 @@ func RegisterRouter(router *gin.Engine) {
 // api v1
 func RegisterAPIV1Router(c *gin.RouterGroup) {
 	c.Use(jwtTokenCheck)
+	c.Use(accessLogMiddleware)
 	//websocket
 	c.GET("/local/ws", terminal.HandlerLocalWS)
 	c.GET("/statistics/dashboard", dashboard.DashBoardStats)
@@ -137,5 +142,21 @@ func jwtTokenCheck(c *gin.Context) {
 	c.Set("JWT_ID", claims.ID)
 	c.Set("JWT_USERNAME", claims.Username)
 	c.Set("JWT_TOKEN", jwtToken)
+	c.Next()
+}
+
+func accessLogMiddleware(c *gin.Context) {
+	global.DB.Save(&models.ZapAccessLog{
+		Uid:        zaputil.MustConvertStringToInt(c.GetString("JWT_ID")),
+		RemoteAddr: c.ClientIP(),
+		UserAgent:  c.Request.UserAgent(),
+		RequestUri: c.Request.RequestURI,
+		Referer:    c.Request.Referer(),
+		Method:     c.Request.Method,
+		Host:       c.Request.Host,
+		TLS:        c.Request.TLS.NegotiatedProtocol,
+		Proto:      c.Request.Proto,
+		CreatedAt:  time.Now().UnixMicro(),
+	})
 	c.Next()
 }

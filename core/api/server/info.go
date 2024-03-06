@@ -20,10 +20,10 @@ import (
 	"github.com/shirou/gopsutil/v3/process"
 	"github.com/zapj/zap/core/api/commons"
 	"github.com/zapj/zap/core/global"
-	"github.com/zapj/zap/core/task"
 	"github.com/zapj/zap/core/utils/cmdutil"
 	"github.com/zapj/zap/core/utils/format"
 	"github.com/zapj/zap/core/utils/zdate"
+	"github.com/zapj/zap/core/zapi"
 )
 
 func ServerInfo(c *gin.Context) {
@@ -194,10 +194,11 @@ func UpgradeCheck(c *gin.Context) {
 	if global.ZAP_MODE == "DEV" {
 		c.JSON(200, gin.H{"code": 0, "msg": "开发环境不能执行更新操作"})
 	}
-	resp, err := task.Get("/upgrade")
-	if err != nil {
-		c.JSON(200, gin.H{"code": 1, "msg": "任务执行失败"})
-	}
+	resp := zapi.NewZapi().Upgrade()
 
-	c.Data(200, gin.MIMEJSON, resp.Body)
+	// if resp.Code != 200 {
+	// 	c.JSON(200, gin.H{"code": 1, "msg": "任务执行失败"})
+	// }
+
+	c.Data(resp.Status, gin.MIMEJSON, resp.Data)
 }
