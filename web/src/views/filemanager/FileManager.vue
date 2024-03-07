@@ -227,12 +227,15 @@ function updateBreadCrumb(path) {
 }
 
 const deleteRow = (index) => {
-  ElMessageBox.confirm(`确定要删除 ${globalStore.lastFilePath}/${tableData.value[index].name} 吗？`,'删除确认s',
-  {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning'
-  }).then(()=>{
+  ElMessageBox.confirm(
+    `确定要删除 ${globalStore.lastFilePath}/${tableData.value[index].name} 吗？`,
+    '删除确认s',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }
+  ).then(() => {
     apiRequest({
       url: '/v1/filemanager/delete',
       method: 'post',
@@ -242,11 +245,10 @@ const deleteRow = (index) => {
       dataType: 'form',
       loading: false
     }).then((data) => {
-        ElMessage({ message: '删除成功', type: 'success' })
-        getFiles()
+      ElMessage({ message: '删除成功', type: 'success' })
+      getFiles()
     })
   })
-   
 }
 const editFile = (index) => {
   console.log(tableData.value[index])

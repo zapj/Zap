@@ -46,8 +46,16 @@
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item @click.prevent="deleteSite(scope.$index)">删除</el-dropdown-item>
-                <el-dropdown-item @click.prevent="setSiteStatus(scope.$index,'suspend')" v-if="scope.row.status === 'running'">暂停</el-dropdown-item>
-                <el-dropdown-item @click.prevent="setSiteStatus(scope.$index,'running')" v-if="scope.row.status === 'suspend'">启动</el-dropdown-item>
+                <el-dropdown-item
+                  @click.prevent="setSiteStatus(scope.$index, 'suspend')"
+                  v-if="scope.row.status === 'running'"
+                  >暂停</el-dropdown-item
+                >
+                <el-dropdown-item
+                  @click.prevent="setSiteStatus(scope.$index, 'running')"
+                  v-if="scope.row.status === 'suspend'"
+                  >启动</el-dropdown-item
+                >
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -197,9 +205,9 @@ const rules = {
         apiRequest({
           url: 'v1/website/check_domain',
           dataType: 'form',
-          data: { domain: value,website_id:websiteForm.website_id },
+          data: { domain: value, website_id: websiteForm.website_id },
           method: 'POST',
-          loading:false
+          loading: false
         })
           .then((res) => {
             if (res.code === 0) {
@@ -219,7 +227,6 @@ const rules = {
   www_root: [{ required: true, message: '请输入站点目录', trigger: 'blur' }],
   application: [{ required: true, message: '请选择应用类型', trigger: 'change' }]
 }
-
 
 onMounted(() => {
   getWebSites({
@@ -256,11 +263,11 @@ const syncWebsiteConfig = () => {
   })
 }
 
-const setSiteStatus = (index,status) => {
+const setSiteStatus = (index, status) => {
   apiRequest({
     url: '/v1/website/set/status',
     method: 'post',
-    data: { id: tableData.value[index].ID,status: status },
+    data: { id: tableData.value[index].ID, status: status },
     dataType: 'form'
   }).then((res) => {
     if (res.code === 0) {
@@ -329,7 +336,6 @@ const openCreateWebSite = (formRef) => {
   websiteForm.website_id = 0
   if (!formRef) return
   formRef.resetFields()
- 
 }
 
 // save website
@@ -378,7 +384,7 @@ const saveWebsite = (formRef) => {
           page: 1,
           pagesize: pageState.pagesize
         })
-      }else{
+      } else {
         ElMessage.error(res.msg)
       }
     })
@@ -427,8 +433,6 @@ const resize = () => {
   }
 }
 
-
-
 function getWebSites(options) {
   const defaultOptions = {
     page: 1,
@@ -461,7 +465,6 @@ function getWebSites(options) {
 }
 
 const deleteSite = (index) => {
- 
   apiRequest({
     url: '/v1/website/delete',
     method: 'post',

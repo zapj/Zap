@@ -2,7 +2,7 @@
   <div class="about">
     <h5>面板设置</h5>
   </div>
-   
+
   <el-form
     ref="ruleFormRef"
     style="max-width: 600px"
@@ -13,11 +13,8 @@
     :size="formSize"
     status-icon
   >
-   
     <el-form-item>
-      <el-button type="primary" @click="submitForm(ruleFormRef)">
-        保存
-      </el-button>
+      <el-button type="primary" @click="submitForm(ruleFormRef)"> 保存 </el-button>
     </el-form-item>
   </el-form>
 </template>
@@ -25,13 +22,9 @@
 import { reactive, ref } from 'vue'
 const formSize = ref('default')
 const ruleFormRef = ref()
-const ruleForm = reactive({
-  
-})
+const ruleForm = reactive({})
 
-const rules = reactive({
-  
-})
+const rules = reactive({})
 
 const submitForm = async (formEl) => {
   if (!formEl) return
@@ -48,6 +41,5 @@ const resetForm = (formEl) => {
   if (!formEl) return
   formEl.resetFields()
 }
-
 </script>
 <style></style>
