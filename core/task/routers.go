@@ -8,7 +8,7 @@ import (
 
 func RegisterRouter(r *gin.RouterGroup) {
 	r.POST("/systemctl", SystemdAction)
-	r.GET("/upgrade", UpgradeAction)
+	r.POST("/upgrade", UpgradeAction)
 
 	r.POST("/task/install/app", AppInstallAction)
 	r.POST("/task/cancel", TaskCancelAction)

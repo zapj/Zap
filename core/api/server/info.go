@@ -3,7 +3,6 @@ package server
 import (
 	"bytes"
 	"fmt"
-	"log/slog"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -190,15 +189,10 @@ func ServerTopInfo(c *gin.Context) {
 }
 
 func UpgradeCheck(c *gin.Context) {
-	slog.Info("upgrade check")
 	if global.ZAP_MODE == "DEV" {
 		c.JSON(200, gin.H{"code": 0, "msg": "开发环境不能执行更新操作"})
 	}
-	resp := zapi.NewZapi().Upgrade()
-
-	// if resp.Code != 200 {
-	// 	c.JSON(200, gin.H{"code": 1, "msg": "任务执行失败"})
-	// }
+	resp := zapi.Client.Upgrade()
 
 	c.Data(resp.Status, gin.MIMEJSON, resp.Data)
 }
