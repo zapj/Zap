@@ -163,6 +163,7 @@ func serveHTTPS(l net.Listener, router *gin.Engine) {
 
 	config := &tls.Config{
 		Certificates: []tls.Certificate{certificate},
+		MinVersion:   tls.VersionTLS10,
 		Rand:         rand.Reader,
 	}
 
