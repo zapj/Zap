@@ -45,6 +45,8 @@ func RegisterAPIV1Router(c *gin.RouterGroup) {
 	c.POST("/website/create", websites.CreateWebsite)
 	c.POST("/website/update", websites.UpdateWebsite)
 	c.POST("/website/delete", websites.DeleteWebsite)
+	c.POST("/website/set/status", websites.SetWebsiteStatus)
+
 	c.GET("/website/config", websites.CreateWebSiteConfig)
 	c.GET("/website/settings", websites.WebSiteSettings)
 	c.POST("/website/check_domain", websites.CheckDomainIsExists)
@@ -154,7 +156,7 @@ func accessLogMiddleware(c *gin.Context) {
 		Referer:    c.Request.Referer(),
 		Method:     c.Request.Method,
 		Host:       c.Request.Host,
-		TLS:        c.Request.TLS.NegotiatedProtocol,
+		TLS:        "",
 		Proto:      c.Request.Proto,
 		CreatedAt:  time.Now().UnixMicro(),
 	})

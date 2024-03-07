@@ -181,7 +181,7 @@ func (w *WebsiteMgr) UpdateWebsite(website *models.ZapWebSite) error {
 	ngxServConf.SetUserDataPath(global.SERVER_CONF.GetUserHomeDir(w.Username))
 	ngxServConf.RunDirectory = website.RunDirectory
 	ngxServConf.Root = website.WwwRoot
-
+	ngxServConf.Index = website.IndexFiles
 	ngxServConf.AppName = website.Application
 	ngxServConf.AppExposeName = website.ApplicationExposeName
 	ngxServConf.AppExpose = website.ApplicationExpose
@@ -190,6 +190,8 @@ func (w *WebsiteMgr) UpdateWebsite(website *models.ZapWebSite) error {
 	if err != nil {
 		return err
 	}
+	website.Status = "running"
+	global.DB.Save(website)
 	return ngx.CreateWebsiteIncludeFile(w.Username)
 }
 

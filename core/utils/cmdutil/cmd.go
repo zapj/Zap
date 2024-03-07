@@ -14,13 +14,28 @@ func ExecBashCmd(cmd string) ([]byte, error) {
 	return command.CombinedOutput()
 }
 
+func ExecBashCmdWithContext(ctx context.Context, cmd string) ([]byte, error) {
+	command := exec.CommandContext(ctx, "bash", "-c", cmd)
+	return command.CombinedOutput()
+}
+
 func ExecShCmd(cmd string) ([]byte, error) {
 	command := exec.Command("sh", "-c", cmd)
 	return command.CombinedOutput()
 }
 
+func ExecShCmdWithContext(ctx context.Context, cmd string) ([]byte, error) {
+	command := exec.CommandContext(ctx, "sh", "-c", cmd)
+	return command.CombinedOutput()
+}
+
 func ExecCmd(cmd string, args ...string) ([]byte, error) {
 	command := exec.Command(cmd, args...)
+	return command.CombinedOutput()
+}
+
+func ExecCmdWithContext(ctx context.Context, cmd string, args ...string) ([]byte, error) {
+	command := exec.CommandContext(ctx, cmd, args...)
 	return command.CombinedOutput()
 }
 

@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/zapj/goutils/fileutils"
+	"github.com/zapj/zap/core/global"
 	"github.com/zapj/zap/core/utils/pathutil"
 )
 
@@ -242,11 +243,11 @@ func (n *NgxConfServer) Update() {
 }
 
 func CreateWebsiteIncludeFile(username string) error {
-	user_conf := path.Join("/usr/local/apps/nginx/conf/sites-enabled", username+".conf")
-	includePath := pathutil.GetPath("data/users/" + username + "/nginx_conf.d/*")
+	user_conf := path.Join(global.APPS_DIR, "nginx/conf/sites-enabled", username+".conf")
+	includePath := pathutil.GetPath("data/users/" + username + "/nginx_conf.d/*.conf")
 	if !fileutils.IsFile(user_conf) {
 		data := fmt.Sprintf("include %s;", includePath)
-		return os.WriteFile(path.Join("/usr/local/apps/nginx/conf/sites-enabled", username+".conf"), []byte(data), 0755)
+		return os.WriteFile(path.Join(global.APPS_DIR, "nginx/conf/sites-enabled", username+".conf"), []byte(data), 0755)
 	}
 
 	return nil

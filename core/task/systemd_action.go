@@ -1,10 +1,8 @@
 package task
 
 import (
-	"log/slog"
-
 	"github.com/gin-gonic/gin"
-	"github.com/zapj/zap/core/utils/cmdutil"
+	"github.com/zapj/zap/core/apps"
 )
 
 func SystemdAction(c *gin.Context) {
@@ -12,27 +10,59 @@ func SystemdAction(c *gin.Context) {
 	action := c.PostForm("action")
 	//service name
 	name := c.PostForm("name")
-	if err := SystemdActionHandler(action, name); err != nil {
+	if action == "" || name == "" {
 		c.JSON(200, gin.H{
 			"code": 1,
-			"msg":  err.Error(),
+			"msg":  "action or name is empty",
 		})
-	} else {
+		return
+	}
+	app := apps.NewApp(name)
+	var err error
+	switch action {
+	case "reload":
+		if err = app.Reload(); err != nil {
+			c.JSON(200, gin.H{
+				"code": 1,
+				"msg":  err.Error(),
+			})
+			return
+		}
+	case "start":
+		if err = app.Start(); err != nil {
+			c.JSON(200, gin.H{
+				"code": 1,
+				"msg":  err.Error(),
+			})
+			return
+		}
+	case "stop":
+		if err = app.Stop(); err != nil {
+			c.JSON(200, gin.H{
+				"code": 1,
+				"msg":  err.Error(),
+			})
+		}
+	case "restart":
+		if err = app.Restart(); err != nil {
+			c.JSON(200, gin.H{
+				"code": 1,
+				"msg":  err.Error(),
+			})
+			return
+		}
+	default:
+		c.JSON(200, gin.H{
+			"code": 1,
+			"msg":  "action is not support",
+		})
+	}
+
+	if err == nil {
 		c.JSON(200, gin.H{
 			"code": 0,
 			"msg":  "success",
 		})
 	}
-}
 
-func SystemdActionHandler(action, name string) error {
-	if action == "" || name == "" {
-		return nil
-	}
-	result, err := cmdutil.ExecCmd("systemctl", action, name)
-	slog.Info("systemctl", "result", result, "action", action, "name", name, "err", err)
-	if err != nil {
-		return err
-	}
-	return nil
 }

@@ -38,6 +38,7 @@ func DbInit() {
 	global.DB.AutoMigrate(&models.ZapDataBase{})
 	global.DB.AutoMigrate(&models.ZapAppStore{})
 	global.DB.AutoMigrate(&models.ZapApps{})
+	global.DB.AutoMigrate(&models.ZapAccessLog{})
 
 	//system task job
 	global.DB.AutoMigrate(&models.ZapTask{})
@@ -46,7 +47,6 @@ func DbInit() {
 
 	// StatisticsDB
 	global.StatisticsDB.AutoMigrate(&models.ZapLoadAvg{})
-
 	global.StatisticsDB.AutoMigrate(&models.ZapDiskIOCounters{})
 	global.StatisticsDB.AutoMigrate(&models.ZapNetIOCounters{})
 	global.StatisticsDB.AutoMigrate(&models.ZapAccessLog{})

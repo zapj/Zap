@@ -46,7 +46,8 @@
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item @click.prevent="deleteSite(scope.$index)">删除</el-dropdown-item>
-                <el-dropdown-item @click.prevent="stopSite(scope.$index)">停止</el-dropdown-item>
+                <el-dropdown-item @click.prevent="setSiteStatus(scope.$index,'suspend')" v-if="scope.row.status === 'running'">暂停</el-dropdown-item>
+                <el-dropdown-item @click.prevent="setSiteStatus(scope.$index,'running')" v-if="scope.row.status === 'suspend'">启动</el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -255,13 +256,19 @@ const syncWebsiteConfig = () => {
   })
 }
 
-const stopSite = () => {
+const setSiteStatus = (index,status) => {
   apiRequest({
-    url: '/v1/website/stop',
-    method: 'post'
+    url: '/v1/website/set/status',
+    method: 'post',
+    data: { id: tableData.value[index].ID,status: status },
+    dataType: 'form'
   }).then((res) => {
     if (res.code === 0) {
-      ElMessage.success('停止成功')
+      ElMessage.success(res.msg)
+      getWebSites({
+        page: 1,
+        pagesize: pageState.pagesize
+      })
     } else {
       ElMessage.error(res.msg)
     }
@@ -287,6 +294,7 @@ const websiteSettings = (website_id) => {
       websiteForm.application = res.data.website.application_id
       websiteForm.title = res.data.website.title
       websiteForm.description = res.data.website.description
+      websiteForm.index_files = res.data.website.index_files
       websiteForm.website_id = res.data.website.ID
       if (websiteForm.www_root === '') {
         websiteForm.www_root = websiteForm.domain.replaceAll('*.', '')
@@ -453,7 +461,7 @@ function getWebSites(options) {
 }
 
 const deleteSite = (index) => {
-  console.log(tableData.value[index])
+ 
   apiRequest({
     url: '/v1/website/delete',
     method: 'post',

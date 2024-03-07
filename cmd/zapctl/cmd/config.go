@@ -49,6 +49,7 @@ func defaultPrintAll() {
 
 func setConfig(name, value string) {
 	global.CONFIG.SetValue(name, value)
+	global.CONFIG.WriteSeparator = "="
 	f, err := os.Create(pathutil.GetPath("conf/zap.conf"))
 	if err != nil {
 		slog.Info("配置文件保存失败: %v \n", err)

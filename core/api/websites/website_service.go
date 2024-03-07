@@ -2,12 +2,15 @@ package websites
 
 import (
 	"log/slog"
+	"os"
 	"strings"
 
+	"github.com/zapj/goutils/fileutils"
 	"github.com/zapj/zap/core/global"
 	"github.com/zapj/zap/core/models"
 	"github.com/zapj/zap/core/services"
 	"github.com/zapj/zap/core/utils/domainutil"
+	"github.com/zapj/zap/core/utils/pathutil"
 )
 
 type WebSiteService struct {
@@ -102,6 +105,7 @@ func (w *WebSiteService) UpdateWebsite(req webSiteRequest) error {
 	}
 	website.Domain = req.Domain
 	website.DomainNames = req.DomainNames
+	website.IndexFiles = req.GetIndexFiles()
 	website.ApplicationId = req.Application
 	website.ApplicationExposeName = req.ExposeProto
 	website.ApplicationExpose = req.ExposePort
@@ -139,4 +143,34 @@ func (w *WebSiteService) UpdateWebsite(req webSiteRequest) error {
 	err = mgr.UpdateWebsite(website)
 	slog.Info("网站配置修改完成", "err", err)
 	return err
+}
+
+func (w *WebSiteService) StopWebsite(websiteId int) error {
+
+	website, err := GetWebsiteById(websiteId)
+	if err != nil {
+		return err
+	}
+	//remove conf
+	if fileutils.IsFile(pathutil.GetPath("data/users", w.Username, "nginx_conf.d", website.Domain+".conf")) {
+		if err := os.Remove(pathutil.GetPath("data/users", w.Username, "nginx_conf.d", website.Domain+".conf")); err != nil {
+			return err
+		}
+	}
+	website.Status = "suspend"
+	return global.DB.Save(&website).Error
+}
+
+func (w *WebSiteService) StartWebsite(websiteId int) error {
+
+	website, err := GetWebsiteById(websiteId)
+	if err != nil {
+		return err
+	}
+
+	website.Status = "running"
+	global.DB.Save(&website)
+	mgr := NewWebSiteMgr(w.Username, website.Domain)
+	return mgr.UpdateWebsite(website)
+
 }

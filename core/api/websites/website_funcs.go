@@ -20,6 +20,17 @@ func GetWebsiteById(websiteId int) (*models.ZapWebSite, error) {
 	return &website, err
 }
 
+func GetWebsiteByServerName(servername string) (*models.ZapWebSite, error) {
+	website := models.ZapWebSite{}
+	err := global.DB.Model(&models.ZapWebSite{}).Where("domain = ?", servername).First(&website).Error
+	return &website, err
+}
+
+func SetWebsiteStatusByServerName(servername, status string) error {
+	err := global.DB.Model(&models.ZapWebSite{}).Where("domain = ?", servername).Update("status = ?", status).Error
+	return err
+}
+
 func CheckDomain(domain, websiteId, uid string) bool {
 	website := models.ZapWebSite{}
 	global.DB.Model(&models.ZapWebSite{}).Where("status = ?", "active").Or("domain = ?", domain).Or("domain_names LIKE ?", "%"+domain+"%").First(&website)

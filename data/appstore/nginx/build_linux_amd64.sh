@@ -114,9 +114,8 @@ fi
 
 echo "nginx installed to ${INSTALL_PATH}"
 
-echo "Enabling nginx service"
+echo "start nginx service"
 systemd enable nginx.service
-echo "Starting nginx service"
 systemd start nginx.service
 sleep 1
 nginx_status=$(systemctl is-active nginx.service)
