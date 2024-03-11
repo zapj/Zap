@@ -191,6 +191,7 @@ func ServerTopInfo(c *gin.Context) {
 func UpgradeCheck(c *gin.Context) {
 	if global.ZAP_MODE == "DEV" {
 		c.JSON(200, gin.H{"code": 0, "msg": "开发环境不能执行更新操作"})
+		return
 	}
 	resp := zapi.Client.Upgrade()
 

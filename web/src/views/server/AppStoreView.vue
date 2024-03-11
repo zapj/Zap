@@ -29,6 +29,6 @@ const handleSwitch = () => {
   }
 }
 
-onMounted(() => {})
+// onMounted(() => {})
 </script>
 <style></style>

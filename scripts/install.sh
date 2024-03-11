@@ -66,14 +66,6 @@ if [ $? -ne 0 ];then
     adduser --system --shell /bin/false --no-create-home --disabled-password --disabled-login --group  zapadm
 fi
 
-
-if [ ! -d "$TARGET/zap" ];then
-    echo "installing zap"
-    mkdir -p "$TARGET/zap"
-    cp -Rf zap/zapctl "$TARGET/zap/"   
-    cp -Rf zap/zapd "$TARGET/zap/"   ]
-
-
 tar zxf "$ZAP_FILENAME"
 
 #install zap

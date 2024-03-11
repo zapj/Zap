@@ -68,6 +68,11 @@ const router = createRouter({
           path: '/settings',
           name: 'panel_settings',
           component: () => import('../views/zap/PanelSettingsView.vue')
+        },
+        {
+          path: '/account',
+          name: 'account',
+          component: () => import('../views/account/account.vue')
         }
       ]
     }

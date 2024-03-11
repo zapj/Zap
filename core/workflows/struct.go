@@ -13,23 +13,17 @@ type AppInfo struct {
 	// Category is the category of the model.
 	Category string `json:"category"`
 	// Author is the author of the model.
-	Author string `json:"author"`
+	Author string `json:"author" yaml:"author"`
 	// OrganizationName is the name of the organization associated with the model.
-	OrganizationName string `json:"organization_name"`
+	OrganizationName string `json:"organization_name" yaml:"organization_name"`
 	// Icon is the icon associated with the model.
 	Icon string `json:"icon"`
 
-	AllowMultipleInstances string `json:"allow_multiple_instances"`
+	AllowMultipleInstances string `json:"allow_multiple_instances" yaml:"allow_multiple_instances"`
 
-	// Tags is a list of tags associated with the model.
-	Tags []string `json:"tags"`
-	// Actions is a map of actions and their associated values.
-	Actions map[string]string            `json:"actions"`
-	Options map[string]map[string]string `json:"options"`
-	// Steps            []Job
-	// Build            []Job
-	// Install          []Job
-	// Uninstall        []Job
+	Tags    []string          `json:"tags" yaml:"tags"`
+	Actions map[string]string `json:"actions" yaml:"actions"`
+	Options map[string]any    `json:"options" yaml:"options"`
 }
 
 type WorkflowsInfo struct {

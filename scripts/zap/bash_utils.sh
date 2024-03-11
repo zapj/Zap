@@ -47,7 +47,7 @@ preInstallation() {
     apt install -y libbz2-dev
     apt install -y libzip-dev
     apt install -y libonig-dev
-    apt install -y libpng3 libpng-dev libpng12-0 libpng12-dev libpng libpng-dev
+    apt install -y libpng3 libpng-dev libpng12-0 libpng12-dev libpng libpng-dev libpng16-16
     apt install -y libjpeg-turbo libjpeg-turbo-dev libjpeg libjpeg-dev 
     apt install -y libwebp libwebp-dev 
     apt install -y libzip libzip-devel  libavif libavif-dev
@@ -91,6 +91,31 @@ download_file() {
     echo "Neither curl nor wget is installed. Please install one to download files."
     exit 1
   fi
+}
+
+#http_fetch https://mirrors.zap.cn/file.txt /tmp/file.txt
+http_fetch() {
+	if command -v wget >/dev/null 2>&1; then
+		wget -q -4 -O $2 $1 || { 
+			echo >&2 "Failed to fetch $1. Aborting install.";
+			exit 1;
+		}
+	elif command -v curl >/dev/null 2>&1; then
+		curl -sf4L $1 > $2 || { 
+			echo >&2 "Failed to fetch $1. Aborting install.";
+			exit 1;
+		}
+	else
+		echo "Unable to find curl or wget, can not fetch needed files"
+		exit 1
+	fi
+}
+
+has_git() {
+	command -v git >/dev/null 2>&1 || {
+		return 1
+	}
+	return 0
 }
 
 preInstallation

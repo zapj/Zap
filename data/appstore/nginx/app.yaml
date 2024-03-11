@@ -9,9 +9,15 @@ platforms:
 category: webserver
 description: Nginx is a web server and a reverse proxy server.
 icon: nginx.png
-allow_multiple_instances: no
+allow_multiple_instances: 'no'
 tags: [webserver]
 author: zap
 organization_name : zap
 actions:
   build: 编译安装
+options:
+  build:
+  - name: mods
+    type: string
+  - name: prefix
+    type: string

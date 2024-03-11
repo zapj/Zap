@@ -1,12 +1,21 @@
 <template>
-  <el-card class="box-card filemanager" body-style="padding:0">
-    <template #header>
-      <div class="card-header font-size-3">
-        网站管理
-        <el-button type="success" :icon="Plus" @click="openCreateWebSite(websiteFormDrawerRef)" />
+  <el-row class="row-bg" justify="space-between mb-5">
+    <el-col :span="6"> <span class="font-500 mr-3 color-zinc-600"> 网站管理 </span></el-col>
+    <el-col :span="6"></el-col>
+    <el-col :span="6">
+      <div class="flex justify-end">
+        <el-button
+          type="success"
+          :icon="Plus"
+          class="ml-2"
+          @click="openCreateWebSite(websiteFormDrawerRef)"
+          >创建网站</el-button
+        >
       </div>
-    </template>
+    </el-col>
+  </el-row>
 
+  <el-card class="box-card filemanager" body-style="padding:0">
     <el-table
       :data="tableData"
       min-height="300"
@@ -30,7 +39,7 @@
       <el-table-column prop="title" label="网站名称" />
       <el-table-column prop="www_root" label="站点目录" />
       <el-table-column prop="status" label="网站状态" width="120" />
-      <el-table-column fixed="right" label="操作" width="100">
+      <el-table-column label="操作" width="100">
         <template #default="scope">
           <el-button
             :icon="Setting"

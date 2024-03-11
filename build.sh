@@ -69,9 +69,11 @@ then
     fi
     rm -rf ./zapd
     rm -rf ./zapctl
-    cd web
-    npm run build
-    cd ../
+    if [ -z "$SKIP_WEB" ];then 
+        cd web
+        npm run build
+        cd ../
+    fi
     LD_FLAGS_STRING="-w -s -X 'main.Version=v${VERSION}' -X 'main.BuildDate=${BUILD_DATE}'"
     GO111MODULE=on CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="${LD_FLAGS_STRING}" -trimpath cmd/zapctl/zapctl.go
     GO111MODULE=on CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="${LD_FLAGS_STRING}" -trimpath cmd/zapd/zapd.go

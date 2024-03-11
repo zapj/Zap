@@ -5,5 +5,6 @@ category: databae
 description: MySQL is a relational database management system (RDBMS) developed by Oracle. 
 icon: mysql.png
 tags: [mysql,db]
+allow_multiple_instances: 'no'
 actions:
   bin: 安装

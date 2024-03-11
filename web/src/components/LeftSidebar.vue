@@ -46,6 +46,10 @@
         <Icon icon="mdi:settings" style="font-size: 24px" class="mr-1" :inline="true" />
         <template #title>面板设置</template>
       </el-menu-item>
+      <el-menu-item index="/account">
+        <Icon icon="mdi:account" style="font-size: 24px" class="mr-1" :inline="true" />
+        <template #title>账户</template>
+      </el-menu-item>
       <el-menu-item @click="logout">
         <Icon icon="fe:logout" style="font-size: 24px" />
         <template #title>退出系统</template>

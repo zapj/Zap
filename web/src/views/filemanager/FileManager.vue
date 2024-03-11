@@ -63,7 +63,7 @@
       <el-table-column prop="gid" label="GID" width="60" />
       <el-table-column prop="mod_time" label="修改时间" width="180" />
       <el-table-column prop="filesize" label="文件大小" width="120" />
-      <el-table-column fixed="right" label="操作" width="100">
+      <el-table-column label="操作" width="100">
         <template #default="scope">
           <el-button
             :icon="Edit"
