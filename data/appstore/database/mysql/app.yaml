@@ -1,7 +1,7 @@
 name: mysql
 title: MySQL Community Server
-version: [8.2.0,5.7.44]
-category: databae
+version: [8.0.36,5.7.44]
+category: database
 description: MySQL is a relational database management system (RDBMS) developed by Oracle. 
 icon: mysql.png
 tags: [mysql,db]

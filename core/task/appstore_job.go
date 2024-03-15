@@ -47,7 +47,9 @@ func (b *AppStoreJob) Execute() (err error) {
 	b.AppStoreId = cmdMap.GetInt("appstore_id")
 	action := cmdMap.GetString("action")
 	version := cmdMap.GetString("app_version")
-
+	if action == "" {
+		action = "install"
+	}
 	appstore := models.ZapAppStore{}
 	result := global.DB.First(&appstore, "id = ? ", b.AppStoreId)
 	if result.RowsAffected < 1 {
@@ -71,13 +73,13 @@ func (b *AppStoreJob) Execute() (err error) {
 	// actionOptions := options.GetZapMap(action)
 
 	// appstore script path
-	appStoreScriptPath := path.Join(pathutil.GetPath("data/appstore"), appstore.Name)
+	appStoreScriptPath := path.Join(pathutil.GetPath("data/appstore"), appstore.Category, appstore.Name)
 	osArch := fmt.Sprintf("%s_%s", runtime.GOOS, runtime.GOARCH)
 	// 默认使用action
 	scriptName := fmt.Sprintf("%s.sh", action)
 	var scriptFile string
 	appInstallScriptDir := pathutil.GetPath("data/build", fmt.Sprintf("build-%s", appstore.Name))
-	if !fileutils.IsDir(appInstallScriptDir) {
+	if !fileutils.IsDir(appInstallScriptDir) || global.ZAP_MODE == "DEV" {
 		if err := cp.Copy(appStoreScriptPath, appInstallScriptDir); err != nil {
 			return err
 		}

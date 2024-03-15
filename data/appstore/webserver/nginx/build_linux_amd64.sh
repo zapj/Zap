@@ -4,6 +4,7 @@ unalias -a
 
 source $ZAP_PATH/scripts/zap/bash_utils.sh
 
+preInstallation
 
 ZLIB_VERSION="1.3.1"
 ZLIB_PKG_URL=https://www.zlib.net/zlib-${ZLIB_VERSION}.tar.gz

@@ -10,11 +10,10 @@ import (
 	"github.com/zapj/zap/core/models"
 	"github.com/zapj/zap/core/utils/jsonutil"
 	"github.com/zapj/zap/core/utils/pathutil"
-	"github.com/zapj/zap/core/utils/zlog"
 	"gopkg.in/yaml.v3"
 )
 
-var ZAP_SCRIPT_FILES = "data/appstore/**/app.y*ml"
+var ZAP_SCRIPT_FILES = "data/appstore/**/**/app.y*ml"
 
 func ReadAppstoreList() error {
 	scriptFiles, err := filepath.Glob(pathutil.GetPath(ZAP_SCRIPT_FILES))
@@ -29,21 +28,17 @@ func ReadAppstoreList() error {
 		totalApp = 0
 	}
 
-	if len(scriptFiles) != int(totalApp) {
+	if len(scriptFiles) != int(totalApp) || global.ZAP_MODE == "DEV" {
 		global.DB.Where("1 = 1").Delete(&models.ZapAppStore{})
 		global.DB.Exec("DELETE FROM SQLITE_SEQUENCE WHERE name='zap_app_stores'")
 		saveAppFlag = true
 	}
-	//force update
-	global.DB.Where("1 = 1").Delete(&models.ZapAppStore{})
-	global.DB.Exec("DELETE FROM SQLITE_SEQUENCE WHERE name='zap_app_stores'")
-	saveAppFlag = true
 
 	for _, ymlPath := range scriptFiles {
 		ymlBytes, _ := os.ReadFile(ymlPath)
 		appInfo := &AppInfo{}
 		yaml.Unmarshal(ymlBytes, appInfo)
-		zlog.Infof("app info: %#v", appInfo)
+
 		appInfo.ConfigName = ymlPath
 		appInfo.Id = goutils.MD5(appInfo.ConfigName)
 

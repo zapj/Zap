@@ -2,7 +2,6 @@ package task
 
 import (
 	"fmt"
-	"log/slog"
 	"os/exec"
 	"path"
 	"runtime"
@@ -19,7 +18,6 @@ import (
 func AppUninstallAction(c *gin.Context) {
 	id := c.PostForm("id")
 	app := models.ZapApps{}
-	slog.Info("app id", "app", app)
 	if err := global.DB.First(&app, id).Error; err != nil {
 		c.JSON(200, commons.Error(1, "应用不存在", nil))
 		return
@@ -29,7 +27,7 @@ func AppUninstallAction(c *gin.Context) {
 	// 	return
 	// }
 
-	appPath := path.Join(pathutil.GetPath("data/appstore"), app.Name)
+	appPath := path.Join(pathutil.GetPath("data/appstore"), app.AppType, app.Name)
 	osArch := fmt.Sprintf("%s_%s", runtime.GOOS, runtime.GOARCH)
 	// 默认使用action
 	scriptName := "uninstall.sh"
@@ -45,10 +43,9 @@ func AppUninstallAction(c *gin.Context) {
 	}
 
 	//stop service
-	installPath := fmt.Sprintf("/usr/local/apps/%s-%s", app.Name, zaputil.GetMajorMinorVersion(app.Version))
 	cmd := exec.Command("bash", scriptFile)
 	cmd.Env = append(cmd.Env,
-		"APP_PATH="+installPath, //安装目录
+		"APP_PATH="+app.InstallDir, //安装目录
 		"APP_VERSION="+app.Version,
 		"SHORT_VERSION="+zaputil.GetMajorMinorVersion(app.Version),
 		"APP_NAME="+app.Name,

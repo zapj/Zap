@@ -85,7 +85,6 @@ const resizeDrawer = () => {
 
 
 function installApp(actionName) {
-    console.log(app);
    apiRequest({
      url: '/v1/app/appstore/install',
      method: 'post',

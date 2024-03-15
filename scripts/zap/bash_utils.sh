@@ -1,4 +1,10 @@
 #!/bin/bash
+
+if [ $(id -u) -ne 0 ];then
+    echo "Must be root to run this script."
+    exit 1
+fi
+
 . /etc/os-release
 OS_NAME="$(echo "$ID" | tr '[:upper:]' '[:lower:]')"
 OS_MACHINE="$(uname -s)"
@@ -118,5 +124,18 @@ has_git() {
 	return 0
 }
 
-preInstallation
 
+wzap_conf() {
+  if [ ! -f "/root/zap.conf" ];then
+    touch /root/zap.conf
+  fi
+  
+  local s=$1
+  local r=$2
+  grep -Eqi "^${s}=" /root/zap.conf
+  if [ $? -ne 0 ];then
+    echo "${s}=${r}" >> /root/zap.conf
+  else
+    sed -i "s#^${s}=.*#${s}=${r}#g" /root/zap.conf
+  fi
+}

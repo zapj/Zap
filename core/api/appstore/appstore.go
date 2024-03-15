@@ -94,6 +94,13 @@ func AppInstall(c *gin.Context) {
 	id := c.PostForm("id")
 	action := c.PostForm("action")
 	version := c.PostForm("version")
+	if action == "" {
+		action = "install"
+	}
+	if id == "" || id == "0" {
+		c.JSON(200, commons.Error(1, "应用ID不能为空", nil))
+		return
+	}
 	app := models.ZapAppStore{}
 	if err := global.DB.First(&app, "app_id = ?", id).Error; err != nil {
 		c.JSON(200, commons.Error(1, "应用不存在", nil))
@@ -105,9 +112,5 @@ func AppInstall(c *gin.Context) {
 		"version": version,
 	})
 
-	// if err != nil {
-	// 	c.JSON(200, commons.Error(1, "error", err.Error()))
-	// 	return
-	// }
 	c.Data(resp.Status, gin.MIMEJSON, resp.Data)
 }

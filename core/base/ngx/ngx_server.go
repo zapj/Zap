@@ -211,7 +211,7 @@ func (n *NgxConfServer) GenerateToString() (string, error) {
 		fmt.Fprintf(&serverConf, "\t\tinclude fastcgi.conf;\n")
 		fmt.Fprintf(&serverConf, "\t\tfastcgi_index index.php;\n")
 		fmt.Fprintf(&serverConf, "\t\tfastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;\n")
-		if n.AppExposeName == "unix" {
+		if n.AppExposeName == "unix" || strings.HasSuffix(n.AppExpose, ".sock") {
 			fmt.Fprintf(&serverConf, "\t\tfastcgi_pass unix:%s;\n", n.AppExpose)
 		} else {
 			fmt.Fprintf(&serverConf, "\t\tfastcgi_pass %s;\n", n.AppExpose)

@@ -15,6 +15,21 @@ func GetMajorMinorVersion(version string) string {
 	return marjor + "." + minor
 }
 
+func AppVersionToArray(version string) []string {
+	appVers := strings.Split(version, ".")
+
+	if len(appVers) < 1 {
+		appVers = []string{"0", "0", "0"}
+	}
+	if len(appVers) < 2 {
+		appVers = append(appVers, "0")
+	}
+	if len(appVers) < 3 {
+		appVers = append(appVers, "0", "0")
+	}
+	return appVers
+}
+
 func GetMajorVersion(version string) string {
 	vers := strings.Split(version, ".")
 	marjor := "0"
