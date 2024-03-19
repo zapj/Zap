@@ -1,7 +1,7 @@
 name: mariadb
 title: MariaDB Server
 version: [10.11.7]
-category: databae
+category: database
 description: MariaDB is a community-developed fork of MySQL. The open source relational database.
 icon: mariadb.png
 tags: [mariadb,db,mysql]

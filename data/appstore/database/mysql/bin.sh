@@ -86,67 +86,11 @@ bin/mysqld --initialize-insecure --basedir=/usr/local/mysql --datadir=/usr/local
 chown -R mysql:mysql ${INSTALL_DIR}
 #bin/mysql_ssl_rsa_setup
 
-cat > /etc/mysql/my.cnf<<EOF
-[client]
-#password	= your_password
-port		= 3306
-socket		= /tmp/mysql.sock
-
-[mysqld]
-user		= mysql
-pid-file	= mysql.pid
-port		= 3306
-bind-address		= 127.0.0.1
-socket		= /tmp/mysql.sock
-basedir     = ${MYSQL_BASE_DIR}
-datadir     = ${MYSQL_DATA_DIR}
-
-skip-external-locking
-
-character-set-server = utf8
-default_storage_engine = InnoDB
-
-log-error		= /var/log/mysql/error.log
-slow_query_log       = 1
-slow_query_log_file	= /var/log/mysql/mysql-slow.log
-long_query_time      = 2
-log_timestamps = SYSTEM
-
-
-key_buffer_size = 16M
-max_allowed_packet = 1M
-table_open_cache = 64
-sort_buffer_size = 512K
-net_buffer_length = 8K
-read_buffer_size = 256K
-read_rnd_buffer_size = 512K
-myisam_sort_buffer_size = 8M
-
-#skip-networking
-max_connections = 500
-max_connect_errors = 100
-open_files_limit = 65535
-
-log-bin=mysql-bin
-server-id	= 1
-
-innodb_data_home_dir = ${MYSQL_DATA_DIR}
-innodb_data_file_path = ibdata1:10M:autoextend
-innodb_log_group_home_dir = ${MYSQL_DATA_DIR}
-
-[mysqldump]
-quick
-max_allowed_packet = 50M
-
-[mysql]
-no-auto-rehash
-
-[mysqlhotcopy]
-interactive-timeout
-
-[mysqld_safe]
-open-files-limit = 8192
-EOF
+if [[ "${APP_VERSION}" > "8.0.0" ]];then
+    cp -Rf $ZAP_PATH/scripts/zap/mysql_8.cnf /etc/mysql/my.cnf
+else
+    cp -Rf $ZAP_PATH/scripts/zap/mysql_57.cnf /etc/mysql/my.cnf
+fi
 
 cp support-files/mysql.server /etc/init.d/mysql
 chmod +x /etc/init.d/mysql
@@ -173,12 +117,12 @@ echo "create mysql zapadm user"
 bin/mysql -u root --password="${MYSQL_ROOT_PASSWORD}" -e "GRANT ALL PRIVILEGES ON *.* TO 'zapadm'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';"
 bin/mysql -u root --password="${MYSQL_ROOT_PASSWORD}" -e "FLUSH PRIVILEGES;"
 
-wzap_conf mysql_user "root"
-wzap_conf mysql_password "${MYSQL_ROOT_PASSWORD}"
+wzap_conf mysql_u "root"
+wzap_conf mysql_p "${MYSQL_ROOT_PASSWORD}"
 
 #write mysql root
-${ZAPCTL} config set mysql_user "zapadm"
-${ZAPCTL} config set mysql_password "${MYSQL_ROOT_PASSWORD}"
+${ZAPCTL} config set mysql_u "zapadm"
+${ZAPCTL} config set mysql_p "${MYSQL_ROOT_PASSWORD}"
 
 
 
@@ -188,7 +132,7 @@ expose=unix:/tmp/mysql.sock\ntcp:127.0.0.1\:3306,\
 status=active,\
 app_status=stoped,\
 instance=mysql${APP_VERSION},\
-pid_file=/var/run/mysqld.pid,\
+pid_file=/usr/local/mysql/data/mysql.pid,\
 config_file=/etc/mysql/my.cnf"
 
 echo "update zap apps"

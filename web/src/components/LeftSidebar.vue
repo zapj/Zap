@@ -35,6 +35,7 @@
           <span>服务器</span>
         </template>
         <el-menu-item index="/server/tools">系统工具</el-menu-item>
+        <el-menu-item index="/server/port_list">端口管理</el-menu-item>
         <!-- <el-menu-item index="/server/configuration">服务器配置</el-menu-item>
         <el-menu-item index="/server/security_center">安全中心</el-menu-item> -->
       </el-sub-menu>

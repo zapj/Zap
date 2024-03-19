@@ -60,6 +60,11 @@ const router = createRouter({
           component: () => import('../views/server/ToolsView.vue')
         },
         {
+          path: '/server/port_list',
+          name: 'port_list',
+          component: () => import('../views/server/PortListView.vue')
+        },
+        {
           path: '/appstore',
           name: 'server_appstore',
           component: () => import('../views/server/AppStoreView.vue')

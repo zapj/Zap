@@ -7,9 +7,7 @@ socket		= /tmp/mysql.sock
 user		= mysql
 port		= 3306
 socket		= /tmp/mysql.sock
-
-mysqlx_socket = /tmp/mysqlx.sock
-mysqlx_bind_address = 127.0.0.1
+bind-address	= 127.0.0.1
 
 pid-file	= mysql.pid
 basedir     = /usr/local/mysql
@@ -19,14 +17,12 @@ collation_server=utf8mb4_general_ci
 skip-external-locking
 
 character-set-server = utf8mb4
-default_storage_engine = InnoDB
+default-storage-engine = InnoDB
 
-log-error		= /var/log/mysql/error.log
+log-error		= /var/log/mariadb/error.log
 slow_query_log       = 1
-slow_query_log_file	= /var/log/mysql/mysql-slow.log
+slow_query_log_file	= /var/log/mariadb/mysql-slow.log
 long_query_time      = 2
-
-log_timestamps = SYSTEM
 
 key_buffer_size = 16M
 max_allowed_packet = 1M
