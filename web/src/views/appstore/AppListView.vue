@@ -38,7 +38,7 @@
               <el-button
                 type="success"
                 v-if="app.allow_installation === 'yes'"
-                @click.prevent="confirmInstallApp(i,'install')"
+                @click.prevent="confirmInstallApp(i, 'install')"
                 >安装</el-button
               >
             </template>
@@ -48,10 +48,10 @@
     </el-col>
   </el-row>
 
-  <InstallConfirm ref="installConfirmRef" v-model="installConfirmVisible"  />
+  <InstallConfirm ref="installConfirmRef" v-model="installConfirmVisible" />
 </template>
 <script setup>
-import {  onMounted } from 'vue'
+import { onMounted } from 'vue'
 import apiRequest from '../../httpclient/client'
 import { ElMessage } from 'element-plus'
 import InstallConfirm from '@/views/appstore/InstallConfirm.vue'
@@ -77,5 +77,4 @@ function confirmInstallApp(i, actionName) {
   installConfirmRef.value.setAppInfo(confirmData.value)
   installConfirmVisible.value = true
 }
-
 </script>

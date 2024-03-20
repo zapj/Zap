@@ -52,15 +52,17 @@ declare module 'vue' {
     ElText: typeof import('element-plus/es')['ElText']
     ExpandFold: typeof import('./src/components/ExpandFold.vue')['default']
     FooterCopyright: typeof import('./src/components/FooterCopyright.vue')['default']
+    IOStats: typeof import('./src/components/dashboard/IOStats.vue')['default']
     LeftSidebar: typeof import('./src/components/LeftSidebar.vue')['default']
     LineChart: typeof import('./src/components/echarts/LineChart.vue')['default']
     LogViewer: typeof import('./src/components/logviewer/LogViewer.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     Skeleton: typeof import('./src/components/Skeleton.vue')['default']
-    SmallStatistics: typeof import('./src/components/dashboard/SmallStatistics.vue')['default']
+    SysStats: typeof import('./src/components/dashboard/SysStats.vue')['default']
     Terminal: typeof import('./src/components/terminal/Terminal.vue')['default']
     TopHeader: typeof import('./src/components/TopHeader.vue')['default']
+    UserUsage: typeof import('./src/components/dashboard/UserUsage.vue')['default']
   }
   export interface ComponentCustomProperties {
     vLoading: typeof import('element-plus/es')['ElLoadingDirective']

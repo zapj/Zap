@@ -161,7 +161,7 @@ onMounted(() => {
 const getServerInfo = () => {
   apiRequest({
     url: '/v1/server/info',
-    loading:false
+    loading: false
   }).then((resp) => {
     state.serverInfo = resp.data
     console.log(state.serverInfo)

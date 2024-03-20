@@ -40,7 +40,7 @@ onMounted(() => {
 const getServerTop = () => {
   apiRequest({
     url: '/v1/server/top_info',
-    loading:false
+    loading: false
   }).then((resp) => {
     header.value = resp.data
     tableDataRef.value = resp.rows

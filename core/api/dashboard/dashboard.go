@@ -18,6 +18,7 @@ import (
 	"github.com/zapj/zap/core/api/database"
 	"github.com/zapj/zap/core/api/websites"
 	"github.com/zapj/zap/core/global"
+	"github.com/zapj/zap/core/store/cache"
 	"github.com/zapj/zap/core/utils/datahuman"
 	"github.com/zapj/zap/core/utils/zaputil"
 )
@@ -37,21 +38,14 @@ func DashBoardStats(c *gin.Context) {
 		st = &load.AvgStat{Load1: 0, Load5: 0, Load15: 0}
 	}
 
-	var hostInfo *host.InfoStat
-	if hostInfoAny, ok := global.CACHE.Get("zap_host_info"); ok {
-		hostInfo, _ = hostInfoAny.(*host.InfoStat)
-	} else {
-		hostInfo, _ = host.Info()
-		global.CACHE.SetDefault("zap_host_info", hostInfo)
-	}
-
-	var diskUsage *disk.UsageStat
-	if diskUsageAny, ok := global.CACHE.Get("zap_disk_usage_root"); ok {
-		diskUsage, _ = diskUsageAny.(*disk.UsageStat)
-	} else {
-		diskUsage, _ = disk.Usage("/")
-		global.CACHE.SetDefault("zap_disk_usage_root", diskUsage)
-	}
+	hostInfo := cache.GetFromFunc[*host.InfoStat]("zap_host_info", func() any {
+		hostInfo, _ := host.Info()
+		return hostInfo
+	})
+	diskUsage := cache.GetFromFunc[*disk.UsageStat]("zap_disk_usage_root", func() any {
+		diskUsage, _ := disk.Usage("/")
+		return diskUsage
+	})
 
 	// 计算CPU 使用率
 	//https://stackoverflow.com/questions/11356330/how-to-get-cpu-usage
@@ -60,31 +54,24 @@ func DashBoardStats(c *gin.Context) {
 	// slog.Info("pec", (float64(memory.Total-memory.Available))/float64(memory.Total)*100.0)
 	// 2
 	//strconv.FormatFloat(memory.UsedPercent, 'f', 2, 64),
-	var pCores int = 0
-	if pCoresObj, ok := global.CACHE.Get("zap_cpu_p_core"); ok {
-		pCores, _ = pCoresObj.(int)
-	} else {
-		pCores, _ = cpu.Counts(false)
-		global.CACHE.SetDefault("zap_cpu_p_core", pCores)
-	}
-	var lCores int = 0
-	if lCoresObj, ok := global.CACHE.Get("zap_cpu_p_core"); ok {
-		lCores, _ = lCoresObj.(int)
-	} else {
-		lCores, _ = cpu.Counts(true)
-		global.CACHE.SetDefault("zap_cpu_l_core", lCores)
-	}
+	// var pCores int = 0
+	pCores := cache.GetFromFunc[int]("zap_cpu_p_core", func() any {
+		pCores, _ := cpu.Counts(false)
+		return pCores
+	})
+	lCores := cache.GetFromFunc[int]("zap_cpu_l_core", func() any {
+		lCores, _ := cpu.Counts(true)
+		return lCores
+	})
 
 	cpuTImeStat, _ := cpu.Times(false)
 
-	var cpuInfo cpu.InfoStat
-	if cacheOBj, ok := global.CACHE.Get("zap_cpu_info"); ok {
-		cpuInfo, _ = cacheOBj.(cpu.InfoStat)
-	} else {
+	cpuInfo := cache.GetFromFunc[cpu.InfoStat]("zap_cpu_info", func() any {
 		cpusInfo, _ := cpu.Info()
-		cpuInfo = cpusInfo[0]
-		global.CACHE.SetDefault("zap_cpu_info", cpuInfo)
-	}
+		cpuInfo := cpusInfo[0]
+		return cpuInfo
+	})
+
 	var netBytesRecv, netBytesSent, netBytesRecvTotal, netBytesSentTotal uint64 = 0, 0, 0, 0
 	netIOCounters, _ := net.IOCounters(false)
 	if global.NET_IO_COUNTERS != nil {
@@ -105,17 +92,15 @@ func DashBoardStats(c *gin.Context) {
 			"cronjobCount":  crons.CountCrons(uid),
 		},
 		"memory": gin.H{
-			"total":        humanize.IBytes(memory.Total),
-			"used_percent": strconv.FormatFloat(float64(memory.Total-memory.Available)/float64(memory.Total)*100.0, 'f', 2, 64),
-			"free":         humanize.IBytes(memory.Free),
-			"used":         humanize.IBytes(memory.Used),
-			"available":    humanize.IBytes(memory.Available),
-		},
-		"swapmem": gin.H{
-			"total":        humanize.IBytes(swapmem.Total),
-			"used":         humanize.IBytes(swapmem.Used),
-			"free":         humanize.IBytes(swapmem.Free),
-			"used_percent": strconv.FormatFloat(swapmem.UsedPercent, 'f', 2, 64),
+			"total":             humanize.IBytes(memory.Total),
+			"used_percent":      strconv.FormatFloat(float64(memory.Total-memory.Available)/float64(memory.Total)*100.0, 'f', 2, 64),
+			"free":              humanize.IBytes(memory.Free),
+			"used":              humanize.IBytes(memory.Used),
+			"available":         humanize.IBytes(memory.Available),
+			"swap_total":        humanize.IBytes(swapmem.Total),
+			"swap_used":         humanize.IBytes(swapmem.Used),
+			"swap_free":         humanize.IBytes(swapmem.Free),
+			"swap_used_percent": strconv.FormatFloat(swapmem.UsedPercent, 'f', 2, 64),
 		},
 		"load_avg": gin.H{
 			"load1":        st.Load1,
@@ -155,10 +140,12 @@ func DashBoardStats(c *gin.Context) {
 			"fstype":              diskUsage.Fstype,
 			"free":                humanize.Bytes(diskUsage.Free),
 		},
-		"netBytesSent":       netBytesSentTotal,
-		"netBytesRecv":       netBytesRecvTotal,
-		"netBytesSentPerSec": netBytesSent,
-		"netBytesRecvPerSec": netBytesRecv,
+		"net": gin.H{
+			"send_bytes":         netBytesSentTotal,
+			"recv_bytes":         netBytesRecvTotal,
+			"send_bytes_per_sec": netBytesSent,
+			"recv_bytes_per_sec": netBytesRecv,
+		},
 	}
 	diskStat, _ := disk.IOCounters()
 	result["diskIOCounters"] = diskStat
