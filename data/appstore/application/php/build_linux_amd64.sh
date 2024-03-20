@@ -117,6 +117,7 @@ sed -i "s#;listen.allowed_clients = 127.0.0.1#listen.allowed_clients = 127.0.0.1
 
 if command -v systemctl > /dev/null;then
     cp ${ZAP_DATA_PATH}/build/${PHP_DIRNAME}/sapi/fpm/php-fpm.service /etc/systemd/system/php-fpm-${PHP_SHORT_VERSION}.service
+    sed -i "s#^PrivateTmp=true#PrivateTmp=false#g" /etc/systemd/system/php-fpm-${PHP_SHORT_VERSION}.service
 fi
 if command -v chkconfig > /dev/null;then
     cp ${ZAP_DATA_PATH}/build/${PHP_DIRNAME}/sapi/fpm/init.d.php-fpm /etc/init.d/php-fpm-${PHP_SHORT_VERSION}

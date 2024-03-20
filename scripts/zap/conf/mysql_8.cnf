@@ -1,14 +1,14 @@
 [client]
 #password	= your_password
 port		= 3306
-socket		= /tmp/mysql.sock
+socket		= /var/run/mysqld/mysql.sock
 
 [mysqld]
 user		= mysql
 port		= 3306
-socket		= /tmp/mysql.sock
+socket		= /var/run/mysqld/mysql.sock
 
-mysqlx_socket = /tmp/mysqlx.sock
+mysqlx_socket = /var/run/mysqld/mysqlx.sock
 mysqlx_bind_address = 127.0.0.1
 
 pid-file	= mysql.pid

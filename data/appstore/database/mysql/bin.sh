@@ -87,20 +87,20 @@ chown -R mysql:mysql ${INSTALL_DIR}
 #bin/mysql_ssl_rsa_setup
 
 if [[ "${APP_VERSION}" > "8.0.0" ]];then
-    cp -Rf $ZAP_PATH/scripts/zap/mysql_8.cnf /etc/mysql/my.cnf
+    cp -Rf $ZAP_PATH/scripts/zap/conf/mysql_8.cnf /etc/mysql/my.cnf
 else
-    cp -Rf $ZAP_PATH/scripts/zap/mysql_57.cnf /etc/mysql/my.cnf
+    cp -Rf $ZAP_PATH/scripts/zap/conf/mysql_57.cnf /etc/mysql/my.cnf
 fi
 
 cp support-files/mysql.server /etc/init.d/mysql
 chmod +x /etc/init.d/mysql
-
 
 if command -v chkconfig >/dev/null 2>&1;then
     chkconfig --add mysql
     chkconfig mysql on
 fi
 if command -v systemctl >/dev/null 2>&1;then
+    cp -f $ZAP_PATH/scripts/systemd/mysql.service /etc/systemd/system/mysql.service
     systemctl enable mysql.service
     systemctl start mysql.service
 fi
@@ -113,9 +113,15 @@ fi
 
 
 bin/mysqladmin -u root password "${MYSQL_ROOT_PASSWORD}"
-echo "create mysql zapadm user"
-bin/mysql -u root --password="${MYSQL_ROOT_PASSWORD}" -e "GRANT ALL PRIVILEGES ON *.* TO 'zapadm'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';"
-bin/mysql -u root --password="${MYSQL_ROOT_PASSWORD}" -e "FLUSH PRIVILEGES;"
+if [ "$?" != "0" ];then
+    echo "Error setting root password"
+else
+    echo "create mysql zapadm user"
+    bin/mysql -u root --password="${MYSQL_ROOT_PASSWORD}" -e "CREATE USER 'zapadm'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';"
+    bin/mysql -u root --password="${MYSQL_ROOT_PASSWORD}" -e "GRANT ALL PRIVILEGES ON *.* TO 'zapadm'@'localhost' WITH GRANT OPTION;"
+    bin/mysql -u root --password="${MYSQL_ROOT_PASSWORD}" -e "FLUSH PRIVILEGES;"
+fi
+
 
 wzap_conf mysql_u "root"
 wzap_conf mysql_p "${MYSQL_ROOT_PASSWORD}"
@@ -128,7 +134,7 @@ ${ZAPCTL} config set mysql_p "${MYSQL_ROOT_PASSWORD}"
 
 
 COLS_DATA="install_dir=${INSTALL_DIR},\
-expose=unix:/tmp/mysql.sock\ntcp:127.0.0.1\:3306,\
+expose=unix:/var/run/mysqld/mysqld.sock\ntcp:127.0.0.1\:3306,\
 status=active,\
 app_status=stoped,\
 instance=mysql${APP_VERSION},\
