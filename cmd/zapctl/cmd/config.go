@@ -5,8 +5,8 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/magiconair/properties"
 	"github.com/spf13/cobra"
-	"github.com/zapj/go-properties"
 	"github.com/zapj/zap/core/global"
 	"github.com/zapj/zap/core/utils/pathutil"
 )

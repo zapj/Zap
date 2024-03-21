@@ -1,6 +1,6 @@
 package zaputil
 
-import "github.com/zapj/go-properties"
+import "github.com/magiconair/properties"
 
 func NewProperties() *properties.Properties {
 	p := properties.NewProperties()

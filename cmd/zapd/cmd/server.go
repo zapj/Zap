@@ -16,6 +16,8 @@ import (
 	"time"
 
 	"github.com/gin-contrib/gzip"
+	"github.com/gin-contrib/sessions"
+	gormsessions "github.com/gin-contrib/sessions/gorm"
 	"github.com/gin-gonic/gin"
 	"github.com/patrickmn/go-cache"
 	"github.com/sevlyar/go-daemon"
@@ -92,7 +94,9 @@ var serverCmd = &cobra.Command{
 		if global.ZAP_MODE == "DEV" {
 			gin.SetMode(gin.DebugMode)
 		}
+		sessionStore := gormsessions.NewStore(global.DB, true, []byte(global.SERVER_CONF.SigningKey))
 		router := gin.Default()
+		router.Use(sessions.Sessions("ZAPSID", sessionStore))
 		router.Use(gzip.Gzip(gzip.DefaultCompression, gzip.WithExcludedPaths([]string{"/api/"})))
 		assetsFS, _ := fs.Sub(web.ASSETS_FS, "static/assets")
 		router.StaticFS("/assets", http.FS(assetsFS))

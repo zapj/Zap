@@ -6,7 +6,7 @@
     <template #default>
       <el-descriptions title="应用信息" :column="1">
         <el-descriptions-item label="应用名称">{{ app.title }}</el-descriptions-item>
-        <el-descriptions-item label="应用Name">{{ app.name }}</el-descriptions-item>
+        <!-- <el-descriptions-item label="应用Name">{{ app.name }}</el-descriptions-item> -->
 
         <el-descriptions-item label="Tag">
           <el-tag size="small" class="me-2" v-for="(v, i) in app.tags" :key="i">{{ v }}</el-tag>

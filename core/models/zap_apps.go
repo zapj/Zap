@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/zapj/go-properties"
+	"github.com/magiconair/properties"
 	"github.com/zapj/zap/core/base"
 )
 

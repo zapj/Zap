@@ -75,8 +75,9 @@ const login = () => {
       password: form.password
     }
   }).then((data) => {
-    if (data.code === 0 && data.access_token) {
-      sessionStorage.setItem('access_token', data.access_token)
+    if (data.code === 0 ) {
+      //&& data.access_token
+      // sessionStorage.setItem('access_token', data.access_token)
       ElMessage({ message: '登陆成功', type: 'success' })
       router.push('/dashboard')
     }

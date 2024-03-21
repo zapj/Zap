@@ -9,8 +9,8 @@ require (
 	github.com/glebarez/sqlite v1.10.0
 	github.com/go-zoox/fetch v1.8.1
 	github.com/golang-jwt/jwt/v5 v5.2.0
-	github.com/google/go-cmp v0.6.0
 	github.com/gorilla/websocket v1.5.1
+	github.com/magiconair/properties v1.8.7
 	github.com/otiai10/copy v1.14.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/robfig/cron/v3 v3.0.1
@@ -18,30 +18,34 @@ require (
 	github.com/shirou/gopsutil/v3 v3.24.2
 	github.com/soheilhy/cmux v0.1.5
 	github.com/weppos/publicsuffix-go v0.30.1
-	github.com/zapj/go-properties v0.0.0-20240223035915-1ed521940d79
 	github.com/zapj/goutils v0.0.0-20240109034127-b947d54cc8db
-	go4.org/mem v0.0.0-20220726221520-4f986261bf13
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 	gorm.io/gorm v1.25.6
-	tailscale.com v1.60.1
 )
 
 require (
 	github.com/chenzhuoyu/iasm v0.9.1 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
+	github.com/gin-contrib/sessions v0.0.5 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
 	github.com/go-zoox/core-utils v1.3.6 // indirect
 	github.com/go-zoox/headers v1.0.8 // indirect
+	github.com/gorilla/context v1.1.1 // indirect
+	github.com/gorilla/securecookie v1.1.1 // indirect
+	github.com/gorilla/sessions v1.2.1 // indirect
 	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0 // indirect
+	github.com/kr/pretty v0.3.1 // indirect
 	github.com/lufia/plan9stats v0.0.0-20231016141302-07b5767bb0ed // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/power-devops/perfstat v0.0.0-20221212215047-62379fc7944b // indirect
+	github.com/rogpeppe/go-internal v1.11.0 // indirect
 	github.com/shoenig/go-m1cpu v0.1.6 // indirect
 	github.com/tidwall/gjson v1.17.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/tklauser/go-sysconf v0.3.13 // indirect
 	github.com/tklauser/numcpus v0.7.0 // indirect
+	github.com/wader/gormstore/v2 v2.0.0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	golang.org/x/sync v0.6.0 // indirect
 )
@@ -77,7 +81,7 @@ require (
 	golang.org/x/arch v0.7.0 // indirect
 	golang.org/x/crypto v0.18.0
 	golang.org/x/net v0.20.0 // indirect
-	golang.org/x/sys v0.17.0
+	golang.org/x/sys v0.17.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/protobuf v1.32.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1

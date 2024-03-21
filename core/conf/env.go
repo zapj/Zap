@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/zapj/go-properties"
+	"github.com/magiconair/properties"
 	"github.com/zapj/goutils/fileutils"
 	"github.com/zapj/zap/core/base"
 	"github.com/zapj/zap/core/global"

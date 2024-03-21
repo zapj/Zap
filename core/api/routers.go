@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/zapj/zap/core/api/account"
@@ -69,6 +70,7 @@ func RegisterAPIV1Router(c *gin.RouterGroup) {
 	c.GET("/app/appstore/already_install", appstore.ListInstalledApp)
 	c.POST("/app/appstore/uninstall", appstore.UninstallApp)
 	c.POST("/app/appstore/install", appstore.AppInstall)
+	c.POST("/app/appstore/save/settings", appstore.SaveAppSettings)
 
 	//task queue
 	c.GET("/task/appinstall/tasklist", appstore.TaskList)
@@ -98,54 +100,63 @@ func extractBearerToken(header string) (string, error) {
 }
 
 func jwtTokenCheck(c *gin.Context) {
-	// if c.Request.RequestURI == "/api/v1/local/ws" {
-	// 	c.Next()
-	// 	return
-	// }
-	// jwtToken, err := c.Cookie("access_token")
-	// if err != nil {
-	jwtToken, err := extractBearerToken(c.GetHeader("Authorization"))
-	// if err != nil {
-	// 	jwtToken, _ = c.Cookie("access_token")
-	// }
-	// }
-	if token := c.GetHeader("Sec-Websocket-Protocol"); token != "" {
-		slog.Info("sec websocket protocol", "Sec-Websocket-Protocol", c.GetHeader("Sec-Websocket-Protocol"))
-		jwtToken = token
-		err = nil
-	}
-	if err != nil {
-		slog.Info("StatusBadRequest", "err", err.Error())
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"msg":  err.Error(),
-			"code": 1,
-		})
-		return
-	}
+	authorization := c.GetHeader("Authorization")
+	if authorization != "" {
+		jwtToken, err := extractBearerToken(c.GetHeader("Authorization"))
+		if token := c.GetHeader("Sec-Websocket-Protocol"); token != "" {
+			slog.Info("sec websocket protocol", "Sec-Websocket-Protocol", c.GetHeader("Sec-Websocket-Protocol"))
+			jwtToken = token
+			err = nil
+		}
+		if err != nil {
+			slog.Info("StatusBadRequest", "err", err.Error())
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"msg":  err.Error(),
+				"code": 1,
+			})
+			return
+		}
 
-	claims, err := jwtauth.CheckJwtToken(jwtToken)
-	if err != nil && errors.Is(err, jwt.ErrTokenExpired) {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"msg":  "Token 已过期",
-			"code": 1,
-		})
-		return
-	} else if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"msg":  "认证失败" + err.Error(),
-			"code": 1,
-		})
-		return
+		claims, err := jwtauth.CheckJwtToken(jwtToken)
+		if err != nil && errors.Is(err, jwt.ErrTokenExpired) {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"msg":  "Token 已过期",
+				"code": 1,
+			})
+			return
+		} else if err != nil {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"msg":  "认证失败" + err.Error(),
+				"code": 1,
+			})
+			return
+		}
+		ID := claims.ID
+		if ID == "" {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"msg": "jwt invalid", "code": 1})
+			return
+		}
+		c.Set("JWT_ID", claims.ID)
+		c.Set("JWT_USERNAME", claims.Username)
+		c.Set("JWT_TOKEN", jwtToken)
+		c.Next()
+	} else {
+		//cookie
+		session := sessions.Default(c)
+		jwtId := session.Get("JWT_ID")
+		if jwtId == nil {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"msg":  "该请求未授权，请先登录",
+				"code": 1,
+			})
+			return
+		}
+		jwtUsername := session.Get("JWT_USERNAME")
+		session.Set("JWT_ID", jwtId)
+		session.Set("JWT_USERNAME", jwtUsername)
+		session.Set("JWT_TOKEN", "")
+		c.Next()
 	}
-	ID := claims.ID
-	if ID == "" {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"msg": "jwt invalid", "code": 1})
-		return
-	}
-	c.Set("JWT_ID", claims.ID)
-	c.Set("JWT_USERNAME", claims.Username)
-	c.Set("JWT_TOKEN", jwtToken)
-	c.Next()
 }
 
 func accessLogMiddleware(c *gin.Context) {

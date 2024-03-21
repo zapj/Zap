@@ -36,10 +36,10 @@ apiRequest.interceptors.request.use(
       config.headers['Content-Type'] = 'multipart/form-data'
     }
 
-    const access_token = sessionStorage.getItem('access_token')
-    if (access_token) {
-      config.headers['Authorization'] = 'Bearer ' + access_token
-    }
+    // const access_token = sessionStorage.getItem('access_token')
+    // if (access_token) {
+    //   config.headers['Authorization'] = 'Bearer ' + access_token
+    // }
     return config
   },
   function (error) {
@@ -106,7 +106,7 @@ apiRequest.interceptors.response.use(
           message: '登录信息过期，请重新登录'
         })
         // 清除token
-        sessionStorage.removeItem('access_token')
+        // sessionStorage.removeItem('access_token')
         setTimeout(() => {
           router.replace({
             path: '/login',

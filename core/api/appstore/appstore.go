@@ -8,6 +8,7 @@ import (
 	"github.com/zapj/zap/core/global"
 	"github.com/zapj/zap/core/models"
 	"github.com/zapj/zap/core/sysapi/process"
+	"github.com/zapj/zap/core/utils/propsutil"
 	"github.com/zapj/zap/core/workflows"
 	"github.com/zapj/zap/core/zapi"
 )
@@ -113,4 +114,23 @@ func AppInstall(c *gin.Context) {
 	})
 
 	c.Data(resp.Status, gin.MIMEJSON, resp.Data)
+}
+
+func SaveAppSettings(c *gin.Context) {
+	id := c.PostForm("id")
+	app := models.ZapApps{}
+	if err := global.DB.First(&app, id).Error; err != nil {
+		c.JSON(200, commons.Error(1, "应用不存在", nil))
+		return
+	}
+	app.PidFile = c.PostForm("pid_file")
+	app.ConfigFile = c.PostForm("config_file")
+	app.Expose = propsutil.FmtString(c.PostForm("expose"))
+	app.Settings = propsutil.FmtString(c.PostForm("settings"))
+
+	if err := global.DB.Save(&app).Error; err != nil {
+		c.JSON(200, commons.Error(1, "保存失败", nil))
+		return
+	}
+	c.JSON(200, commons.Success("保存成功"))
 }

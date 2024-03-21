@@ -81,7 +81,8 @@ const handleClose = () => {
 }
 const getAppList = () => {
   apiRequest({
-    url: '/v1/task/appinstall/tasklist'
+    url: '/v1/task/appinstall/tasklist',
+    loading:false
   }).then((resp) => {
     tbDataRef.value = resp.data
   })

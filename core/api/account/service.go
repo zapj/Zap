@@ -3,7 +3,7 @@ package account
 import (
 	"fmt"
 
-	"github.com/zapj/go-properties"
+	"github.com/magiconair/properties"
 	"github.com/zapj/zap/core/base"
 	"github.com/zapj/zap/core/global"
 	"github.com/zapj/zap/core/models"

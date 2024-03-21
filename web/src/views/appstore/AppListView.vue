@@ -66,9 +66,15 @@ onMounted(() => {
 
 const getAppList = () => {
   apiRequest({
-    url: '/v1/app/appstore'
+    url: '/v1/app/appstore',
+    loading:false
   }).then((resp) => {
-    appListRef.value = resp.data
+    if (resp.code !== 0){
+      ElMessage.error(resp.msg)
+      return
+    }else{
+      appListRef.value = resp.data
+    }
   })
 }
 function confirmInstallApp(i, actionName) {

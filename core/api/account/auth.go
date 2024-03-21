@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/zapj/zap/core/auth/jwtauth"
 	"github.com/zapj/zap/core/global"
@@ -18,6 +19,7 @@ type refreshTokenReqBody struct {
 type loginReqBody struct {
 	Username string `json:"username"`
 	Passowrd string `json:"password"`
+	AuthType string `json:"auth_type"`
 }
 
 func LoginAuthHandler(c *gin.Context) {
@@ -38,14 +40,23 @@ func LoginAuthHandler(c *gin.Context) {
 		c.JSON(200, gin.H{"code": 1, "msg": "用户名或密码不正确"})
 		return
 	}
-	access_token, err := jwtauth.GenerateAccessToken(fmt.Sprint(user.ID), user.Username)
-	if err != nil {
-		c.JSON(200, gin.H{"code": 1, "msg": "生成Token 失败", "err": err.Error()})
-		return
+	if userForm.AuthType == "jwt" {
+		access_token, err := jwtauth.GenerateAccessToken(fmt.Sprint(user.ID), user.Username)
+		if err != nil {
+			c.JSON(200, gin.H{"code": 1, "msg": "生成Token 失败", "err": err.Error()})
+			return
+		}
+
+		// c.SetCookie("access_token", access_token, 3600, "/", "", false, true)
+		c.JSON(200, gin.H{"code": 0, "msg": "Authorization successful", "access_token": access_token})
+	} else {
+		session := sessions.Default(c)
+		session.Set("JWT_ID", user.ID)
+		session.Set("JWT_USERNAME", user.Username)
+		session.Save()
+		c.JSON(200, gin.H{"code": 0, "msg": "Authorization successful"})
 	}
 
-	// c.SetCookie("access_token", access_token, 3600, "/", "", false, true)
-	c.JSON(200, gin.H{"code": 0, "msg": "Authorization successful", "access_token": access_token})
 }
 
 func LogoutAuthHandler(c *gin.Context) {

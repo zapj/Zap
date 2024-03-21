@@ -1,11 +1,11 @@
 package global
 
 import (
+	"github.com/magiconair/properties"
 	"github.com/patrickmn/go-cache"
 	"github.com/robfig/cron/v3"
 	"github.com/shirou/gopsutil/v3/cpu"
 	"github.com/shirou/gopsutil/v3/net"
-	"github.com/zapj/go-properties"
 	"github.com/zapj/zap/core/base"
 	"gorm.io/gorm"
 )

@@ -1,9 +1,11 @@
 package propsutil
 
 import (
+	"bytes"
+	"io"
 	"os"
 
-	"github.com/zapj/go-properties"
+	"github.com/magiconair/properties"
 )
 
 func MapToString(data map[string]any) string {
@@ -33,6 +35,20 @@ func NewPropertiesFromMap(kv any) *properties.Properties {
 	return p
 }
 
+func NewPropertiesFromString(v string) *properties.Properties {
+	p := properties.NewProperties()
+	p.WriteSeparator = "="
+	p.Load([]byte(v), properties.UTF8)
+	return p
+}
+
+func NewPropertiesFromBytes(v []byte) *properties.Properties {
+	p := properties.NewProperties()
+	p.WriteSeparator = "="
+	p.Load(v, properties.UTF8)
+	return p
+}
+
 func WriteMapToFile(kv any, path string) error {
 	p := NewPropertiesFromMap(kv)
 	f, err := os.Create(path)
@@ -52,4 +68,13 @@ func WritePropertiesToFile(p *properties.Properties, path string) error {
 	defer f.Close()
 	_, err = p.Write(f, properties.UTF8)
 	return err
+}
+
+func FmtString(v string) string {
+	p := NewPropertiesFromString(v)
+	var buf bytes.Buffer
+	// b := bufio.NewWriter(&buf)
+	p.Write(io.Writer(&buf), properties.UTF8)
+	// b.Flush()
+	return buf.String()
 }

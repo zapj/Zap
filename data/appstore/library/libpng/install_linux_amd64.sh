@@ -45,12 +45,12 @@ ln -sf ${INSTALL_PATH}/lib/pkgconfig/libpng16.pc /usr/local/lib/pkgconfig/libpng
 
 
 COLS_DATA="install_dir=${INSTALL_PATH},\
-expose=none,\
+expose=,\
 status=active,\
-app_status=stoped,\
+app_status=,\
 instance=libpng${S_VERSION},\
-pid_file=none,\
-config_file=none"
+pid_file=,\
+config_file=${INSTALL_PATH}/lib/pkgconfig"
 ${ZAPCTL} table apps -d "${COLS_DATA}" -w "id=${APP_ID}"
 echo "libpng ${APP_VERSION} installing successful"
 
