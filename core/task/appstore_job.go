@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"reflect"
 	"runtime"
 	"strings"
 
@@ -17,6 +18,7 @@ import (
 	"github.com/zapj/zap/core/models"
 	"github.com/zapj/zap/core/utils/jsonutil"
 	"github.com/zapj/zap/core/utils/pathutil"
+	"github.com/zapj/zap/core/utils/propsutil"
 )
 
 type AppStoreJob struct {
@@ -45,21 +47,19 @@ func (b *AppStoreJob) Execute() (err error) {
 	b.AppId = cmdMap.GetInt("app_id")
 	b.AppStoreUniqueId = cmdMap.GetString("appstore_unique_id")
 	b.AppStoreId = cmdMap.GetInt("appstore_id")
-	action := cmdMap.GetString("action")
+	action := cmdMap.GetString("action", "install")
 	version := cmdMap.GetString("app_version")
-	if action == "" {
-		action = "install"
-	}
+
 	appstore := models.ZapAppStore{}
 	result := global.DB.First(&appstore, "id = ? ", b.AppStoreId)
 	if result.RowsAffected < 1 {
-		return fmt.Errorf("App_ID : %d 不存在 ", b.AppStoreId)
+		return fmt.Errorf("AppStore_ID : %d 不存在 ", b.AppStoreId)
 	}
 
 	app := models.ZapApps{}
 	result = global.DB.First(&app, "id = ?", b.AppId)
 	if result.RowsAffected < 1 {
-		return fmt.Errorf("AppStore_ID : %d 不存在 ", appstore.Id)
+		return fmt.Errorf("App_ID : %d 不存在 ", b.AppId)
 	}
 
 	if !fileutils.IsDir(pathutil.GetPath("data/pkg")) {
@@ -68,9 +68,6 @@ func (b *AppStoreJob) Execute() (err error) {
 	if !fileutils.IsDir(pathutil.GetPath("data/build")) {
 		os.MkdirAll(pathutil.GetPath("data/build"), 0755)
 	}
-
-	// options := jsonutil.DecodeToZapMap(appstore.Options)
-	// actionOptions := options.GetZapMap(action)
 
 	// appstore script path
 	appStoreScriptPath := path.Join(pathutil.GetPath("data/appstore"), appstore.Category, appstore.Name)
@@ -93,6 +90,16 @@ func (b *AppStoreJob) Execute() (err error) {
 		return fmt.Errorf("scriptFile not found %s", scriptName)
 	}
 
+	options := jsonutil.DecodeToZapMap(appstore.Options)
+	optionsProps := propsutil.NewProperties()
+	for k, v := range options {
+		if reflect.TypeOf(v).Kind() == reflect.Map {
+			propsutil.WriteMapToFile(v, path.Join(appInstallScriptDir, k+".conf"))
+		} else {
+			optionsProps.SetValue(k, v)
+		}
+	}
+	propsutil.WritePropertiesToFile(optionsProps, path.Join(appInstallScriptDir, "options.conf"))
 	// if !strings.HasPrefix(b.TaskData.TargetDir, global.ZAP_BASE_DIR) {
 	// 	return fmt.Errorf("target dir is not allowed %s", b.TaskData.TargetDir)
 	// }
@@ -133,7 +140,7 @@ func (b *AppStoreJob) Execute() (err error) {
 		// "ZAP_BASE_DIR=" + global.ZAP_BASE_DIR,
 		"ZAP_DATA_PATH=" + pathutil.GetPath("data"),
 		"APPSTORE_PATH=" + appStoreScriptPath,
-		"USERSCRIPT_PATH=" + appStoreScriptPath,
+		"USERSCRIPT_PATH=" + appInstallScriptDir,
 		"APP_PATH=" + fmt.Sprintf("%s/%s-%s.%s", global.APPS_DIR, app.Name, majorVersion, minorVersion),
 		"SCRIPT_PATH=" + scriptFile,
 		"APPS_DIR=" + global.APPS_DIR,
@@ -175,6 +182,7 @@ func (b *AppStoreJob) Execute() (err error) {
 		// return errors.Join(err, errors.New(errBuffer.String()))
 		return err
 	}
+	global.DB.First(&app, "id = ?", b.AppId)
 	app.Status = global.APP_STATUS_ACTIVE
 	global.DB.Save(&app)
 	return nil

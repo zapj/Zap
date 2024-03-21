@@ -17,23 +17,33 @@ func (z ZapMap) Get(key string) (any, bool) {
 	return v, ok
 }
 
-func (z ZapMap) GetString(key string) string {
+func (z ZapMap) GetString(key string, def ...string) string {
+	_def := ""
+	var ret string
+	if len(def) > 0 {
+		_def = def[0]
+	}
 	if _, ok := z[key]; !ok {
-		return ""
+		return _def
 	}
 	switch z[key].(type) {
 	case string:
-		return z[key].(string)
+		ret = z[key].(string)
 	case int:
-		return strconv.Itoa(z[key].(int))
+		ret = strconv.Itoa(z[key].(int))
 	case int64:
-		return strconv.FormatInt(z[key].(int64), 10)
+		ret = strconv.FormatInt(z[key].(int64), 10)
 	case float64:
-		return strconv.FormatFloat(z[key].(float64), 'f', -1, 64)
+		ret = strconv.FormatFloat(z[key].(float64), 'f', -1, 64)
 	case nil:
-		return ""
+		return _def
+	default:
+		ret = z[key].(string)
 	}
-	return z[key].(string)
+	if ret == "" {
+		return _def
+	}
+	return ret
 }
 
 func (z ZapMap) GetInt(key string) int {

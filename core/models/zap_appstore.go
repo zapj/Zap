@@ -53,3 +53,7 @@ func (a *ZapAppStore) AfterFind(tx *gorm.DB) (err error) {
 	}
 	return nil
 }
+
+func (a *ZapAppStore) TableName() string {
+	return "zap_app_stores"
+}

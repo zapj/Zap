@@ -10,3 +10,6 @@ dependencies:
   openssl: 1.1.1w 
 actions:
   build: 编译安装
+options:
+  with:
+    enable-shmop:

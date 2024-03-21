@@ -124,6 +124,14 @@ has_git() {
 	return 0
 }
 
+function getPropsValue {
+   local properties_file key value
+   properties_file="$1"
+   key="$2"
+   value=$(cat $properties_file | grep ^\\\s*${key}= | cut -d "=" -f 2-)
+   printf "%s" "$value"
+}
+
 
 wzap_conf() {
   if [ ! -f "/root/zap.conf" ];then
