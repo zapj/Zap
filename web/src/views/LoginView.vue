@@ -75,11 +75,14 @@ const login = () => {
       password: form.password
     }
   }).then((data) => {
+    console.log(data);
     if (data.code === 0 ) {
       //&& data.access_token
       // sessionStorage.setItem('access_token', data.access_token)
       ElMessage({ message: '登陆成功', type: 'success' })
       router.push('/dashboard')
+    }else{
+      ElMessage({message:"登录失败",type:'error'})
     }
   })
 }

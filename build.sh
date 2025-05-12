@@ -85,6 +85,7 @@ then
     GO111MODULE=on CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="${LD_FLAGS_STRING}" -trimpath cmd/zapd/zapd.go
 else
     echo "Current Version: ${VERSION}"
+    echo "Build zapd"
     go build -ldflags="${LD_FLAGS_STRING}" cmd/zapctl/zapctl.go
     go build -ldflags="${LD_FLAGS_STRING}" cmd/zapd/zapd.go
 fi
@@ -92,6 +93,7 @@ echo "Build Success"
 
 if [ "$1" = "run" ]
 then
+    echo "Start zapd master"
     sudo ZAP_MODE=DEV ./zapd master
 elif [ "$1" = "build" ]
 then

@@ -54,7 +54,6 @@ func (w *WebSiteService) CreateWebsite(req webSiteRequest) error {
 			}
 		}
 	}
-	slog.Info("appInfo", "info", appInfo)
 	website.Application = appInfo.Name
 	website.ApplicationVersion = appInfo.Version
 	// global.DB.Model(&models.ZapWebSite{}).Create(&website)

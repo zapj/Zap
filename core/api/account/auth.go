@@ -25,7 +25,6 @@ type loginReqBody struct {
 func LoginAuthHandler(c *gin.Context) {
 	userForm := loginReqBody{}
 	c.BindJSON(&userForm)
-
 	if userForm.Username == "" || userForm.Passowrd == "" {
 		c.JSON(200, gin.H{"code": 1, "msg": "登陆失败, 用户名或密码不正确"})
 		return
@@ -36,6 +35,7 @@ func LoginAuthHandler(c *gin.Context) {
 		c.JSON(200, gin.H{"code": 1, "msg": "用户名或密码不正确"})
 		return
 	}
+	// slog.Error("userForm.Passowrd, user.Password", "userform", userForm.Passowrd, "userPassword", user.Password)
 	if !zaputil.CheckPasswordHash(userForm.Passowrd, user.Password) {
 		c.JSON(200, gin.H{"code": 1, "msg": "用户名或密码不正确"})
 		return

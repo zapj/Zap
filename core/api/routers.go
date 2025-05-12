@@ -152,9 +152,9 @@ func jwtTokenCheck(c *gin.Context) {
 			return
 		}
 		jwtUsername := session.Get("JWT_USERNAME")
-		session.Set("JWT_ID", jwtId)
-		session.Set("JWT_USERNAME", jwtUsername)
-		session.Set("JWT_TOKEN", "")
+		c.Set("JWT_ID", jwtId)
+		c.Set("JWT_USERNAME", jwtUsername)
+		c.Set("JWT_TOKEN", "")
 		c.Next()
 	}
 }

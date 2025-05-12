@@ -42,7 +42,6 @@ func WebSiteSettings(c *gin.Context) {
 
 func CreateWebsite(c *gin.Context) {
 	service := NewWebSiteService(c.GetString("JWT_USERNAME"), zaputil.MustConvertStringToUint(c.GetString("JWT_ID")))
-
 	var websiteReq webSiteRequest
 
 	if err := c.ShouldBind(&websiteReq); err != nil {

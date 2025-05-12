@@ -1,0 +1,1 @@
+import{e as s}from"./runtime-e5f589df.js";import{L as o,c as t,e as r}from"./index-4558e22a.js";const a=["","default","small","large"],u=s({type:String,values:a,required:!1}),i=Symbol("size"),l=()=>{const e=o(i,{});return t(()=>r(e.size)||"")};export{i as S,l as a,a as c,u};

@@ -59,7 +59,7 @@ func StartTaskScheduler() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
-		slog.Info("Server forced to shutdown: %s \n", err)
+		slog.Info("Server forced to shutdown: %s \n", "err", err)
 	}
 
 	slog.Info("Server exiting")

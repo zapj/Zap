@@ -84,12 +84,13 @@ const router = createRouter({
   ]
 })
 router.beforeEach((to, from, next) => {
-  const access_token = sessionStorage.getItem('access_token')
-  if (to.meta.requiresAuth && !access_token) {
-    next('/login')
-  } else {
-    next()
-  }
+  // const access_token = sessionStorage.getItem('access_token')
+  // if (to.meta.requiresAuth && !access_token) {
+  //   next('/login')
+  // } else {
+  //   next()
+  // }
+  next()
   NProgress.start()
 })
 

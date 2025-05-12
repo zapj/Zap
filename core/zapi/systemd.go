@@ -1,6 +1,8 @@
 package zapi
 
 import (
+	"log/slog"
+
 	"github.com/go-zoox/fetch"
 )
 
@@ -11,6 +13,7 @@ func (z *Zapi) Systemctl(action string, name string) *Response {
 			"name":   name,
 		},
 	})
+	slog.Error("zapi", "err", err, "resp", resp)
 	if err != nil {
 		return NewResponseError(500, err.Error())
 	}
